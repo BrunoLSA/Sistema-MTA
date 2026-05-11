@@ -1064,14 +1064,33 @@ function confirmarEnvio(){
   // Persist approved vals so Linhas reflects the approved state on next load
   try{
     const approved=JSON.parse(localStorage.getItem('mta_approved_vals')||'{}');
+    const newRows=JSON.parse(localStorage.getItem('mta_approved_newrows')||'{}');
     Object.entries(pkg.decisions).forEach(([idx,dec])=>{
       if(dec!=='aprov') return;
       const c=pkg.changes[parseInt(idx)];
       if(!c||!c.newVals) return;
-      if(!approved[c.ord]) approved[c.ord]={};
-      Object.assign(approved[c.ord],c.newVals);
+      if(c.tipo==='new'){
+        // Build complete row so Linhas can insert it
+        const parent=(ALL_ROWS[pkg.parque]||[]).find(r=>r.ord===c.maOrd)||{};
+        const cleanOrd=c.ord.replace('*','');
+        newRows[cleanOrd]={
+          ord:cleanOrd,aprovado:'SIM',acao:c.newVals.acao||parent.acao||'',
+          prio:'',tramite:'',datasolic:'',nropeddirmab:'',datapeddirmab:'',digito:'',
+          mta:pkg.parque,pacote:c.newVals.pacote||parent.pacote||'',
+          uge:parent.uge||'',omorigem:pkg.parque,ombenef:parent.uge||'',pi:'',
+          proj:c.proj,ativ:c.ativ,tar:c.tar,cat:'—',paramotores:'',
+          paracontrato:'',matricula:'',ed:parent.ed||'',
+          moeda:parent.moeda||'BRL',
+          valormoeda:c.newVals.valor||0,valor:c.newVals.valor||0,
+          mesdesc:'',mesliq:'',obs:'',sub:true,maOrd:c.maOrd
+        };
+      } else {
+        if(!approved[c.ord]) approved[c.ord]={};
+        Object.assign(approved[c.ord],c.newVals);
+      }
     });
     localStorage.setItem('mta_approved_vals',JSON.stringify(approved));
+    localStorage.setItem('mta_approved_newrows',JSON.stringify(newRows));
   }catch(e){}
 
   if(allDecided){

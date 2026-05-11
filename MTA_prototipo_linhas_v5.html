@@ -486,6 +486,12 @@ function applyApprovedVals(){
   try{
     const approved=JSON.parse(localStorage.getItem('mta_approved_vals')||'{}');
     ROWS.forEach(r=>{if(approved[r.ord])Object.assign(r,approved[r.ord]);});
+    const newRows=JSON.parse(localStorage.getItem('mta_approved_newrows')||'{}');
+    Object.values(newRows).forEach(nr=>{
+      if(ROWS.find(r=>r.ord===nr.ord))return;
+      const pi=ROWS.findIndex(r=>r.ord===nr.maOrd);
+      if(pi>=0)ROWS.splice(pi+1,0,nr);else ROWS.push(nr);
+    });
   }catch(e){}
 }
 function loadSubmittedPend(){
