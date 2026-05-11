@@ -488,7 +488,6 @@ const PKGS_RAW = [
     desc:'Alterações complexas F-39 — Aprovado, Pacote e AO simultâneos',
     changes:[
       {
-        // Cenário 1: Aprovado SIM→NÃO — deve DIMINUIR Pacote A e AO 2048 do total aprovado
         ord:'100080', tipo:'alt', proj:'F-39', ativ:'Contrato reparáveis F-39', tar:'Reparo sob demanda 1/4',
         diffs:[
           {campo:'Aprovado', de:'SIM', para:'NÃO'},
@@ -497,7 +496,6 @@ const PKGS_RAW = [
         newVals:{aprovado:'NÃO'}
       },
       {
-        // Cenário 2: Pacote A→B e AO 2048→21E7 — deve mover valor: sai do Pacote A/2048, entra no Pacote B/21E7
         ord:'100060', tipo:'alt', proj:'F-39', ativ:'CAD-PAD F-39', tar:'Catálogo técnico F-39',
         diffs:[
           {campo:'Pacote', de:'A', para:'B'},
@@ -507,7 +505,6 @@ const PKGS_RAW = [
         newVals:{pacote:'B', acao:'21E7'}
       },
       {
-        // Cenário 3: Valor total alterado em linha já APROVADA SIM — impacta Pacote A e AO 21E7
         ord:'100240', tipo:'alt', proj:'F-39', ativ:'CNT 006/CABE-PAMBRJ/2021 - IRIS-T', tar:'Míssil IRIS-T 1/3',
         diffs:[
           {campo:'Valor Total', de:'R$ 16.175.390', para:'R$ 17.250.000'},
