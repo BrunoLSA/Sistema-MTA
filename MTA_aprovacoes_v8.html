@@ -542,6 +542,11 @@ function loadPkgState(){
         }
       });
     }
+    // Re-sort so user-submitted packages join their parque group
+    PKGS.sort((a,b)=>{
+      if(a.parque<b.parque) return -1; if(a.parque>b.parque) return 1;
+      return (TIPO_ORDER[a.tipo]||99)-(TIPO_ORDER[b.tipo]||99);
+    });
   }catch(e){}
 }
 loadPkgState();
@@ -1059,6 +1064,18 @@ function confirmarEnvio(){
     // apply each newVal field
     Object.entries(c.newVals).forEach(([k,v])=>{rowArr[rowIdx][k]=v;});
   });
+  // Persist approved vals so Linhas reflects the approved state on next load
+  try{
+    const approved=JSON.parse(localStorage.getItem('mta_approved_vals')||'{}');
+    Object.entries(pkg.decisions).forEach(([idx,dec])=>{
+      if(dec!=='aprov') return;
+      const c=pkg.changes[parseInt(idx)];
+      if(!c||!c.newVals) return;
+      if(!approved[c.ord]) approved[c.ord]={};
+      Object.assign(approved[c.ord],c.newVals);
+    });
+    localStorage.setItem('mta_approved_vals',JSON.stringify(approved));
+  }catch(e){}
 
   if(allDecided){
     PKGS=PKGS.filter(p=>p.id!==currentId);
