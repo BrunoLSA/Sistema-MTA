@@ -281,8 +281,8 @@ table.mta tbody tr.ret-row td{background:rgba(248,113,113,.07)!important}
           <div class="diff-hrow">
             <div><div class="diff-title" id="dh-title">—</div><div class="diff-sub" id="dh-sub">—</div></div>
             <div class="diff-acts">
-              <button class="btn btn-sm btn-gr" onclick="aprovTudo()">✓ Aprovar tudo</button>
-              <button class="btn btn-sm btn-rd" onclick="retTudo()">✗ Retornar tudo</button>
+              <button class="btn btn-sm btn-gr" onclick="aprovTudo()">&#10003; Aprovar tudo</button>
+              <button class="btn btn-sm btn-rd" onclick="retTudo()">&#10007; Retornar tudo</button>
             </div>
           </div>
           <!-- impact cards -->
@@ -316,7 +316,7 @@ table.mta tbody tr.ret-row td{background:rgba(248,113,113,.07)!important}
       <div class="ps">Todas as decisões registradas neste MTA</div>
     </div>
     <div class="tbr">
-      <button class="btn" onclick="showScreen('aprovacoes')">← Voltar às aprovações</button>
+      <button class="btn" onclick="showScreen('aprovacoes')">&#8592; Voltar às aprovações</button>
     </div>
   </div>
   <div style="padding:10px 18px;border-bottom:1px solid var(--bd);background:var(--n2);flex-shrink:0">
@@ -333,7 +333,7 @@ table.mta tbody tr.ret-row td{background:rgba(248,113,113,.07)!important}
       <div class="ps">Todas as decisões registradas neste MTA</div>
     </div>
     <div class="tbr">
-      <button class="btn" onclick="showScreen('aprovacoes')">← Voltar às aprovações</button>
+      <button class="btn" onclick="showScreen('aprovacoes')">&#8592; Voltar às aprovações</button>
     </div>
   </div>
   <div style="padding:10px 18px;border-bottom:1px solid var(--bd);background:var(--n2);flex-shrink:0">
@@ -1028,10 +1028,12 @@ function enviarDecisao(){
 function confirmarEnvio(){
   closeModal('conf-modal');
   const pkg=currentPkg(); if(!pkg) return;
+  const pkgId=pkg.id;
   const nAprov=Object.values(pkg.decisions).filter(d=>d==='aprov').length;
   const nRet=Object.values(pkg.decisions).filter(d=>d==='ret').length;
   const n=pkg.changes.length;
   const allDecided=nAprov+nRet===n;
+  const undecidedChanges=pkg.changes.filter((_,i)=>!pkg.decisions[i]);
 
   // Save to history
   HIST.push({
@@ -1062,13 +1064,19 @@ function confirmarEnvio(){
     PKGS=PKGS.filter(p=>p.id!==currentId);
     currentId=null;
   } else {
-    // remove decided changes; keep only undecided ones
-    const undecidedChanges=pkg.changes.filter((_,i)=>!pkg.decisions[i]);
     pkg.changes=undecidedChanges;
     pkg.status='parcial';
   }
 
   pkg.decisions={};pkg.retMotivos={};
+
+  // Sync mta_pkgs_userdata so Linhas reflects the updated decision state
+  try{
+    const ud=JSON.parse(localStorage.getItem('mta_pkgs_userdata')||'{}');
+    if(allDecided){delete ud[pkgId];}
+    else if(ud[pkgId]){ud[pkgId].changes=undecidedChanges;}
+    localStorage.setItem('mta_pkgs_userdata',JSON.stringify(ud));
+  }catch(e){}
 
   const sub=nAprov&&nRet?`${nAprov} aprovada${nAprov>1?'s':''}, ${nRet} devolvida${nRet>1?'s':''}. O Parque foi notificado.`
     :nAprov?`${nAprov} linha${nAprov>1?'s':''} aprovada${nAprov>1?'s':''}. O Parque foi notificado.`
