@@ -544,7 +544,7 @@ function render(){
     const firstBg=hp?'background:#2b3e14':'background:var(--n2)';
     const rowLocked=!!(pendSubmitted[row.ord]&&Object.keys(pendSubmitted[row.ord]).length);
     const lockedTitle=rowLocked?' title="Aguardando aprovação DIRMAB — edição bloqueada"':'';
-    return`<tr class="${hp?'pd':''} ${rowLocked?'locked':''}">`+vcs.map(c=>{
+    return`<tr class="${hp?'pd':''} ${rowLocked?'locked':''}">` +vcs.map(c=>{
       const raw=cv(row,c.k);
       const modPend=!!(pend[row.ord]&&pend[row.ord][c.k]!==undefined);
       const modSub=!!(pendSubmitted[row.ord]&&pendSubmitted[row.ord][c.k]!==undefined);
