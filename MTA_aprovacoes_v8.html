@@ -811,8 +811,9 @@ function renderMtaTable(){
       displayRows.push({
         ord:c.ord, aprovado:'SIM', acao:c.newVals.acao||r.acao, tramite:'',
         digito:'', pacote:c.newVals.pacote||r.pacote, uge:r.uge,
-        proj:c.proj, ativ:c.ativ, tar:c.tar, cat:'—', moeda:r.moeda,
-        valor:c.newVals.valor||0, mesdesc:'—',
+        proj:c.proj, ativ:c.ativ, tar:c.tar,
+        cat:c.newVals.cat||'—', moeda:c.newVals.moeda||r.moeda,
+        valor:c.newVals.valor||0, mesdesc:c.newVals.mesdesc||'—',
         isNew:true, isMae:false, changeIdx:pkg.changes.findIndex(cc=>cc.ord===c.ord)
       });
     });
@@ -1066,8 +1067,9 @@ function confirmarEnvio(){
         const parent=rowArr[pi>=0?pi:0]||{};
         const nr={ord:cleanOrd,aprovado:'SIM',acao:c.newVals.acao||parent.acao||'',
           tramite:'',digito:'',pacote:c.newVals.pacote||parent.pacote||'',
-          uge:parent.uge||'',proj:c.proj,ativ:c.ativ,tar:c.tar,cat:'—',
-          moeda:parent.moeda||'BRL',valor:c.newVals.valor||0,mesdesc:'—'};
+          uge:parent.uge||'',proj:c.proj,ativ:c.ativ,tar:c.tar,
+          cat:c.newVals.cat||'—',moeda:c.newVals.moeda||parent.moeda||'BRL',
+          valor:c.newVals.valor||0,mesdesc:c.newVals.mesdesc||'—'};
         if(pi>=0)rowArr.splice(pi+1,0,nr);else rowArr.push(nr);
       }
       return;
@@ -1091,11 +1093,13 @@ function confirmarEnvio(){
           prio:'',tramite:'',datasolic:'',nropeddirmab:'',datapeddirmab:'',digito:'',
           mta:pkg.parque,pacote:c.newVals.pacote||parent.pacote||'',
           uge:parent.uge||'',omorigem:pkg.parque,ombenef:parent.uge||'',pi:'',
-          proj:c.proj,ativ:c.ativ,tar:c.tar,cat:'—',paramotores:'',
+          proj:c.proj,ativ:c.ativ,tar:c.tar,cat:c.newVals.cat||'—',paramotores:'',
           paracontrato:'',matricula:'',ed:parent.ed||'',
-          moeda:parent.moeda||'BRL',
-          valormoeda:c.newVals.valor||0,valor:c.newVals.valor||0,
-          mesdesc:'',mesliq:'',obs:'',sub:true,maOrd:c.maOrd
+          moeda:c.newVals.moeda||parent.moeda||'BRL',
+          valormoeda:c.newVals.valormoeda||c.newVals.valor||0,
+          valor:c.newVals.valor||0,
+          mesdesc:c.newVals.mesdesc||'',mesliq:c.newVals.mesliq||'',
+          obs:c.newVals.obs||'',sub:true,maOrd:c.maOrd
         };
       } else {
         if(!approved[c.ord]) approved[c.ord]={};

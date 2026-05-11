@@ -270,6 +270,14 @@ td:first-child{padding:0;min-width:110px}
 .dp-today-btn:hover{text-decoration:underline}
 .dp-clear{font-size:11px;color:var(--t3);cursor:pointer;padding:2px 6px;border:1px solid var(--bd);border-radius:var(--r);background:transparent;font-family:var(--fn)}
 .dp-clear:hover{color:var(--rd);border-color:rgba(248,113,113,.4)}
+/* NOVA LINHA FORM */
+.nl-lbl{font-size:10px;font-weight:600;color:var(--t3);letter-spacing:.4px;text-transform:uppercase;margin-bottom:4px}
+.nl-inp{width:100%;background:var(--n3);border:1px solid var(--b2);border-radius:var(--r);padding:5px 8px;font-size:12px;color:var(--t2);font-family:var(--fn);outline:none}
+.nl-inp:focus{border-color:var(--ac);color:var(--tx)}
+.nl-inp.err{border-color:var(--rd)!important}
+.nl-sel{width:100%;background:var(--n3);border:1px solid var(--b2);border-radius:var(--r);padding:5px 8px;font-size:12px;color:var(--t2);font-family:var(--fn);outline:none;cursor:pointer;appearance:none;-webkit-appearance:none}
+.nl-sel:focus{border-color:var(--ac)}
+.nl-sel.err{border-color:var(--rd)!important}
 </style>
 </head>
 <body>
@@ -305,7 +313,7 @@ td:first-child{padding:0;min-width:110px}
       <button class="btn" onclick="openSM()"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M4 8h8M6 12h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg> Ordenar</button>
       <button class="btn" onclick="openCP()"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><rect x="1" y="2" width="14" height="2.5" rx="1" fill="currentColor"/><rect x="1" y="6.75" width="10" height="2.5" rx="1" fill="currentColor"/><rect x="1" y="11.5" width="12" height="2.5" rx="1" fill="currentColor"/></svg> Configurar colunas</button>
       <button class="btn"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M4 12h8M8 3v7M5 7l3 3 3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg> Exportar</button>
-      <button class="btn btn-p"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg> Nova linha</button>
+      <button class="btn btn-p" onclick="openNL()"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg> Nova linha</button>
     </div>
   </div>
   <div class="bars">
@@ -387,6 +395,38 @@ td:first-child{padding:0;min-width:110px}
       <button class="btn btn-p" onclick="document.getElementById('subm').classList.remove('open')" style="width:100%;justify-content:center">Fechar e continuar editando</button>
       <button class="btn" onclick="document.getElementById('subm').classList.remove('open');location.href='MTA_aprovacoes_v8.html'" style="width:100%;justify-content:center;font-size:11px;color:var(--t2)">Ver em Aprovações ↗</button>
     </div>
+  </div>
+</div>
+
+<!-- NOVA LINHA MODAL -->
+<div class="mov" id="nlm">
+  <div class="modal" style="width:560px">
+    <div class="mh"><div><h3>Nova linha</h3><div class="mh-sub">Preencha os campos — a inserção passará por aprovação DIRMAB</div></div><span class="mcl" onclick="closeNL()">×</span></div>
+    <div class="mb" style="display:grid;grid-template-columns:1fr 1fr;gap:8px 14px">
+      <div style="grid-column:1/-1">
+        <div class="nl-lbl">Inserir após (linha mãe) <span style="color:var(--rd)">*</span></div>
+        <select id="nl-mae" class="nl-sel" onchange="nlMaeChange()"><option value="">— Selecione a linha mãe —</option></select>
+      </div>
+      <div><div class="nl-lbl">Projeto</div><input id="nl-proj" class="nl-inp" placeholder="ex: KC-390"/></div>
+      <div><div class="nl-lbl">Atividade</div><input id="nl-ativ" class="nl-inp" placeholder="Nome da atividade"/></div>
+      <div style="grid-column:1/-1"><div class="nl-lbl">Tarefa <span style="color:var(--rd)">*</span></div><input id="nl-tar" class="nl-inp" placeholder="Descrição específica da tarefa"/></div>
+      <div>
+        <div class="nl-lbl">CAT</div>
+        <select id="nl-cat" class="nl-sel"><option value="">—</option><option>CLS</option><option>MOTOR</option><option>AVIÔNICA</option><option>ESTRUTURA</option><option>REPARÁVEL</option><option>DIVERSOS</option><option>APOIO</option><option>CAD-PAD</option></select>
+      </div>
+      <div><div class="nl-lbl">Ação Orçamentária</div><input id="nl-acao" class="nl-inp" placeholder="ex: 2048"/></div>
+      <div>
+        <div class="nl-lbl">Pacote</div>
+        <select id="nl-pacote" class="nl-sel"><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option></select>
+      </div>
+      <div><div class="nl-lbl">Moeda</div><select id="nl-moeda" class="nl-sel"></select></div>
+      <div><div class="nl-lbl">Valor Moeda</div><input id="nl-valormoeda" class="nl-inp" type="number" min="0" step="0.01" placeholder="0.00"/></div>
+      <div><div class="nl-lbl">Valor Total BRL <span style="color:var(--rd)">*</span></div><input id="nl-valor" class="nl-inp" type="number" min="0" step="0.01" placeholder="0.00"/></div>
+      <div><div class="nl-lbl">Mês Desc.</div><input id="nl-mesdesc" class="nl-inp" placeholder="Jan/2026"/></div>
+      <div><div class="nl-lbl">Mês Liq.</div><input id="nl-mesliq" class="nl-inp" placeholder="Mar/2026"/></div>
+      <div style="grid-column:1/-1"><div class="nl-lbl">Observação</div><input id="nl-obs" class="nl-inp" placeholder="Opcional"/></div>
+    </div>
+    <div class="mf"><button class="btn" onclick="closeNL()">Cancelar</button><button class="btn btn-p" onclick="submitNL()">Enviar para aprovação ↗</button></div>
   </div>
 </div>
 
@@ -961,6 +1001,90 @@ function enviarParaAprovacao(){
   const parquesStr=Object.keys(byParque).join(', ');
   document.getElementById('sub-parques').textContent='Parque(s): '+parquesStr;
   document.getElementById('sub-sub').textContent=Object.values(byParque).reduce((s,c)=>s+c.length,0)+' linha(s) · '+Object.keys(byParque).length+' parque(s)';
+  document.getElementById('subm').classList.add('open');
+}
+
+// ── NOVA LINHA ──
+function genNewOrd(maOrd){
+  const n=parseInt(maOrd);
+  for(let d=1;d<=99;d++){
+    const c=String(n+d).padStart(6,'0');
+    if(!ROWS.find(r=>r.ord===c||r.ord===c+'*'))return c+'*';
+  }
+  return maOrd+Date.now().toString().slice(-2)+'*';
+}
+function openNL(){
+  const sel=document.getElementById('nl-mae');
+  sel.innerHTML='<option value="">— Selecione a linha mãe —</option>';
+  ROWS.forEach(r=>{
+    const o=document.createElement('option');
+    o.value=r.ord;
+    o.textContent=`${r.ord} · ${r.mta} · ${r.proj} · ${(r.tar||r.ativ).slice(0,30)}`;
+    sel.appendChild(o);
+  });
+  document.getElementById('nl-moeda').innerHTML=CUR.map(c=>`<option value="${c}"${c==='BRL'?' selected':''}>${c}</option>`).join('');
+  ['nl-proj','nl-ativ','nl-tar','nl-acao','nl-valormoeda','nl-valor','nl-mesdesc','nl-mesliq','nl-obs'].forEach(id=>{
+    const el=document.getElementById(id);if(el){el.value='';el.classList.remove('err');}
+  });
+  ['nl-mae','nl-tar','nl-valor'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('err');});
+  document.getElementById('nl-pacote').value='A';
+  document.getElementById('nl-cat').value='';
+  document.getElementById('nlm').classList.add('open');
+}
+function nlMaeChange(){
+  const maOrd=document.getElementById('nl-mae').value;
+  document.getElementById('nl-mae').classList.remove('err');
+  if(!maOrd)return;
+  const row=ROWS.find(r=>r.ord===maOrd);if(!row)return;
+  if(!document.getElementById('nl-proj').value)document.getElementById('nl-proj').value=row.proj||'';
+  if(!document.getElementById('nl-ativ').value)document.getElementById('nl-ativ').value=row.ativ||'';
+  document.getElementById('nl-pacote').value=row.pacote||'A';
+  document.getElementById('nl-moeda').value=row.moeda||'BRL';
+  if(row.acao&&!document.getElementById('nl-acao').value)document.getElementById('nl-acao').value=row.acao;
+}
+function closeNL(){document.getElementById('nlm').classList.remove('open');}
+function submitNL(){
+  const maOrd=document.getElementById('nl-mae').value;
+  const proj=document.getElementById('nl-proj').value.trim();
+  const ativ=document.getElementById('nl-ativ').value.trim();
+  const tar=document.getElementById('nl-tar').value.trim();
+  const valor=parseFloat(document.getElementById('nl-valor').value)||0;
+  let err=false;
+  [{id:'nl-mae',bad:!maOrd},{id:'nl-tar',bad:!tar},{id:'nl-valor',bad:!valor}].forEach(({id,bad})=>{
+    const el=document.getElementById(id);if(el){el.classList.toggle('err',bad);if(bad)err=true;}
+  });
+  if(err)return;
+  const maRow=ROWS.find(r=>r.ord===maOrd);if(!maRow)return;
+  const cat=document.getElementById('nl-cat').value;
+  const acao=document.getElementById('nl-acao').value.trim()||maRow.acao||'2048';
+  const pacote=document.getElementById('nl-pacote').value;
+  const moeda=document.getElementById('nl-moeda').value;
+  const valormoeda=parseFloat(document.getElementById('nl-valormoeda').value)||valor;
+  const mesdesc=document.getElementById('nl-mesdesc').value.trim();
+  const mesliq=document.getElementById('nl-mesliq').value.trim();
+  const obs=document.getElementById('nl-obs').value.trim();
+  const newOrd=genNewOrd(maOrd);
+  const ts=Date.now();
+  const autor='Ten Cel Silva';
+  const dataStr=new Date().toLocaleString('pt-BR',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}).replace(',','·');
+  const change={
+    ord:newOrd,tipo:'new',proj:proj||maRow.proj,ativ:ativ||maRow.ativ,tar,
+    isMae:false,maOrd,
+    diffs:[{campo:'NOVA LINHA',de:'—',para:`Inserção solicitada por ${maRow.mta}`}],
+    newVals:{valor,valormoeda,pacote,acao,moeda,cat:cat||'—',obs,mesdesc,mesliq}
+  };
+  let userdata={};try{userdata=JSON.parse(localStorage.getItem('mta_pkgs_userdata')||'{}');}catch(e){}
+  let pendIds=null;try{const s=localStorage.getItem('mta_pkgs_pending');if(s)pendIds=JSON.parse(s);}catch(e){}
+  if(!pendIds)pendIds=['pkg1','pkg2','pkg3','pkg4','pkg5','pkg6','pkg7'];
+  const id=`user_${ts}_new`;
+  userdata[id]={id,parque:maRow.mta,tipo:'new',autor,data:dataStr,
+    desc:`1 nova linha — ${proj||maRow.proj} · ${tar}`,changes:[change]};
+  pendIds.push(id);
+  localStorage.setItem('mta_pkgs_userdata',JSON.stringify(userdata));
+  localStorage.setItem('mta_pkgs_pending',JSON.stringify(pendIds));
+  closeNL();
+  document.getElementById('sub-parques').textContent=`Parque: ${maRow.mta} · Nova linha: ${tar}`;
+  document.getElementById('sub-sub').textContent='1 linha solicitada · aguardando aprovação DIRMAB';
   document.getElementById('subm').classList.add('open');
 }
 
