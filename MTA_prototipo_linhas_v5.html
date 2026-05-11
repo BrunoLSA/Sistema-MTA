@@ -126,6 +126,8 @@ th:last-child{border-right:none}
 td{border-bottom:1px solid rgba(42,68,96,.45);border-right:1px solid rgba(42,68,96,.25);vertical-align:middle;white-space:nowrap}
 tr:hover td{background:rgba(255,255,255,.025)}
 tr.pd td{background:rgba(251,191,36,.12)!important}
+tr.locked td{opacity:.8;cursor:not-allowed}
+tr.locked .cell[contenteditable]{pointer-events:none}
 td:first-child{padding:0;min-width:110px}
 .ordc{display:flex;align-items:stretch;min-height:32px}
 .ords{width:4px;flex-shrink:0}
@@ -381,7 +383,10 @@ td:first-child{padding:0;min-width:110px}
       <div style="font-weight:600;color:var(--gr);margin-bottom:6px">Alterações enviadas para aprovação</div>
       <div id="sub-parques" style="font-size:12px;color:var(--t2);margin-top:4px"></div>
     </div>
-    <div class="mf"><button class="btn btn-p" onclick="document.getElementById('subm').classList.remove('open');location.href='MTA_aprovacoes_v8.html'" style="width:100%;justify-content:center">Ver em Aprovações ↗</button></div>
+    <div class="mf" style="flex-direction:column;gap:8px">
+      <button class="btn btn-p" onclick="document.getElementById('subm').classList.remove('open')" style="width:100%;justify-content:center">Fechar e continuar editando</button>
+      <button class="btn" onclick="document.getElementById('subm').classList.remove('open');location.href='MTA_aprovacoes_v8.html'" style="width:100%;justify-content:center;font-size:11px;color:var(--t2)">Ver em Aprovações ↗</button>
+    </div>
   </div>
 </div>
 
@@ -521,25 +526,28 @@ function render(){
     const st=stripe(apv,hp);
     // item 3: each td:first-child gets explicit background via inline style to override hover
     const firstBg=hp?'background:#2b3e14':'background:var(--n2)';
-    return`<tr class="${hp?'pd':''}">`+vcs.map(c=>{
+    const rowLocked=!!(pendSubmitted[row.ord]&&Object.keys(pendSubmitted[row.ord]).length);
+    const lockedTitle=rowLocked?' title="Aguardando aprovação DIRMAB — edição bloqueada"':'';
+    return`<tr class="${hp?'pd':''} ${rowLocked?'locked':''}">` +vcs.map(c=>{
       const raw=cv(row,c.k);
       const modPend=!!(pend[row.ord]&&pend[row.ord][c.k]!==undefined);
       const modSub=!!(pendSubmitted[row.ord]&&pendSubmitted[row.ord][c.k]!==undefined);
       const mod=modPend||modSub;
-      const dot=mod?`<span class="${modPend?'mdot':'mdot-s'}" title="${modPend?'Alteração não enviada':'Aguardando aprovação'}"></span>`:'';
+      const dot=mod?`<span class="${modPend?'mdot-s':'mdot'}" title="${modPend?'Alteração não enviada':'Aguardando aprovação DIRMAB'}"></span>`:'';
       if(c.k==='ord'){
-        const awaitTag=(!!(pendSubmitted[row.ord]&&Object.keys(pendSubmitted[row.ord]).length)&&!Object.keys(pend[row.ord]||{}).length)?'<span title="Aguardando aprovação DIRMAB" style="font-size:10px;margin-left:4px;opacity:.75">⏳</span>':'';
+        const awaitTag=rowLocked?'<span title="Aguardando aprovação DIRMAB" style="font-size:10px;margin-left:4px;opacity:.75">⏳</span>':'';
         return`<td style="${firstBg}"><div class="ordc"><div class="ords" style="${st}"></div><div class="ordv">${row.sub?'↳ ':''}<span style="font-family:var(--mo);font-size:12px">${raw}</span>${awaitTag}</div></div></td>`;
       }
-      if(c.k==='aprovado')return`<td><div class="cell" style="cursor:pointer;gap:6px" onclick="openA(event,'${row.ord}')">${abadge(raw)}${dot}</div></td>`;
-      if(c.k==='pacote')return`<td><div class="cell" style="cursor:pointer;gap:6px" onclick="openP(event,'${row.ord}')">${pbadge(raw)}${dot}</div></td>`;
-      if(c.k==='tramite'){if(hd)return`<td><div class="cell"><span style="font-size:12px;padding:2px 10px;border-radius:var(--r);background:rgba(52,211,153,.15);color:#059669">ATENDIDO</span></div></td>`;return`<td><select class="isel" onchange="ce('${row.ord}','tramite',this.value)">${['—','ATENDER','EM TRÂMITE','ATENDIDO','CANCELADO'].map(s=>`<option value="${s==='—'?'':s}"${(raw===s||(s==='—'&&!raw))?' selected':''}>${s}</option>`).join('')}</select></td>`;}
-      if(c.k==='moeda')return`<td><div style="display:flex;align-items:center;height:32px"><select class="isel" onchange="ce('${row.ord}','moeda',this.value);render()">${CUR.map(cur=>`<option value="${cur}"${raw===cur?' selected':''}>${cur}</option>`).join('')}</select>${dot}</div></td>`;
-      if(c.k==='valormoeda'){const m=cv(row,'moeda')||'BRL';return`<td><div class="cell cr" contenteditable="true" onblur="ceN('${row.ord}','valormoeda',this.textContent)">${fmtC(raw,m)}${dot}</div></td>`;}
-      if(c.k==='valor')return`<td><div class="cell cr" contenteditable="true" onblur="ceN('${row.ord}','valor',this.textContent)">${fmtC(raw,'BRL')}${dot}</div></td>`;
-      if(c.k==='mesdesc'||c.k==='mesliq')return`<td><div class="cell" style="cursor:pointer;gap:6px" onclick="openMp(event,'${row.ord}','${c.k}')" title="Clique para selecionar mês/ano">${fmtM(raw)||'<span style=\"color:var(--t3);font-size:11px\">Selecionar…</span>'}${dot}</div></td>`;
+      if(c.k==='aprovado')return`<td><div class="cell" style="gap:6px${rowLocked?'':';cursor:pointer'}"${rowLocked?lockedTitle:` onclick="openA(event,'${row.ord}')"`}>${abadge(raw)}${dot}</div></td>`;
+      if(c.k==='pacote')return`<td><div class="cell" style="gap:6px${rowLocked?'':';cursor:pointer'}"${rowLocked?lockedTitle:` onclick="openP(event,'${row.ord}')"`}>${pbadge(raw)}${dot}</div></td>`;
+      if(c.k==='tramite'){if(hd)return`<td><div class="cell"><span style="font-size:12px;padding:2px 10px;border-radius:var(--r);background:rgba(52,211,153,.15);color:#059669">ATENDIDO</span></div></td>`;if(rowLocked)return`<td><div class="cell"${lockedTitle}>${raw||'—'}${dot}</div></td>`;return`<td><select class="isel" onchange="ce('${row.ord}','tramite',this.value)">${['—','ATENDER','EM TRÂMITE','ATENDIDO','CANCELADO'].map(s=>`<option value="${s==='—'?'':s}"${(raw===s||(s==='—'&&!raw))?' selected':''}>${s}</option>`).join('')}</select></td>`;}
+      if(c.k==='moeda'){if(rowLocked)return`<td><div class="cell"${lockedTitle}>${raw||'—'}${dot}</div></td>`;return`<td><div style="display:flex;align-items:center;height:32px"><select class="isel" onchange="ce('${row.ord}','moeda',this.value);render()">${CUR.map(cur=>`<option value="${cur}"${raw===cur?' selected':''}>${cur}</option>`).join('')}</select>${dot}</div></td>`;}
+      if(c.k==='valormoeda'){const m=cv(row,'moeda')||'BRL';if(rowLocked)return`<td><div class="cell cr"${lockedTitle}>${fmtC(raw,m)}${dot}</div></td>`;return`<td><div class="cell cr" contenteditable="true" onblur="ceN('${row.ord}','valormoeda',this.textContent)">${fmtC(raw,m)}${dot}</div></td>`;}
+      if(c.k==='valor'){if(rowLocked)return`<td><div class="cell cr"${lockedTitle}>${fmtC(raw,'BRL')}${dot}</div></td>`;return`<td><div class="cell cr" contenteditable="true" onblur="ceN('${row.ord}','valor',this.textContent)">${fmtC(raw,'BRL')}${dot}</div></td>`;}
+      if(c.k==='mesdesc'||c.k==='mesliq'){if(rowLocked)return`<td><div class="cell" style="gap:6px"${lockedTitle}>${fmtM(raw)||'<span style="color:var(--t3);font-size:11px">—</span>'}${dot}</div></td>`;return`<td><div class="cell" style="cursor:pointer;gap:6px" onclick="openMp(event,'${row.ord}','${c.k}')" title="Clique para selecionar mês/ano">${fmtM(raw)||'<span style=\"color:var(--t3);font-size:11px\">Selecionar…</span>'}${dot}</div></td>`;}
       if(c.k==='datasolic')return`<td><div class="cell" style="color:var(--t3)">${raw||'—'}</div></td>`;
-      if(c.k==='datapeddirmab')return`<td><div class="cell" style="cursor:pointer;gap:6px" onclick="openDp(event,'${row.ord}','datapeddirmab')" title="Clique para selecionar data">${raw||'<span style=\"color:var(--t3);font-size:11px\">Selecionar…</span>'}${dot}</div></td>`;
+      if(c.k==='datapeddirmab'){if(rowLocked)return`<td><div class="cell" style="gap:6px"${lockedTitle}>${raw||'<span style="color:var(--t3);font-size:11px">—</span>'}${dot}</div></td>`;return`<td><div class="cell" style="cursor:pointer;gap:6px" onclick="openDp(event,'${row.ord}','datapeddirmab')" title="Clique para selecionar data">${raw||'<span style=\"color:var(--t3);font-size:11px\">Selecionar…</span>'}${dot}</div></td>`;}
+      if(rowLocked)return`<td><div class="cell"${lockedTitle}>${raw!=null&&raw!==''?raw:''}${dot}</div></td>`;
       return`<td><div class="cell" contenteditable="true" onblur="ce('${row.ord}','${c.k}',this.textContent.trim())">${raw!=null&&raw!==''?raw:''}${dot}</div></td>`;
     }).join('')+'</tr>';
   }).join('');
@@ -760,6 +768,7 @@ function togSB(){const sb=document.getElementById('sb');sb.classList.toggle('col
 
 loadSubmittedPend();
 render();
+document.addEventListener('visibilitychange',function(){if(!document.hidden){loadSubmittedPend();render();}});
 
 // item 9: month/year picker
 const MP_MONTHS=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
