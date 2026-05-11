@@ -520,6 +520,9 @@ PKGS_RAW.sort((a,b)=>{
 });
 
 let PKGS = PKGS_RAW.map(p=>({...p, status:'pend', decisions:{}, retMotivos:{}}));
+function savePkgState(){try{localStorage.setItem('mta_pkgs_pending',JSON.stringify(PKGS.map(p=>p.id)));}catch(e){}}
+function loadPkgState(){try{const s=localStorage.getItem('mta_pkgs_pending');if(s){const ids=JSON.parse(s);PKGS=PKGS.filter(p=>ids.includes(p.id));}}catch(e){}}
+loadPkgState();
 let HIST = [];
 let currentId = null;
 let filtTipo = '';
@@ -1053,6 +1056,7 @@ function confirmarEnvio(){
   document.getElementById('succ-modal').classList.add('open');
 
   saveHist();
+  savePkgState();
   updateCounts();
   renderDiff();
 }
@@ -1163,6 +1167,13 @@ function togSB(){document.getElementById('sb').classList.toggle('col');}
 // ──────────────────────── INIT ────────────────────────
 renderPills();
 renderList();
+// Deep-link: ?pkg=pkgN selects that package; ?screen=historico opens history screen
+(function(){
+  const p=new URLSearchParams(location.search);
+  const screen=p.get('screen'), pkgId=p.get('pkg');
+  if(screen==='historico'){showScreen('historico');}
+  else if(pkgId){const found=PKGS.find(q=>q.id===pkgId);if(found)selectPkg(pkgId);}
+})();
 </script>
 </body>
 </html>

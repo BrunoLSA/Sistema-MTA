@@ -219,7 +219,7 @@ tr.tbl-row:hover td{background:rgba(255,255,255,.03)}
     <div class="ni" title="Ações orçamentárias"><svg class="ni-ico" viewBox="0 0 16 16" fill="none"><rect x="1" y="4" width="14" height="9" rx="1" stroke="currentColor" stroke-width="1.2"/><path d="M5 4V3a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="1.2"/></svg><span class="ni-lbl">Ações orçamentárias</span></div>
     <div class="ni" title="Sugestão de atendimento"><svg class="ni-ico" viewBox="0 0 16 16" fill="none"><path d="M2 12 6 7l3 3 2-4 3 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="ni-lbl">Sugestão de atendimento</span></div>
     <div class="ns">Histórico</div>
-    <div class="ni" title="Histórico de aprovações" onclick="alert('Abrir histórico de aprovações')" style="cursor:pointer"><svg class="ni-ico" viewBox="0 0 16 16" fill="none"><path d="M8 2a6 6 0 1 1 0 12A6 6 0 0 1 8 2z" stroke="currentColor" stroke-width="1.2"/><path d="M8 5v3l2 1.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg><span class="ni-lbl">Histórico de aprovações</span></div>
+    <div class="ni" title="Histórico de aprovações" onclick="location.href='MTA_aprovacoes_v8.html?screen=historico'" style="cursor:pointer"><svg class="ni-ico" viewBox="0 0 16 16" fill="none"><path d="M8 2a6 6 0 1 1 0 12A6 6 0 0 1 8 2z" stroke="currentColor" stroke-width="1.2"/><path d="M8 5v3l2 1.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg><span class="ni-lbl">Histórico de aprovações</span></div>
     <div class="ns">Configuração</div>
     <div class="ni" title="Parâmetros e colunas"><svg class="ni-ico" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg><span class="ni-lbl">Parâmetros e colunas</span></div>
     <div class="ni" title="Cenários"><svg class="ni-ico" viewBox="0 0 16 16" fill="none"><ellipse cx="8" cy="5" rx="6" ry="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M2 5v6c0 1.38 2.69 2.5 6 2.5s6-1.12 6-2.5V5" stroke="currentColor" stroke-width="1.2"/><path d="M2 8c0 1.38 2.69 2.5 6 2.5s6-1.12 6-2.5" stroke="currentColor" stroke-width="1.2"/></svg><span class="ni-lbl">Cenários</span></div>
@@ -359,7 +359,7 @@ tr.tbl-row:hover td{background:rgba(255,255,255,.03)}
         <div class="pend-card">
           <div class="card-head">
             <div><div class="card-title">Pedidos pendentes</div><div class="card-sub" id="pend-sub">7 pedidos · do mais antigo ao mais recente</div></div>
-            <button class="btn btn-p btn-sm" onclick="alert('Abrir tela completa de aprovações com diff de cada pedido')">Ver todos ↗</button>
+            <button class="btn btn-p btn-sm" onclick="location.href='MTA_aprovacoes_v8.html'">Ver todos ↗</button>
           </div>
           <div class="filter-row">
             <span class="filter-lbl">Parque:</span>
@@ -372,7 +372,7 @@ tr.tbl-row:hover td{background:rgba(255,255,255,.03)}
             </select>
           </div>
           <div class="pend-list" id="pend-list">
-            <div class="pend-item" data-parque="PAMBRJ" onclick="alert('Abrir pedido: alteração linha C-97 PAMBRJ')">
+            <div class="pend-item" data-parque="PAMBRJ" onclick="location.href='MTA_aprovacoes_v8.html?pkg=pkg1'">
               <div class="pend-dot dot-alt"></div>
               <div class="pend-body">
                 <div class="pend-type type-alt">Alteração de linha</div>
@@ -381,7 +381,7 @@ tr.tbl-row:hover td{background:rgba(255,255,255,.03)}
               </div>
               <span class="pend-badge badge-pkg">Pacote</span>
             </div>
-            <div class="pend-item" data-parque="PAMBRJ" onclick="alert('Abrir pedido: descentralização PAMBRJ')">
+            <div class="pend-item" data-parque="PAMBRJ" onclick="location.href='MTA_aprovacoes_v8.html?pkg=pkg2'">
               <div class="pend-dot dot-desc"></div>
               <div class="pend-body">
                 <div class="pend-type type-desc">Descentralização</div>
@@ -390,7 +390,7 @@ tr.tbl-row:hover td{background:rgba(255,255,255,.03)}
               </div>
               <span class="pend-badge badge-desc">R$ 270k</span>
             </div>
-            <div class="pend-item" data-parque="PAMALS" onclick="alert('Abrir pedido: descentralização PAMALS')">
+            <div class="pend-item" data-parque="PAMALS" onclick="location.href='MTA_aprovacoes_v8.html?pkg=pkg3'">
               <div class="pend-dot dot-desc"></div>
               <div class="pend-body">
                 <div class="pend-type type-desc">Descentralização</div>
@@ -399,7 +399,7 @@ tr.tbl-row:hover td{background:rgba(255,255,255,.03)}
               </div>
               <span class="pend-badge badge-desc">R$ 1,83 M</span>
             </div>
-            <div class="pend-item" data-parque="PAMAGL" onclick="alert('Abrir pedido: novas linhas PAMAGL')">
+            <div class="pend-item" data-parque="PAMAGL" onclick="location.href='MTA_aprovacoes_v8.html?pkg=pkg4'">
               <div class="pend-dot dot-new"></div>
               <div class="pend-body">
                 <div class="pend-type type-new">Novas linhas</div>
@@ -408,7 +408,7 @@ tr.tbl-row:hover td{background:rgba(255,255,255,.03)}
               </div>
               <span class="pend-badge badge-lines">2 linhas</span>
             </div>
-            <div class="pend-item" data-parque="PAMALS" onclick="alert('Abrir pedido: alteração PAMALS H-36')">
+            <div class="pend-item" data-parque="PAMALS" onclick="location.href='MTA_aprovacoes_v8.html?pkg=pkg5'">
               <div class="pend-dot dot-alt"></div>
               <div class="pend-body">
                 <div class="pend-type type-alt">Alteração de linhas</div>
@@ -417,7 +417,7 @@ tr.tbl-row:hover td{background:rgba(255,255,255,.03)}
               </div>
               <span class="pend-badge badge-val">Δ R$ 88k</span>
             </div>
-            <div class="pend-item" data-parque="PAMASP" onclick="alert('Abrir pedido: nova linha PAMASP T-27')">
+            <div class="pend-item" data-parque="PAMASP" onclick="location.href='MTA_aprovacoes_v8.html?pkg=pkg6'">
               <div class="pend-dot dot-new"></div>
               <div class="pend-body">
                 <div class="pend-type type-new">Nova linha</div>
@@ -426,7 +426,7 @@ tr.tbl-row:hover td{background:rgba(255,255,255,.03)}
               </div>
               <span class="pend-badge badge-lines">1 linha</span>
             </div>
-            <div class="pend-item" data-parque="PAMASP" onclick="alert('Abrir pedido: alteração PAMASP F-39')">
+            <div class="pend-item" data-parque="PAMASP" onclick="location.href='MTA_aprovacoes_v8.html?pkg=pkg7'">
               <div class="pend-dot dot-alt"></div>
               <div class="pend-body">
                 <div class="pend-type type-alt">Alteração de linhas</div>
