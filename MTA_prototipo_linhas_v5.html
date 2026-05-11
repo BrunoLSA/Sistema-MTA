@@ -553,7 +553,7 @@ function render(){
     const firstBg=hp?'background:#2b3e14':'background:var(--n2)';
     const rowLocked=!!(pendSubmitted[row.ord]&&Object.keys(pendSubmitted[row.ord]).length);
     const lockedTitle=rowLocked?' title="Aguardando aprovação DIRMAB — edição bloqueada"':'';
-    return`<tr class="${hp?'pd':''} ${rowLocked?'locked':''}}">`+vcs.map(c=>{
+    return`<tr class="${hp?'pd':''} ${rowLocked?'locked':''}">`+vcs.map(c=>{
       const raw=cv(row,c.k);
       const modPend=!!(pend[row.ord]&&pend[row.ord][c.k]!==undefined);
       const modSub=!!(pendSubmitted[row.ord]&&pendSubmitted[row.ord][c.k]!==undefined);
@@ -795,6 +795,13 @@ function resetCols(){cols=JSON.parse(JSON.stringify(AC));renderCP();render();}
 
 function togSB(){const sb=document.getElementById('sb');sb.classList.toggle('col');document.querySelector('.tog').title=sb.classList.contains('col')?'Expandir painel':'Recolher painel';}
 
+(function(){
+  const p=new URLSearchParams(location.search);
+  if(p.get('clear')==='1'){
+    ['mta_pkgs_pending','mta_pkgs_userdata','mta_approved_vals','mta_approved_newrows','mta_hist'].forEach(k=>localStorage.removeItem(k));
+    location.replace(location.pathname);return;
+  }
+})();
 applyApprovedVals();
 loadSubmittedPend();
 render();
@@ -997,3 +1004,5 @@ function enviarParaAprovacao(){
     <button class="dp-clear" onclick="dpClear()">Limpar</button>
   </div>
 </div>
+</body>
+</html>

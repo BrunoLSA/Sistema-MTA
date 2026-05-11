@@ -488,6 +488,7 @@ const PKGS_RAW = [
     desc:'Alterações complexas F-39 — Aprovado, Pacote e AO simultâneos',
     changes:[
       {
+        // Cenário 1: Aprovado SIM→NÃO — deve DIMINUIR Pacote A e AO 2048 do total aprovado
         ord:'100080', tipo:'alt', proj:'F-39', ativ:'Contrato reparáveis F-39', tar:'Reparo sob demanda 1/4',
         diffs:[
           {campo:'Aprovado', de:'SIM', para:'NÃO'},
@@ -496,6 +497,7 @@ const PKGS_RAW = [
         newVals:{aprovado:'NÃO'}
       },
       {
+        // Cenário 2: Pacote A→B e AO 2048→21E7 — deve mover valor: sai do Pacote A/2048, entra no Pacote B/21E7
         ord:'100060', tipo:'alt', proj:'F-39', ativ:'CAD-PAD F-39', tar:'Catálogo técnico F-39',
         diffs:[
           {campo:'Pacote', de:'A', para:'B'},
@@ -505,6 +507,7 @@ const PKGS_RAW = [
         newVals:{pacote:'B', acao:'21E7'}
       },
       {
+        // Cenário 3: Valor total alterado em linha já APROVADA SIM — impacta Pacote A e AO 21E7
         ord:'100240', tipo:'alt', proj:'F-39', ativ:'CNT 006/CABE-PAMBRJ/2021 - IRIS-T', tar:'Míssil IRIS-T 1/3',
         diffs:[
           {campo:'Valor Total', de:'R$ 16.175.390', para:'R$ 17.250.000'},
@@ -1049,16 +1052,26 @@ function confirmarEnvio(){
   });
 
   // item 11: apply approved newVals back to ALL_ROWS so the MTA table reflects approved state
-  const allRowsRef=Object.values(ALL_ROWS).flat();
   Object.entries(pkg.decisions).forEach(([idx,dec])=>{
     if(dec!=='aprov') return;
     const c=pkg.changes[parseInt(idx)];
     if(!c||!c.newVals) return;
     const rowArr=ALL_ROWS[pkg.parque];
     if(!rowArr) return;
-    const rowIdx=rowArr.findIndex(r=>r.ord===c.ord);
-    if(rowIdx<0) return;
-    // apply each newVal field
+    const cleanOrd=c.ord.replace('*','');
+    const rowIdx=rowArr.findIndex(r=>r.ord===cleanOrd);
+    if(rowIdx<0){
+      if(c.tipo==='new'){
+        const pi=rowArr.findIndex(r=>r.ord===c.maOrd);
+        const parent=rowArr[pi>=0?pi:0]||{};
+        const nr={ord:cleanOrd,aprovado:'SIM',acao:c.newVals.acao||parent.acao||'',
+          tramite:'',digito:'',pacote:c.newVals.pacote||parent.pacote||'',
+          uge:parent.uge||'',proj:c.proj,ativ:c.ativ,tar:c.tar,cat:'—',
+          moeda:parent.moeda||'BRL',valor:c.newVals.valor||0,mesdesc:'—'};
+        if(pi>=0)rowArr.splice(pi+1,0,nr);else rowArr.push(nr);
+      }
+      return;
+    }
     Object.entries(c.newVals).forEach(([k,v])=>{rowArr[rowIdx][k]=v;});
   });
   // Persist approved vals so Linhas reflects the approved state on next load
@@ -1215,6 +1228,23 @@ function showScreen(name){
   }
 }
 
+// ──────────────────────── APPROVED STATE ────────────────────────
+function loadApprovedState(){
+  try{
+    const approved=JSON.parse(localStorage.getItem('mta_approved_vals')||'{}');
+    Object.values(ALL_ROWS).flat().forEach(r=>{if(approved[r.ord])Object.assign(r,approved[r.ord]);});
+    const newRows=JSON.parse(localStorage.getItem('mta_approved_newrows')||'{}');
+    Object.values(newRows).forEach(nr=>{
+      const rowArr=ALL_ROWS[nr.mta];if(!rowArr||rowArr.find(r=>r.ord===nr.ord))return;
+      const row={ord:nr.ord,aprovado:nr.aprovado,acao:nr.acao,tramite:'',digito:'',
+        pacote:nr.pacote,uge:nr.uge,proj:nr.proj,ativ:nr.ativ,tar:nr.tar,cat:nr.cat,
+        moeda:nr.moeda,valor:nr.valor,mesdesc:'—'};
+      const pi=rowArr.findIndex(r=>r.ord===nr.maOrd);
+      if(pi>=0)rowArr.splice(pi+1,0,row);else rowArr.push(row);
+    });
+  }catch(e){}
+}
+
 // ──────────────────────── UTILS ────────────────────────
 function setFilt(el,tipo){
   filtTipo=tipo;
@@ -1228,11 +1258,15 @@ function closeModal(id){document.getElementById(id).classList.remove('open');}
 function togSB(){document.getElementById('sb').classList.toggle('col');}
 
 // ──────────────────────── INIT ────────────────────────
-renderPills();
-renderList();
-// Deep-link: ?pkg=pkgN selects that package; ?screen=historico opens history screen
 (function(){
   const p=new URLSearchParams(location.search);
+  if(p.get('clear')==='1'){
+    ['mta_pkgs_pending','mta_pkgs_userdata','mta_approved_vals','mta_approved_newrows','mta_hist'].forEach(k=>localStorage.removeItem(k));
+    location.replace(location.pathname);return;
+  }
+  loadApprovedState();
+  renderPills();
+  renderList();
   const screen=p.get('screen'), pkgId=p.get('pkg');
   if(screen==='historico'){showScreen('historico');}
   else if(pkgId){const found=PKGS.find(q=>q.id===pkgId);if(found)selectPkg(pkgId);}
