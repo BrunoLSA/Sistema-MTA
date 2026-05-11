@@ -216,7 +216,7 @@ tr.tbl-row:hover td{background:rgba(255,255,255,.03)}
     <div class="ns">Principal</div>
     <div class="ni act" title="Painel geral"><svg class="ni-ico" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="1" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/></svg><span class="ni-lbl">Painel geral</span></div>
     <div class="ni" title="Linhas do MTA"><svg class="ni-ico" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h8M2 12h10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg><span class="ni-lbl">Linhas do MTA</span></div>
-    <div class="ni" title="Aprovações — 7 pendentes"><svg class="ni-ico" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.2"/><path d="M8 5v3l2 2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg><span class="ni-lbl">Aprovações</span><span class="ni-bdg">7</span><span class="ni-dot"></span></div>
+    <div class="ni" id="sb-aprov-item" title="Aprovações — 7 pendentes"><svg class="ni-ico" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.2"/><path d="M8 5v3l2 2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg><span class="ni-lbl">Aprovações</span><span class="ni-bdg" id="sb-pend-badge">7</span><span class="ni-dot"></span></div>
     <div class="ni" title="Por Parque"><svg class="ni-ico" viewBox="0 0 16 16" fill="none"><path d="M3 12V6l5-4 5 4v6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><rect x="6" y="9" width="4" height="3" rx=".5" stroke="currentColor" stroke-width="1.2"/></svg><span class="ni-lbl">Por Parque</span></div>
     <div class="ns">Orçamento</div>
     <div class="ni" title="Ações orçamentárias"><svg class="ni-ico" viewBox="0 0 16 16" fill="none"><rect x="1" y="4" width="14" height="9" rx="1" stroke="currentColor" stroke-width="1.2"/><path d="M5 4V3a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="1.2"/></svg><span class="ni-lbl">Ações orçamentárias</span></div>
@@ -276,9 +276,9 @@ tr.tbl-row:hover td{background:rgba(255,255,255,.03)}
       </div>
       <div class="metric am">
         <div class="m-lbl">Pedidos pendentes</div>
-        <div class="m-val">7</div>
+        <div class="m-val" id="kpi-pend-val">7</div>
         <div class="m-sub">aguardando análise DIRMAB</div>
-        <div class="m-delta d-am">4 alterações · 2 novas · 1 desc.</div>
+        <div class="m-delta d-am" id="kpi-pend-delta">4 alterações · 2 novas · 1 desc.</div>
       </div>
       <div class="metric">
         <div class="m-lbl">Fora do limite</div>
@@ -460,6 +460,20 @@ function renderPendList(parque){
     const c=pending.filter(q=>q.parque===pk).length;
     sel.options[i+1].text=`${pk} (${c})`;
   });
+  // update KPI card and sidebar badge
+  const total=pending.length;
+  const nAlt=pending.filter(p=>p.tipo==='alt').length;
+  const nNew=pending.filter(p=>p.tipo==='new').length;
+  const nDesc=pending.filter(p=>p.tipo==='desc').length;
+  document.getElementById('kpi-pend-val').textContent=total;
+  document.getElementById('kpi-pend-delta').textContent=[
+    nAlt?nAlt+' alteraç'+(nAlt===1?'ão':'ões'):'',
+    nNew?nNew+' nova'+(nNew===1?'':'s'):'',
+    nDesc?nDesc+' desc.':''
+  ].filter(Boolean).join(' · ')||'nenhum pedido pendente';
+  const badge=document.getElementById('sb-pend-badge');
+  if(badge){badge.textContent=total;badge.style.display=total?'':'none';}
+  document.getElementById('sb-aprov-item').title='Aprovações — '+total+' pendente'+(total===1?'':'s');
 }
 function filterPend(parque){renderPendList(parque);}
 function togSB(){
