@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Sistema MTA — Painel Geral DIRMAB 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --n:#132337;--n2:#1c3048;--n3:#243d5c;--n4:#2d4d72;
+  --ac:#2dd4bf;--am:#fbbf24;--gr:#34d399;--rd:#f87171;--bl:#60a5fa;--pu:#a78bfa;
+  --tx:#eef2f7;--t2:#a8bcd4;--t3:#6b8aaa;
+  --bd:#2a4460;--b2:#3d6080;
+  --fn:'IBM Plex Sans',sans-serif;--mo:'IBM Plex Mono',monospace;
+  --r:6px;--rl:10px;
+}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--fn);background:var(--n);color:var(--tx);font-size:13px;display:flex;flex-direction:column}
+.shell{display:flex;flex:1;min-height:0;overflow:hidden}
+
+/* ── SIDEBAR ─────────────────────────────── */
+.sb{background:var(--n2);border-right:1px solid var(--bd);display:flex;flex-direction:column;width:220px;flex-shrink:0;transition:width .22s;overflow:visible;position:relative;z-index:50}
+.sb.col{width:52px}
+.sb-logo{padding:14px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:10px;min-height:62px}
+.sb-icon{width:28px;height:28px;border-radius:6px;background:rgba(45,212,191,.15);border:1px solid rgba(45,212,191,.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--ac)}
+.sb-txt{overflow:hidden;white-space:nowrap;transition:opacity .15s}
+.col .sb-txt{opacity:0;width:0;pointer-events:none}
+.sb-mark{font-family:var(--mo);font-size:9px;color:var(--ac);letter-spacing:2px;text-transform:uppercase}
+.sb-title{font-size:14px;font-weight:600;color:var(--tx)}
+.sb-sub{font-size:10px;color:var(--t3)}
+.tog{position:absolute;top:16px;right:-15px;width:28px;height:28px;border-radius:50%;background:var(--n3);border:2px solid var(--b2);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:200;color:var(--t3);box-shadow:0 2px 8px rgba(0,0,0,.6);transition:all .15s}
+.tog:hover{background:var(--n4);color:var(--tx)}
+.tog svg{transition:transform .22s}
+.col .tog svg{transform:rotate(180deg)}
+.nav{padding:8px 0;flex:1;overflow:hidden}
+.ns{padding:0 14px 3px;font-size:9px;font-weight:600;letter-spacing:1.5px;color:var(--t3);text-transform:uppercase;margin-top:10px;white-space:nowrap;transition:opacity .15s}
+.col .ns{opacity:0}
+.ni{display:flex;align-items:center;padding:7px 14px;font-size:13px;color:var(--t2);cursor:pointer;border-left:2px solid transparent;gap:10px;white-space:nowrap;transition:all .15s;position:relative}
+.ni:hover{color:var(--tx);background:rgba(255,255,255,.05)}
+.ni.act{color:var(--ac);border-left-color:var(--ac);background:rgba(45,212,191,.07)}
+.ni-ico{width:16px;height:16px;flex-shrink:0}
+.ni-lbl{flex:1;overflow:hidden;min-width:0;transition:opacity .15s}
+.col .ni-lbl{opacity:0;width:0;flex:0}
+.ni-bdg{background:#b45309;color:#fef3c7;font-size:9px;font-family:var(--mo);padding:1px 5px;border-radius:8px;font-weight:600;flex-shrink:0;transition:opacity .1s,max-width .22s,padding .22s,margin .22s;max-width:40px;overflow:hidden}
+.col .ni-bdg{opacity:0;max-width:0;padding:0;margin:0;pointer-events:none}
+.ni-dot{position:absolute;top:7px;right:8px;width:7px;height:7px;border-radius:50%;background:#f97316;border:1.5px solid var(--n2);display:none;z-index:5}
+.col .ni-dot{display:block}
+.col .ni{padding:7px 0;justify-content:center;border-left:none;gap:0}
+.col .ni.act{background:rgba(45,212,191,.1)}
+.sb-foot{padding:10px 14px;border-top:1px solid var(--bd);overflow:hidden}
+.ua{display:flex;align-items:center;gap:10px}
+.uav{width:30px;height:30px;border-radius:50%;background:var(--n4);border:1px solid var(--b2);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:var(--ac);flex-shrink:0}
+.ui{overflow:hidden;white-space:nowrap;transition:opacity .15s}
+.col .ui{opacity:0;width:0}
+
+/* ── MAIN ─────────────────────────────────── */
+.main{display:flex;flex-direction:column;flex:1;min-width:0;overflow:hidden}
+.topbar{padding:11px 18px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;background:var(--n2);flex-shrink:0;gap:12px}
+.pt{font-size:15px;font-weight:600}
+.ps{font-size:11px;color:var(--t3);margin-top:1px}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:var(--r);font-size:12px;font-weight:500;cursor:pointer;border:1px solid #4a7aaa;background:#375f8a;color:#cce0f5;font-family:var(--fn);transition:all .15s;white-space:nowrap}
+.btn:hover{background:#4a78b5;color:#fff}
+.btn-p{background:rgba(45,212,191,.22);color:var(--ac);border-color:rgba(45,212,191,.55)}
+.btn-p:hover{background:var(--ac);color:#0a1a2a}
+.btn-am{background:rgba(251,191,36,.18);color:var(--am);border-color:rgba(251,191,36,.45)}
+.btn-am:hover{background:rgba(251,191,36,.3)}
+.btn-sm{padding:3px 8px;font-size:11px}
+
+/* SCENARIO BAR */
+.sc-bar{background:var(--n3);border-bottom:1px solid var(--bd);padding:0 18px;display:flex;align-items:stretch;flex-shrink:0}
+.sc-tab{display:flex;align-items:center;gap:7px;padding:0 14px;font-size:12px;cursor:pointer;border-bottom:3px solid transparent;color:var(--t3);transition:all .15s;white-space:nowrap;height:42px}
+.sc-tab:hover{color:var(--t2)}
+.sc-tab.ativo{border-bottom-color:var(--ac);color:var(--tx);background:rgba(45,212,191,.08);font-weight:600}
+.sc-tab.paralelo{border-bottom-color:var(--am);color:var(--am)}
+.sc-tab.arquivado{color:var(--t3)}
+.sc-pill{font-size:9px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;padding:2px 6px;border-radius:6px;font-family:var(--mo)}
+.pill-a{background:var(--ac);color:#0a1a2a}
+.pill-p{background:rgba(251,191,36,.25);color:var(--am);border:1px solid rgba(251,191,36,.4)}
+.pill-q{background:rgba(107,138,170,.12);color:var(--t3);border:1px solid var(--bd)}
+.sc-div{width:1px;background:var(--bd);margin:10px 4px;flex-shrink:0}
+.sc-new{display:flex;align-items:center;gap:5px;padding:0 12px;font-size:11px;color:var(--t3);cursor:pointer;border-bottom:3px solid transparent;transition:all .15s;margin-left:auto;height:42px}
+.sc-new:hover{color:var(--ac)}
+
+/* ATIVO BANNER */
+.ativo-banner{background:rgba(45,212,191,.06);border-bottom:1px solid rgba(45,212,191,.16);padding:5px 18px;display:flex;align-items:center;gap:8px;flex-shrink:0}
+.ativo-dot{width:7px;height:7px;border-radius:50%;background:var(--ac);flex-shrink:0;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.ativo-txt{font-size:11px;color:var(--ac);font-weight:500}
+.ativo-sub{font-size:11px;color:var(--t3);margin-left:2px}
+
+/* CONTENT SCROLL */
+.content{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:16px}
+.content::-webkit-scrollbar{width:7px}
+.content::-webkit-scrollbar-track{background:var(--n)}
+.content::-webkit-scrollbar-thumb{background:var(--n4);border-radius:4px}
+
+/* METRICS GRID */
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.metric{background:var(--n2);border:1px solid var(--bd);border-radius:var(--rl);padding:14px 16px;transition:border-color .15s}
+.metric:hover{border-color:var(--b2)}
+.metric.ac{border-color:rgba(45,212,191,.3);background:rgba(45,212,191,.04)}
+.metric.am{border-color:rgba(251,191,36,.3);background:rgba(251,191,36,.04)}
+.metric.rd{border-color:rgba(248,113,113,.3);background:rgba(248,113,113,.04)}
+.m-lbl{font-size:9px;font-weight:600;letter-spacing:.8px;color:var(--t3);text-transform:uppercase;margin-bottom:8px}
+.m-val{font-family:var(--mo);font-size:20px;font-weight:500;color:var(--tx);line-height:1}
+.m-sub{font-size:11px;color:var(--t3);margin-top:5px}
+.m-delta{font-size:11px;font-family:var(--mo);margin-top:3px}
+.d-gr{color:var(--gr)}.d-am{color:var(--am)}.d-rd{color:var(--rd)}
+
+/* TWO-COL LOWER */
+.lower{display:grid;grid-template-columns:1fr 360px;gap:16px;min-height:0}
+
+/* CARD */
+.card{background:var(--n2);border:1px solid var(--bd);border-radius:var(--rl);overflow:hidden;display:flex;flex-direction:column}
+.card-head{padding:12px 16px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-shrink:0}
+.card-title{font-size:13px;font-weight:600;color:var(--tx)}
+.card-sub{font-size:11px;color:var(--t3);margin-top:1px}
+
+/* AO TABLE */
+.tbl-wrap{overflow:auto;flex:1}
+.tbl-wrap::-webkit-scrollbar{height:6px;width:6px}
+.tbl-wrap::-webkit-scrollbar-track{background:var(--n2)}
+.tbl-wrap::-webkit-scrollbar-thumb{background:var(--n4);border-radius:3px}
+table{width:100%;border-collapse:collapse;font-size:12px;min-width:520px}
+th{padding:7px 12px;text-align:right;font-size:10px;font-weight:600;letter-spacing:.5px;color:var(--t3);text-transform:uppercase;border-bottom:1px solid var(--bd);white-space:nowrap;background:var(--n2);position:sticky;top:0;z-index:1}
+th:first-child{text-align:left}
+td{padding:7px 12px;border-bottom:1px solid rgba(42,68,96,.4);text-align:right;color:var(--t2);font-family:var(--mo);font-size:11px;white-space:nowrap}
+td:first-child{text-align:left;font-family:var(--fn);font-weight:500;color:var(--tx)}
+tr:last-child td{border-bottom:none}
+tr.sub-total td{background:rgba(255,255,255,.02);font-weight:600;border-top:1px solid var(--b2);color:var(--tx)}
+tr.sub-total td:first-child{font-family:var(--fn)}
+tr.sec-hdr td{background:rgba(255,255,255,.015);font-size:9px;font-weight:600;letter-spacing:.8px;color:var(--t3);text-transform:uppercase;padding:5px 12px;font-family:var(--fn)}
+tr.tbl-row{cursor:pointer;transition:background .1s}
+tr.tbl-row:hover td{background:rgba(255,255,255,.03)}
+.tag{display:inline-flex;padding:1px 6px;border-radius:7px;font-size:9px;font-weight:600;font-family:var(--fn);margin-left:4px}
+.tag-h{background:rgba(251,191,36,.15);color:var(--am)}
+.tag-r{background:rgba(248,113,113,.15);color:var(--rd)}
+.tag-d{background:rgba(96,165,250,.15);color:var(--bl)}
+.bar-w{display:inline-block;vertical-align:middle;width:52px;height:3px;background:var(--n4);border-radius:2px;margin-right:4px}
+.bar-f{height:3px;border-radius:2px;background:var(--ac)}
+.bar-am{background:var(--am)}
+.muted{color:var(--t3);font-style:italic;font-family:var(--fn);font-size:11px}
+.neg{color:var(--rd)}.pos{color:var(--gr)}
+
+/* RIGHT COLUMN */
+.right-col{display:flex;flex-direction:column;gap:16px}
+
+/* DIREF CARD */
+.diref-card{background:var(--n2);border:1px solid rgba(45,212,191,.2);border-radius:var(--rl);padding:14px;flex-shrink:0}
+.diref-title{font-size:9px;font-weight:700;color:var(--ac);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
+.diref-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--bd)}
+.diref-row:last-child{border-bottom:none;padding-top:8px}
+.diref-lbl{font-size:11px;color:var(--t2)}
+.diref-val{font-family:var(--mo);font-size:12px;font-weight:500;color:var(--tx)}
+.diref-inp{background:var(--n3);border:1px solid var(--b2);border-radius:var(--r);padding:4px 8px;font-family:var(--mo);font-size:12px;color:var(--ac);width:148px;text-align:right;outline:none;transition:border .15s}
+.diref-inp:focus{border-color:var(--ac)}
+.diref-date{background:var(--n3);border:1px solid var(--b2);border-radius:var(--r);padding:4px 8px;font-family:var(--fn);font-size:11px;color:var(--t2);width:148px;outline:none;transition:border .15s}
+.diref-date:focus{border-color:var(--ac)}
+.diff-pos{color:var(--gr);font-family:var(--mo);font-size:13px;font-weight:500}
+.diff-neg{color:var(--rd);font-family:var(--mo);font-size:13px;font-weight:500}
+.diff-muted{color:var(--t3);font-size:11px;font-style:italic}
+.diref-saved{font-size:10px;color:var(--t3);margin-top:8px;font-style:italic;min-height:14px}
+
+/* PENDING CARD */
+.pend-card{background:var(--n2);border:1px solid var(--bd);border-radius:var(--rl);overflow:hidden;display:flex;flex-direction:column;flex:1;min-height:0}
+
+/* FILTER BAR pedidos */
+.filter-row{display:flex;align-items:center;gap:8px;padding:8px 14px;border-bottom:1px solid var(--bd);flex-shrink:0}
+.filter-lbl{font-size:11px;color:var(--t3);white-space:nowrap}
+.filter-sel{background:var(--n3);border:1px solid var(--b2);border-radius:var(--r);padding:4px 24px 4px 8px;font-family:var(--fn);font-size:12px;color:var(--t2);outline:none;cursor:pointer;appearance:none;-webkit-appearance:none;flex:1;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10' fill='none'%3E%3Cpath d='M2 3.5L5 6.5L8 3.5' stroke='%236b8aaa' stroke-width='1.2' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 7px center}
+.filter-sel:focus{border-color:var(--ac)}
+
+/* PEDIDO ITEM */
+.pend-list{overflow-y:auto;flex:1}
+.pend-list::-webkit-scrollbar{width:6px}
+.pend-list::-webkit-scrollbar-thumb{background:var(--n4);border-radius:3px}
+.pend-item{display:flex;gap:10px;align-items:flex-start;padding:10px 14px;border-bottom:1px solid rgba(42,68,96,.45);cursor:pointer;transition:background .1s;flex-shrink:0}
+.pend-item:hover{background:rgba(255,255,255,.03)}
+.pend-item:last-child{border-bottom:none}
+.pend-dot{width:8px;height:8px;border-radius:50%;margin-top:3px;flex-shrink:0}
+.dot-alt{background:var(--am)}
+.dot-new{background:var(--bl)}
+.dot-desc{background:var(--gr)}
+.pend-body{flex:1;min-width:0}
+.pend-type{font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:2px}
+.type-alt{color:var(--am)}.type-new{color:var(--bl)}.type-desc{color:var(--gr)}
+.pend-desc{font-size:12px;color:var(--tx);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pend-meta{font-size:10px;color:var(--t3);margin-top:2px}
+.pend-badge{flex-shrink:0;font-size:10px;font-family:var(--mo);padding:2px 6px;border-radius:7px;margin-top:1px}
+.badge-val{background:rgba(45,212,191,.12);color:var(--ac)}
+.badge-lines{background:rgba(96,165,250,.12);color:var(--bl)}
+.badge-pkg{background:rgba(251,191,36,.12);color:var(--am)}
+.badge-desc{background:rgba(52,211,153,.12);color:var(--gr)}
+.pend-more{text-align:center;padding:8px;font-size:11px;color:var(--t3);cursor:pointer;border-top:1px solid var(--bd);flex-shrink:0}
+.pend-more:hover{color:var(--t2)}
+.legend{display:flex;gap:12px;padding:8px 14px;border-top:1px solid var(--bd);flex-shrink:0}
+.leg-item{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--t3)}
+.leg-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- SIDEBAR -->
+<div class="sb" id="sb">
+  <div class="sb-logo">
+    <div class="sb-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="9" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="1" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/></svg></div>
+    <div class="sb-txt"><div class="sb-mark">DIRMAB</div><div class="sb-title">Sistema MTA</div><div class="sb-sub">Módulo de Trabalho Anual</div></div>
+  </div>
+  <div class="tog" onclick="togSB()" title="Recolher painel"><svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M7.5 2L3.5 6l4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+  <nav class="nav">
+    <div class="ns">Principal</div>
+    <div class="ni act" title="Painel geral"><svg class="ni-ico" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="1" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/></svg><span class="ni-lbl">Painel geral</span></div>
+    <div class="ni" title="Linhas do MTA"><svg class="ni-ico" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h8M2 12h10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg><span class="ni-lbl">Linhas do MTA</span></div>
+    <div class="ni" title="Aprovações — 7 pendentes"><svg class="ni-ico" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.2"/><path d="M8 5v3l2 2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg><span class="ni-lbl">Aprovações</span><span class="ni-bdg">7</span><span class="ni-dot"></span></div>
+    <div class="ni" title="Por Parque"><svg class="ni-ico" viewBox="0 0 16 16" fill="none"><path d="M3 12V6l5-4 5 4v6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><rect x="6" y="9" width="4" height="3" rx=".5" stroke="currentColor" stroke-width="1.2"/></svg><span class="ni-lbl">Por Parque</span></div>
+    <div class="ns">Orçamento</div>
+    <div class="ni" title="Ações orçamentárias"><svg class="ni-ico" viewBox="0 0 16 16" fill="none"><rect x="1" y="4" width="14" height="9" rx="1" stroke="currentColor" stroke-width="1.2"/><path d="M5 4V3a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="1.2"/></svg><span class="ni-lbl">Ações orçamentárias</span></div>
+    <div class="ni" title="Sugestão de atendimento"><svg class="ni-ico" viewBox="0 0 16 16" fill="none"><path d="M2 12 6 7l3 3 2-4 3 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="ni-lbl">Sugestão de atendimento</span></div>
+    <div class="ns">Histórico</div>
+    <div class="ni" title="Histórico de aprovações" onclick="alert('Abrir histórico de aprovações')" style="cursor:pointer"><svg class="ni-ico" viewBox="0 0 16 16" fill="none"><path d="M8 2a6 6 0 1 1 0 12A6 6 0 0 1 8 2z" stroke="currentColor" stroke-width="1.2"/><path d="M8 5v3l2 1.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg><span class="ni-lbl">Histórico de aprovações</span></div>
+    <div class="ns">Configuração</div>
+    <div class="ni" title="Parâmetros e colunas"><svg class="ni-ico" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg><span class="ni-lbl">Parâmetros e colunas</span></div>
+    <div class="ni" title="Cenários"><svg class="ni-ico" viewBox="0 0 16 16" fill="none"><ellipse cx="8" cy="5" rx="6" ry="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M2 5v6c0 1.38 2.69 2.5 6 2.5s6-1.12 6-2.5V5" stroke="currentColor" stroke-width="1.2"/><path d="M2 8c0 1.38 2.69 2.5 6 2.5s6-1.12 6-2.5" stroke="currentColor" stroke-width="1.2"/></svg><span class="ni-lbl">Cenários</span></div>
+  </nav>
+  <div class="sb-foot"><div class="ua"><div class="uav">DB</div><div class="ui"><div style="font-size:12px;font-weight:500;color:var(--tx)">Ten Cel Silva</div><div style="font-size:10px;color:var(--t3)">DIRMAB · Administrador</div></div></div></div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div><div class="pt">Painel geral — MTA 2026</div><div class="ps" id="psub">Atualizado em 07 mai 2026 · 08:42</div></div>
+    <div style="display:flex;gap:8px">
+      <button class="btn" onclick="alert('Exportar MTA para Excel')"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M4 12h8M8 3v7M5 7l3 3 3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg> Exportar Excel</button>
+      <button class="btn btn-p" onclick="alert('Abrir motor de sugestão de atendimento')"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M2 12 6 7l3 3 2-4 3 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg> Sugerir atendimento ↗</button>
+    </div>
+  </div>
+
+  <!-- CENÁRIOS -->
+  <div class="sc-bar">
+    <div class="sc-tab ativo"><span class="sc-pill pill-a">● ATIVO</span>Cenário A — baseline 2026</div>
+    <div class="sc-div"></div>
+    <div class="sc-tab paralelo" onclick="alert('Visualizar Cenário B — corte LOA 15% — modo simulação')"><span class="sc-pill pill-p">◐ PARALELO</span>Cenário B · corte LOA 15%</div>
+    <div class="sc-div"></div>
+    <div class="sc-tab arquivado" onclick="alert('Visualizar Cenário A₀ arquivado — dez/2025')"><span class="sc-pill pill-q">○ ARQUIVADO</span>Cenário A₀ · dez/2025</div>
+    <div class="sc-new" onclick="alert('Clonar cenário atual para criar novo cenário paralelo')">
+      <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg> Novo cenário
+    </div>
+  </div>
+
+  <!-- ATIVO BANNER -->
+  <div class="ativo-banner">
+    <div class="ativo-dot"></div>
+    <span class="ativo-txt">Visualizando: Cenário A — baseline 2026</span>
+    <span class="ativo-sub">· Cenário ativo · Alterações e descentralizações têm efeito real</span>
+  </div>
+
+  <div class="content">
+
+    <!-- MÉTRICAS -->
+    <div class="metrics">
+      <div class="metric ac">
+        <div class="m-lbl">MTA aprovado (limite A)</div>
+        <div class="m-val">R$ 1,53 bi</div>
+        <div class="m-sub">AOs do Ano A · 1.524 linhas</div>
+      </div>
+      <div class="metric">
+        <div class="m-lbl">Descentralizado</div>
+        <div class="m-val">R$ 2,44 M</div>
+        <div class="m-sub">6 linhas · 0,2% do aprovado</div>
+        <div class="m-delta d-gr">▲ 6 linhas TRÂMITE = ATENDER</div>
+      </div>
+      <div class="metric am">
+        <div class="m-lbl">Pedidos pendentes</div>
+        <div class="m-val">7</div>
+        <div class="m-sub">aguardando análise DIRMAB</div>
+        <div class="m-delta d-am">4 alterações · 2 novas · 1 desc.</div>
+      </div>
+      <div class="metric">
+        <div class="m-lbl">Fora do limite</div>
+        <div class="m-val">R$ 279 M</div>
+        <div class="m-sub">HOLDING + RAP + DESTQs</div>
+      </div>
+    </div>
+
+    <!-- LOWER GRID -->
+    <div class="lower">
+
+      <!-- TABELA AOs -->
+      <div class="card">
+        <div class="card-head">
+          <div><div class="card-title">Ações orçamentárias</div><div class="card-sub">Comparativo MTA aprovado × dotação disponível</div></div>
+          <button class="btn btn-sm" onclick="alert('Abrir tela completa de AOs para preencher PLOA, Dotação Inicial e Dotação Atual')">Editar dotações</button>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Ação orçamentária</th>
+                <th>MTA aprovado</th>
+                <th>Dotação atual</th>
+                <th>Saldo</th>
+                <th>% desc.</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="sec-hdr"><td colspan="5">Limite orçamentário Ano A</td></tr>
+              <tr class="tbl-row" onclick="alert('Detalhe AO 2048')">
+                <td>2048</td><td>R$ 875.153.716</td><td class="muted">a preencher</td><td class="muted">—</td>
+                <td><span class="bar-w"><span class="bar-f" style="width:0%"></span></span>0%</td>
+              </tr>
+              <tr class="tbl-row" onclick="alert('Detalhe AOs 20XV')">
+                <td>20XV + MOD + EXTRA</td><td>R$ 470.747.453</td><td class="muted">a preencher</td><td class="muted">—</td>
+                <td><span class="bar-w"><span class="bar-f" style="width:0%"></span></span>0%</td>
+              </tr>
+              <tr class="tbl-row"><td>21A0</td><td>R$ 97.880.227</td><td class="muted">a preencher</td><td class="muted">—</td><td><span class="bar-w"><span class="bar-f" style="width:0%"></span></span>0%</td></tr>
+              <tr class="tbl-row"><td>21E7</td><td>R$ 35.090.909</td><td class="muted">a preencher</td><td class="muted">—</td><td><span class="bar-w"><span class="bar-f" style="width:0%"></span></span>0%</td></tr>
+              <tr class="tbl-row"><td>20IH</td><td>R$ 32.834.767</td><td class="muted">a preencher</td><td class="muted">—</td><td><span class="bar-w"><span class="bar-f" style="width:0%"></span></span>0%</td></tr>
+              <tr class="tbl-row"><td>21H2</td><td>R$ 20.000.000</td><td class="muted">a preencher</td><td class="muted">—</td><td><span class="bar-w"><span class="bar-f" style="width:0%"></span></span>0%</td></tr>
+              <tr class="sub-total">
+                <td>Subtotal — Ano A</td><td>R$ 1.531.706.073</td><td class="muted">—</td><td class="muted">—</td><td>—</td>
+              </tr>
+              <tr class="sec-hdr"><td colspan="5">Fora do limite — informativos</td></tr>
+              <tr class="tbl-row"><td>HOLDING ACCOUNT <span class="tag tag-h">FMS</span></td><td>R$ 16.731.643</td><td class="muted">N/A</td><td class="muted">N/A</td><td><span class="bar-w"><span class="bar-f" style="width:0%"></span></span>0%</td></tr>
+              <tr class="tbl-row"><td>RAP <span class="tag tag-r">Restos a Pagar</span></td><td>R$ 242.922.573</td><td class="muted">N/A</td><td class="muted">N/A</td><td><span class="bar-w"><span class="bar-f" style="width:0%"></span></span>0%</td></tr>
+              <tr class="tbl-row" onclick="alert('Detalhe dos 14 DESTQs')"><td>DESTQs (14) <span class="tag tag-d">destaques</span></td><td>R$ 19.556.407</td><td class="muted">a preencher</td><td class="muted">—</td><td><span class="bar-w"><span class="bar-f" style="width:0%"></span></span>0%</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- COLUNA DIREITA -->
+      <div class="right-col">
+
+        <!-- DIREF -->
+        <div class="diref-card">
+          <div class="diref-title">Crédito disponível — DIREF</div>
+          <div class="diref-row">
+            <span class="diref-lbl">Data de referência</span>
+            <input class="diref-date" id="diref-date" type="date" onchange="saveDiref()"/>
+          </div>
+          <div class="diref-row">
+            <span class="diref-lbl">Disponível na DIREF</span>
+            <input class="diref-inp" id="diref-in" type="text" placeholder="R$ 0,00" oninput="onDirefInput(this)"/>
+          </div>
+          <div class="diref-row">
+            <span class="diref-lbl">Total linhas ATENDER</span>
+            <span class="diref-val">R$ 2.443.387,00</span>
+          </div>
+          <div class="diref-row">
+            <span class="diref-lbl" style="font-weight:600;color:var(--tx)">Diferença</span>
+            <span id="diref-diff" class="diff-muted">— informe o disponível</span>
+          </div>
+          <div class="diref-saved" id="diref-saved"></div>
+        </div>
+
+        <!-- PEDIDOS PENDENTES -->
+        <div class="pend-card">
+          <div class="card-head">
+            <div><div class="card-title">Pedidos pendentes</div><div class="card-sub" id="pend-sub">7 pedidos · do mais antigo ao mais recente</div></div>
+            <button class="btn btn-p btn-sm" onclick="alert('Abrir tela completa de aprovações com diff de cada pedido')">Ver todos ↗</button>
+          </div>
+          <div class="filter-row">
+            <span class="filter-lbl">Parque:</span>
+            <select class="filter-sel" id="parque-sel" onchange="filterPend(this.value)">
+              <option value="TODOS">Todos os Parques (7)</option>
+              <option value="PAMAGL">PAMAGL (1)</option>
+              <option value="PAMALS">PAMALS (2)</option>
+              <option value="PAMASP">PAMASP (2)</option>
+              <option value="PAMBRJ">PAMBRJ (2)</option>
+            </select>
+          </div>
+          <div class="pend-list" id="pend-list">
+            <div class="pend-item" data-parque="PAMBRJ" onclick="alert('Abrir pedido: alteração linha C-97 PAMBRJ')">
+              <div class="pend-dot dot-alt"></div>
+              <div class="pend-body">
+                <div class="pend-type type-alt">Alteração de linha</div>
+                <div class="pend-desc">PAMBRJ · C-97 · Pacote A → B</div>
+                <div class="pend-meta">Maj Lima · 01 mai 2026 · 09h15</div>
+              </div>
+              <span class="pend-badge badge-pkg">Pacote</span>
+            </div>
+            <div class="pend-item" data-parque="PAMBRJ" onclick="alert('Abrir pedido: descentralização PAMBRJ')">
+              <div class="pend-dot dot-desc"></div>
+              <div class="pend-body">
+                <div class="pend-type type-desc">Descentralização</div>
+                <div class="pend-desc">PAMBRJ · C-97 · 1 linha · Prior. 1</div>
+                <div class="pend-meta">Maj Lima · 01 mai 2026 · 14h32</div>
+              </div>
+              <span class="pend-badge badge-desc">R$ 270k</span>
+            </div>
+            <div class="pend-item" data-parque="PAMALS" onclick="alert('Abrir pedido: descentralização PAMALS')">
+              <div class="pend-dot dot-desc"></div>
+              <div class="pend-body">
+                <div class="pend-type type-desc">Descentralização</div>
+                <div class="pend-desc">PAMALS · A-29 · 4 linhas · Prior. 1–4</div>
+                <div class="pend-meta">Cap Souza · 02 mai 2026 · 08h47</div>
+              </div>
+              <span class="pend-badge badge-desc">R$ 1,83 M</span>
+            </div>
+            <div class="pend-item" data-parque="PAMAGL" onclick="alert('Abrir pedido: novas linhas PAMAGL')">
+              <div class="pend-dot dot-new"></div>
+              <div class="pend-body">
+                <div class="pend-type type-new">Novas linhas</div>
+                <div class="pend-desc">PAMAGL · KC-390 · 2 novas linhas</div>
+                <div class="pend-meta">Sgt Ferreira · 03 mai 2026 · 11h20</div>
+              </div>
+              <span class="pend-badge badge-lines">2 linhas</span>
+            </div>
+            <div class="pend-item" data-parque="PAMALS" onclick="alert('Abrir pedido: alteração PAMALS H-36')">
+              <div class="pend-dot dot-alt"></div>
+              <div class="pend-body">
+                <div class="pend-type type-alt">Alteração de linhas</div>
+                <div class="pend-desc">PAMALS · H-36 · 2 linhas modificadas</div>
+                <div class="pend-meta">Ten Carvalho · 03 mai 2026 · 16h05</div>
+              </div>
+              <span class="pend-badge badge-val">Δ R$ 88k</span>
+            </div>
+            <div class="pend-item" data-parque="PAMASP" onclick="alert('Abrir pedido: nova linha PAMASP T-27')">
+              <div class="pend-dot dot-new"></div>
+              <div class="pend-body">
+                <div class="pend-type type-new">Nova linha</div>
+                <div class="pend-desc">PAMASP · T-27 · 1 nova linha</div>
+                <div class="pend-meta">Cap Mendes · 04 mai 2026 · 10h38</div>
+              </div>
+              <span class="pend-badge badge-lines">1 linha</span>
+            </div>
+            <div class="pend-item" data-parque="PAMASP" onclick="alert('Abrir pedido: alteração PAMASP F-39')">
+              <div class="pend-dot dot-alt"></div>
+              <div class="pend-body">
+                <div class="pend-type type-alt">Alteração de linhas</div>
+                <div class="pend-desc">PAMASP · F-39 · 3 linhas modificadas</div>
+                <div class="pend-meta">Ten Rodrigues · 04 mai 2026 · 15h52</div>
+              </div>
+              <span class="pend-badge badge-val">Δ R$ 142k</span>
+            </div>
+          </div>
+          <div id="pend-empty" style="display:none;padding:20px;text-align:center;font-size:12px;color:var(--t3)">Nenhum pedido para este Parque.</div>
+          <div class="legend">
+            <div class="leg-item"><div class="leg-dot" style="background:var(--am)"></div>Alteração</div>
+            <div class="leg-item"><div class="leg-dot" style="background:var(--bl)"></div>Nova linha</div>
+            <div class="leg-item"><div class="leg-dot" style="background:var(--gr)"></div>Descentralização</div>
+          </div>
+        </div>
+
+      </div><!-- right-col -->
+    </div><!-- lower -->
+  </div><!-- content -->
+</div><!-- main -->
+</div><!-- shell -->
+
+<script>
+const ATENDER_CENTS=244338700;
+
+function brl(cents){return'R$ '+(cents/100).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function parseCents(s){return parseInt(s.replace(/\D/g,'')||'0',10);}
+
+function onDirefInput(el){
+  const cents=parseCents(el.value);
+  el.value=brl(cents);
+  setTimeout(()=>el.setSelectionRange(el.value.length,el.value.length),0);
+  updateDiff(cents);
+  saveDiref(cents);
+}
+function updateDiff(cents){
+  const d=cents-ATENDER_CENTS;
+  const el=document.getElementById('diref-diff');
+  if(!cents){el.className='diff-muted';el.textContent='— informe o disponível';return;}
+  el.className=d>=0?'diff-pos':'diff-neg';
+  el.textContent=(d>=0?'+ ':'− ')+brl(Math.abs(d));
+}
+function saveDiref(cents){
+  const date=document.getElementById('diref-date').value;
+  try{if(cents>0)localStorage.setItem('diref_cents',cents);if(date)localStorage.setItem('diref_date',date);}catch(e){}
+  const el=document.getElementById('diref-saved');
+  if(cents>0&&date){
+    const df=new Date(date+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'short',year:'numeric'});
+    el.textContent='Último registro: '+brl(cents)+' em '+df;
+  } else el.textContent='';
+}
+function filterPend(parque){
+  const items=document.querySelectorAll('.pend-item');
+  let vis=0;
+  items.forEach(i=>{const show=parque==='TODOS'||i.dataset.parque===parque;i.style.display=show?'flex':'none';if(show)vis++;});
+  document.getElementById('pend-empty').style.display=vis===0?'block':'none';
+  document.getElementById('pend-sub').textContent=vis+(parque==='TODOS'?' pedidos':' pedido'+(vis!==1?'s':'')+' — '+parque)+' · do mais antigo ao mais recente';
+}
+function togSB(){
+  const sb=document.getElementById('sb');
+  sb.classList.toggle('col');
+  document.querySelector('.tog').title=sb.classList.contains('col')?'Expandir painel':'Recolher painel';
+}
+(function loadSaved(){
+  try{
+    const c=parseInt(localStorage.getItem('diref_cents')||'0');
+    const d=localStorage.getItem('diref_date')||'';
+    if(c>0){document.getElementById('diref-in').value=brl(c);updateDiff(c);}
+    if(d)document.getElementById('diref-date').value=d;
+    if(c>0||d)saveDiref(c);
+  }catch(e){}
+})();
+</script>
+</body>
+</html>
