@@ -371,71 +371,7 @@ tr.tbl-row:hover td{background:rgba(255,255,255,.03)}
               <option value="PAMBRJ">PAMBRJ (2)</option>
             </select>
           </div>
-          <div class="pend-list" id="pend-list">
-            <div class="pend-item" data-parque="PAMBRJ" onclick="location.href='MTA_aprovacoes_v8.html?pkg=pkg1'">
-              <div class="pend-dot dot-alt"></div>
-              <div class="pend-body">
-                <div class="pend-type type-alt">Alteração de linha</div>
-                <div class="pend-desc">PAMBRJ · C-97 · Pacote A → B</div>
-                <div class="pend-meta">Maj Lima · 01 mai 2026 · 09h15</div>
-              </div>
-              <span class="pend-badge badge-pkg">Pacote</span>
-            </div>
-            <div class="pend-item" data-parque="PAMBRJ" onclick="location.href='MTA_aprovacoes_v8.html?pkg=pkg2'">
-              <div class="pend-dot dot-desc"></div>
-              <div class="pend-body">
-                <div class="pend-type type-desc">Descentralização</div>
-                <div class="pend-desc">PAMBRJ · C-97 · 1 linha · Prior. 1</div>
-                <div class="pend-meta">Maj Lima · 01 mai 2026 · 14h32</div>
-              </div>
-              <span class="pend-badge badge-desc">R$ 270k</span>
-            </div>
-            <div class="pend-item" data-parque="PAMALS" onclick="location.href='MTA_aprovacoes_v8.html?pkg=pkg3'">
-              <div class="pend-dot dot-desc"></div>
-              <div class="pend-body">
-                <div class="pend-type type-desc">Descentralização</div>
-                <div class="pend-desc">PAMALS · A-29 · 4 linhas · Prior. 1–4</div>
-                <div class="pend-meta">Cap Souza · 02 mai 2026 · 08h47</div>
-              </div>
-              <span class="pend-badge badge-desc">R$ 1,83 M</span>
-            </div>
-            <div class="pend-item" data-parque="PAMAGL" onclick="location.href='MTA_aprovacoes_v8.html?pkg=pkg4'">
-              <div class="pend-dot dot-new"></div>
-              <div class="pend-body">
-                <div class="pend-type type-new">Novas linhas</div>
-                <div class="pend-desc">PAMAGL · KC-390 · 2 novas linhas</div>
-                <div class="pend-meta">Sgt Ferreira · 03 mai 2026 · 11h20</div>
-              </div>
-              <span class="pend-badge badge-lines">2 linhas</span>
-            </div>
-            <div class="pend-item" data-parque="PAMALS" onclick="location.href='MTA_aprovacoes_v8.html?pkg=pkg5'">
-              <div class="pend-dot dot-alt"></div>
-              <div class="pend-body">
-                <div class="pend-type type-alt">Alteração de linhas</div>
-                <div class="pend-desc">PAMALS · H-36 · 2 linhas modificadas</div>
-                <div class="pend-meta">Ten Carvalho · 03 mai 2026 · 16h05</div>
-              </div>
-              <span class="pend-badge badge-val">Δ R$ 88k</span>
-            </div>
-            <div class="pend-item" data-parque="PAMASP" onclick="location.href='MTA_aprovacoes_v8.html?pkg=pkg6'">
-              <div class="pend-dot dot-new"></div>
-              <div class="pend-body">
-                <div class="pend-type type-new">Nova linha</div>
-                <div class="pend-desc">PAMASP · T-27 · 1 nova linha</div>
-                <div class="pend-meta">Cap Mendes · 04 mai 2026 · 10h38</div>
-              </div>
-              <span class="pend-badge badge-lines">1 linha</span>
-            </div>
-            <div class="pend-item" data-parque="PAMASP" onclick="location.href='MTA_aprovacoes_v8.html?pkg=pkg7'">
-              <div class="pend-dot dot-alt"></div>
-              <div class="pend-body">
-                <div class="pend-type type-alt">Alteração de linhas</div>
-                <div class="pend-desc">PAMASP · F-39 · 3 linhas modificadas</div>
-                <div class="pend-meta">Ten Rodrigues · 04 mai 2026 · 15h52</div>
-              </div>
-              <span class="pend-badge badge-val">Δ R$ 142k</span>
-            </div>
-          </div>
+          <div class="pend-list" id="pend-list"></div>
           <div id="pend-empty" style="display:none;padding:20px;text-align:center;font-size:12px;color:var(--t3)">Nenhum pedido para este Parque.</div>
           <div class="legend">
             <div class="leg-item"><div class="leg-dot" style="background:var(--am)"></div>Alteração</div>
@@ -479,13 +415,47 @@ function saveDiref(cents){
     el.textContent='Último registro: '+brl(cents)+' em '+df;
   } else el.textContent='';
 }
-function filterPend(parque){
-  const items=document.querySelectorAll('.pend-item');
-  let vis=0;
-  items.forEach(i=>{const show=parque==='TODOS'||i.dataset.parque===parque;i.style.display=show?'flex':'none';if(show)vis++;});
-  document.getElementById('pend-empty').style.display=vis===0?'block':'none';
-  document.getElementById('pend-sub').textContent=vis+(parque==='TODOS'?' pedidos':' pedido'+(vis!==1?'s':'')+' — '+parque)+' · do mais antigo ao mais recente';
+const ALL_PKGS=[
+  {id:'pkg1',parque:'PAMBRJ',tipo:'alt',desc:'PAMBRJ · C-97 · Pacote A → B',meta:'Maj Lima · 01 mai 2026 · 09h15',badge:'Pacote',badgeCls:'badge-pkg'},
+  {id:'pkg2',parque:'PAMBRJ',tipo:'desc',desc:'PAMBRJ · C-97 · 1 linha · Prior. 1',meta:'Maj Lima · 01 mai 2026 · 14h32',badge:'R$ 270k',badgeCls:'badge-desc'},
+  {id:'pkg3',parque:'PAMALS',tipo:'desc',desc:'PAMALS · A-29 · 4 linhas · Prior. 1–4',meta:'Cap Souza · 02 mai 2026 · 08h47',badge:'R$ 1,83 M',badgeCls:'badge-desc'},
+  {id:'pkg4',parque:'PAMAGL',tipo:'new',desc:'PAMAGL · KC-390 · 2 novas linhas',meta:'Sgt Ferreira · 03 mai 2026 · 11h20',badge:'2 linhas',badgeCls:'badge-lines'},
+  {id:'pkg5',parque:'PAMALS',tipo:'alt',desc:'PAMALS · H-60/F-39 · 2 linhas modificadas',meta:'Ten Carvalho · 03 mai 2026 · 16h05',badge:'Δ R$ 88k',badgeCls:'badge-val'},
+  {id:'pkg6',parque:'PAMASP',tipo:'new',desc:'PAMASP · T-27 · 1 nova linha',meta:'Cap Mendes · 04 mai 2026 · 10h38',badge:'1 linha',badgeCls:'badge-lines'},
+  {id:'pkg7',parque:'PAMASP',tipo:'alt',desc:'PAMASP · F-39 · 3 linhas modificadas',meta:'Ten Rodrigues · 04 mai 2026 · 15h52',badge:'Δ R$ 142k',badgeCls:'badge-val'},
+];
+const TIPO_DOT={alt:'dot-alt',new:'dot-new',desc:'dot-desc'};
+const TIPO_LBL={alt:'Alteração de linha',new:'Nova linha',desc:'Descentralização'};
+const TIPO_CLS={alt:'type-alt',new:'type-new',desc:'type-desc'};
+
+function pendingPkgs(){
+  try{const s=localStorage.getItem('mta_pkgs_pending');if(s){const ids=JSON.parse(s);return ALL_PKGS.filter(p=>ids.includes(p.id));}}catch(e){}
+  return ALL_PKGS;
 }
+function renderPendList(parque){
+  const pending=pendingPkgs();
+  const shown=parque&&parque!=='TODOS'?pending.filter(p=>p.parque===parque):pending;
+  const list=document.getElementById('pend-list');
+  const empty=document.getElementById('pend-empty');
+  if(shown.length===0){list.innerHTML='';empty.style.display='block';}
+  else{
+    empty.style.display='none';
+    list.innerHTML=shown.map(p=>`<div class="pend-item" data-parque="${p.parque}" onclick="location.href='MTA_aprovacoes_v8.html?pkg=${p.id}'" style="cursor:pointer">
+      <div class="pend-dot ${TIPO_DOT[p.tipo]}"></div>
+      <div class="pend-body"><div class="pend-type ${TIPO_CLS[p.tipo]}">${TIPO_LBL[p.tipo]}</div><div class="pend-desc">${p.desc}</div><div class="pend-meta">${p.meta}</div></div>
+      <span class="pend-badge ${p.badgeCls}">${p.badge}</span></div>`).join('');
+  }
+  const n=shown.length;
+  document.getElementById('pend-sub').textContent=n+(parque==='TODOS'||!parque?' pedidos':' pedido'+(n!==1?'s':'')+' — '+parque)+' · do mais antigo ao mais recente';
+  // update dropdown counts
+  const sel=document.getElementById('parque-sel');
+  sel.options[0].text=`Todos os Parques (${pending.length})`;
+  ['PAMAGL','PAMALS','PAMASP','PAMBRJ'].forEach((pk,i)=>{
+    const c=pending.filter(q=>q.parque===pk).length;
+    sel.options[i+1].text=`${pk} (${c})`;
+  });
+}
+function filterPend(parque){renderPendList(parque);}
 function togSB(){
   const sb=document.getElementById('sb');
   sb.classList.toggle('col');
@@ -500,6 +470,7 @@ function togSB(){
     if(c>0||d)saveDiref(c);
   }catch(e){}
 })();
+renderPendList('TODOS');
 </script>
 </body>
 </html>
