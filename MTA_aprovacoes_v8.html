@@ -524,7 +524,24 @@ PKGS_RAW.sort((a,b)=>{
 
 let PKGS = PKGS_RAW.map(p=>({...p, status:'pend', decisions:{}, retMotivos:{}}));
 function savePkgState(){try{localStorage.setItem('mta_pkgs_pending',JSON.stringify(PKGS.map(p=>p.id)));}catch(e){}}
-function loadPkgState(){try{const s=localStorage.getItem('mta_pkgs_pending');if(s){const ids=JSON.parse(s);PKGS=PKGS.filter(p=>ids.includes(p.id));}}catch(e){}}
+function loadPkgState(){
+  try{
+    const s=localStorage.getItem('mta_pkgs_pending');
+    const ids=s?JSON.parse(s):null;
+    if(ids)PKGS=PKGS.filter(p=>ids.includes(p.id));
+    // merge user-created pedidos from linhas editor
+    const ud=localStorage.getItem('mta_pkgs_userdata');
+    if(ud){
+      const userdata=JSON.parse(ud);
+      Object.values(userdata).forEach(pkg=>{
+        if(!ids||ids.includes(pkg.id)){
+          if(!PKGS.find(p=>p.id===pkg.id))
+            PKGS.push({...pkg,status:'pend',decisions:{},retMotivos:{}});
+        }
+      });
+    }
+  }catch(e){}
+}
 loadPkgState();
 let HIST = [];
 let currentId = null;

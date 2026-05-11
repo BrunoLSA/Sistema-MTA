@@ -435,7 +435,25 @@ const TIPO_LBL={alt:'Alteração de linha',new:'Nova linha',desc:'Descentraliza�
 const TIPO_CLS={alt:'type-alt',new:'type-new',desc:'type-desc'};
 
 function pendingPkgs(){
-  try{const s=localStorage.getItem('mta_pkgs_pending');if(s){const ids=JSON.parse(s);return ALL_PKGS.filter(p=>ids.includes(p.id));}}catch(e){}
+  try{
+    const s=localStorage.getItem('mta_pkgs_pending');
+    const ids=s?JSON.parse(s):null;
+    let result=ids?ALL_PKGS.filter(p=>ids.includes(p.id)):[...ALL_PKGS];
+    // add user-created pedidos from linhas editor
+    const ud=localStorage.getItem('mta_pkgs_userdata');
+    if(ud&&ids){
+      const userdata=JSON.parse(ud);
+      Object.values(userdata).forEach(pkg=>{
+        if(ids.includes(pkg.id)){
+          const nL=pkg.changes?pkg.changes.length:1;
+          result.push({id:pkg.id,parque:pkg.parque,tipo:pkg.tipo||'alt',
+            desc:pkg.parque+' · '+pkg.desc,meta:pkg.autor+' · '+pkg.data,
+            badge:nL+' linha'+(nL===1?'':'s'),badgeCls:'badge-val'});
+        }
+      });
+    }
+    return result;
+  }catch(e){}
   return ALL_PKGS;
 }
 function renderPendList(parque){
@@ -492,7 +510,7 @@ function togSB(){
 })();
 renderPendList('TODOS');
 function resetPrototipo(){
-  try{localStorage.removeItem('mta_pkgs_pending');localStorage.removeItem('mta_hist');}catch(e){}
+  try{localStorage.removeItem('mta_pkgs_pending');localStorage.removeItem('mta_hist');localStorage.removeItem('mta_pkgs_userdata');}catch(e){}
   document.getElementById('parque-sel').value='TODOS';
   renderPendList('TODOS');
 }
