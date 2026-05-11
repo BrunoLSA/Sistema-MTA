@@ -480,7 +480,10 @@ function fmtOrig(k,v,moeda){
 }
 function newValFooter(ord,k,moeda){
   const sub=pendSubmitted[ord];if(!sub||sub[k]===undefined)return'';
-  return`<span style="font-size:10px;color:var(--gr);margin-top:1px;display:block;line-height:1.3">→ ${fmtOrig(k,sub[k],moeda)}</span>`;
+  const origRow=ROWS.find(r=>r.ord===ord);
+  const origFmt=origRow?fmtOrig(k,origRow[k],origRow['moeda']||'BRL'):'—';
+  const newFmt=fmtOrig(k,sub[k],moeda);
+  return`<span style="font-size:10px;display:flex;align-items:center;gap:3px;margin-top:2px;line-height:1.3"><span style="color:var(--rd);text-decoration:line-through;opacity:.8">${origFmt}</span><span style="color:var(--t3)">→</span><span style="color:var(--gr);font-weight:600">${newFmt}</span></span>`;
 }
 function applyApprovedVals(){
   try{
@@ -550,7 +553,7 @@ function render(){
     const firstBg=hp?'background:#2b3e14':'background:var(--n2)';
     const rowLocked=!!(pendSubmitted[row.ord]&&Object.keys(pendSubmitted[row.ord]).length);
     const lockedTitle=rowLocked?' title="Aguardando aprovação DIRMAB — edição bloqueada"':'';
-    return`<tr class="${hp?'pd':''} ${rowLocked?'locked':''}">` +vcs.map(c=>{
+    return`<tr class="${hp?'pd':''} ${rowLocked?'locked':''}}">`+vcs.map(c=>{
       const raw=cv(row,c.k);
       const modPend=!!(pend[row.ord]&&pend[row.ord][c.k]!==undefined);
       const modSub=!!(pendSubmitted[row.ord]&&pendSubmitted[row.ord][c.k]!==undefined);
@@ -994,5 +997,3 @@ function enviarParaAprovacao(){
     <button class="dp-clear" onclick="dpClear()">Limpar</button>
   </div>
 </div>
-</body>
-</html>
