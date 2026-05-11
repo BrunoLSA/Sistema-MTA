@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
 <title>Sistema MTA — Painel Geral DIRMAB 2026</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <style>
@@ -378,6 +381,9 @@ tr.tbl-row:hover td{background:rgba(255,255,255,.03)}
             <div class="leg-item"><div class="leg-dot" style="background:var(--bl)"></div>Nova linha</div>
             <div class="leg-item"><div class="leg-dot" style="background:var(--gr)"></div>Descentralização</div>
           </div>
+          <div style="border-top:1px solid var(--bd);margin-top:8px;padding:8px 0 2px;text-align:right">
+            <button class="btn btn-sm" style="font-size:10px;color:var(--t3);border-color:var(--bd)" onclick="resetPrototipo()" title="Apaga o estado salvo e restaura os 7 pedidos de teste">↺ Reiniciar dados de teste</button>
+          </div>
         </div>
 
       </div><!-- right-col -->
@@ -471,6 +477,11 @@ function togSB(){
   }catch(e){}
 })();
 renderPendList('TODOS');
+function resetPrototipo(){
+  try{localStorage.removeItem('mta_pkgs_pending');localStorage.removeItem('mta_hist');}catch(e){}
+  document.getElementById('parque-sel').value='TODOS';
+  renderPendList('TODOS');
+}
 </script>
 </body>
 </html>
