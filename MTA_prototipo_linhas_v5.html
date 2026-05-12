@@ -1,1 +1,1607 @@
-placeholder - will be replaced
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
+<title>Sistema MTA — Linhas do MTA 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --n:#132337;--n2:#1c3048;--n3:#243d5c;--n4:#2d4d72;
+  --ac:#2dd4bf;--am:#fbbf24;--gr:#34d399;--rd:#f87171;
+  --tx:#eef2f7;--t2:#a8bcd4;--t3:#6b8aaa;
+  --bd:#2a4460;--b2:#3d6080;
+  --fn:'IBM Plex Sans',sans-serif;--mo:'IBM Plex Mono',monospace;
+  --r:6px;--rl:10px;
+}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--fn);background:var(--n);color:var(--tx);font-size:13px;display:flex;flex-direction:column}
+.shell{display:flex;flex:1;min-height:0;overflow:hidden}
+
+/* SIDEBAR */
+.sb{background:var(--n2);border-right:1px solid var(--bd);display:flex;flex-direction:column;width:220px;flex-shrink:0;transition:width .22s;overflow:visible;position:relative;z-index:50}
+.sb.col{width:52px}
+.sb-logo{padding:14px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:10px;min-height:62px}
+.sb-icon{width:28px;height:28px;border-radius:6px;background:rgba(45,212,191,.15);border:1px solid rgba(45,212,191,.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--ac)}
+.sb-txt{overflow:hidden;white-space:nowrap;transition:opacity .15s}
+.col .sb-txt{opacity:0;width:0;pointer-events:none}
+.sb-mark{font-family:var(--mo);font-size:9px;color:var(--ac);letter-spacing:2px;text-transform:uppercase}
+.sb-title{font-size:14px;font-weight:600;color:var(--tx)}
+.sb-sub{font-size:10px;color:var(--t3)}
+.tog{position:absolute;top:16px;right:-15px;width:28px;height:28px;border-radius:50%;background:var(--n3);border:2px solid var(--b2);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:200;color:var(--t3);box-shadow:0 2px 8px rgba(0,0,0,.6);transition:all .15s}
+.tog:hover{background:var(--n4);color:var(--tx)}
+.tog svg{transition:transform .22s}
+.col .tog svg{transform:rotate(180deg)}
+.nav{padding:8px 0;flex:1;overflow:hidden}
+.ns{padding:0 14px 3px;font-size:9px;font-weight:600;letter-spacing:1.5px;color:var(--t3);text-transform:uppercase;margin-top:10px;white-space:nowrap;transition:opacity .15s}
+.col .ns{opacity:0}
+.ni{display:flex;align-items:center;padding:7px 14px;font-size:13px;color:var(--t2);cursor:pointer;border-left:2px solid transparent;gap:10px;white-space:nowrap;transition:all .15s;position:relative}
+.ni:hover{color:var(--tx);background:rgba(255,255,255,.05)}
+.ni.act{color:var(--ac);border-left-color:var(--ac);background:rgba(45,212,191,.07)}
+.ni-ico{width:16px;height:16px;flex-shrink:0}
+.ni-lbl{flex:1;overflow:hidden;min-width:0;transition:opacity .15s}
+.col .ni-lbl{opacity:0;width:0;flex:0}
+.ni-bdg{background:#b45309;color:#fef3c7;font-size:9px;font-family:var(--mo);padding:1px 5px;border-radius:8px;font-weight:600;flex-shrink:0;transition:opacity .1s,max-width .22s,padding .22s,margin .22s;max-width:40px;overflow:hidden}
+.col .ni-bdg{opacity:0;max-width:0;padding:0;margin:0;pointer-events:none}
+.ni-dot{position:absolute;top:7px;right:8px;width:7px;height:7px;border-radius:50%;background:#f97316;border:1.5px solid var(--n2);display:none;z-index:5}
+.col .ni-dot{display:block}
+.col .ni{padding:7px 0;justify-content:center;border-left:none;gap:0}
+.col .ni.act{background:rgba(45,212,191,.1)}
+.sb-foot{padding:10px 14px;border-top:1px solid var(--bd);overflow:hidden}
+.ua{display:flex;align-items:center;gap:10px}
+.uav{width:30px;height:30px;border-radius:50%;background:var(--n4);border:1px solid var(--b2);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:var(--ac);flex-shrink:0}
+.ui{overflow:hidden;white-space:nowrap;transition:opacity .15s}
+.col .ui{opacity:0;width:0}
+
+/* MAIN */
+.main{display:flex;flex-direction:column;flex:1;min-width:0;overflow:hidden}
+.topbar{padding:11px 18px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;background:var(--n2);flex-shrink:0;gap:12px}
+.pt{font-size:15px;font-weight:600}
+.ps{font-size:11px;color:var(--t3);margin-top:1px}
+.tbr{display:flex;gap:6px;flex-shrink:0}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:var(--r);font-size:12px;font-weight:500;cursor:pointer;border:1px solid #4a7aaa;background:#375f8a;color:#cce0f5;font-family:var(--fn);transition:all .15s;white-space:nowrap}
+.btn:hover{background:#4a78b5;color:#fff;border-color:#5a90ca}
+.btn-p{background:rgba(45,212,191,.22);color:var(--ac);border-color:rgba(45,212,191,.55)}
+.btn-p:hover{background:var(--ac);color:#0a1a2a}
+.btn-am{background:rgba(251,191,36,.18);color:var(--am);border-color:rgba(251,191,36,.45)}
+.btn-am:hover{background:rgba(251,191,36,.3)}
+.btn-d{background:rgba(248,113,113,.16);color:var(--rd);border-color:rgba(248,113,113,.4)}
+.btn-d:hover{background:rgba(248,113,113,.28)}
+.btn-sm{padding:3px 8px;font-size:11px}
+
+.bars{flex-shrink:0}
+.bar{display:none;align-items:center;gap:8px;padding:5px 18px;font-size:11px;flex-wrap:wrap;border-bottom:1px solid var(--bd)}
+.bar.vis{display:flex}
+.bar-s{background:rgba(45,212,191,.04)}
+.bar-f{background:rgba(251,191,36,.04)}
+.bar-p{background:rgba(251,191,36,.09);border-bottom:2px solid rgba(251,191,36,.32);justify-content:space-between}
+.chip{display:inline-flex;align-items:center;gap:4px;padding:1px 8px;border-radius:10px;font-size:11px;border:1px solid}
+.chip-s{border-color:rgba(45,212,191,.3);color:var(--ac)}
+.chip-f{border-color:rgba(251,191,36,.3);color:var(--am)}
+.crm{cursor:pointer;opacity:.6;font-size:10px;margin-left:2px}.crm:hover{opacity:1}
+
+/* TABLE */
+.tw{flex:1;overflow:auto;min-height:0}
+.tw::-webkit-scrollbar{width:9px;height:9px}
+.tw::-webkit-scrollbar-track{background:var(--n2)}
+.tw::-webkit-scrollbar-thumb{background:var(--n4);border-radius:5px;border:2px solid var(--n2)}
+.tw::-webkit-scrollbar-thumb:hover{background:#3a6494}
+.tw::-webkit-scrollbar-corner{background:var(--n2)}
+table{border-collapse:separate;border-spacing:0;min-width:max-content;width:100%}
+
+/* FROZEN — item 3: solid background prevents bleed-through */
+thead th{position:sticky;top:0;z-index:10;background:var(--n2)}
+th:first-child{position:sticky;left:0;z-index:12;background:var(--n2)}
+/* item 3: td:first-child gets opaque bg + shadow on ALL states */
+td:first-child{
+  position:sticky;left:0;z-index:6;
+  background:var(--n2);
+  box-shadow:3px 0 8px rgba(0,0,0,.5);
+}
+tr:hover td:first-child{background:#1f3552}
+tr.pd td:first-child{background:#2b3e14 !important}
+
+/* TH — item 1: no filter icon, click label to open filter */
+th{padding:0;white-space:nowrap;user-select:none;border-right:2px solid var(--b2);border-bottom:2px solid var(--b2)}
+th:last-child{border-right:none}
+.thi{display:flex;align-items:stretch;height:34px}
+/* item 1: label is clickable for filter, takes full remaining width */
+.thl{
+  display:flex;align-items:center;padding:0 8px;
+  font-size:10px;font-weight:600;letter-spacing:.4px;color:var(--t3);text-transform:uppercase;
+  flex:1;min-width:60px;
+  border-right:0.5px solid var(--bd);
+  cursor:pointer;transition:background .1s;
+}
+.thl:hover{background:rgba(255,255,255,.05);color:var(--t2)}
+.thl.fd-on{color:var(--am);background:rgba(251,191,36,.06)}
+.ths{width:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:11px;color:var(--t3);transition:background .1s;flex-shrink:0}
+.ths:hover{background:rgba(255,255,255,.07);color:var(--t2)}
+.ths.asc,.ths.desc{color:var(--gr)}
+
+td{border-bottom:1px solid rgba(42,68,96,.45);border-right:1px solid rgba(42,68,96,.25);vertical-align:middle;white-space:nowrap}
+tr:hover td{background:rgba(255,255,255,.025)}
+tr.pd td{background:rgba(251,191,36,.12)!important}
+tr.locked td{opacity:.8;cursor:not-allowed}
+tr.locked .cell[contenteditable]{pointer-events:none}
+td:first-child{padding:0;min-width:110px}
+.ordc{display:flex;align-items:stretch;min-height:32px}
+.ords{width:4px;flex-shrink:0}
+.ordv{display:flex;align-items:center;padding:4px 8px;font-size:12px;color:var(--t2);gap:3px}
+.cell{padding:4px 10px;font-size:13px;color:var(--t2);display:flex;align-items:center;min-height:32px}
+.cell[contenteditable]{cursor:text;outline:none;border-radius:3px;transition:background .1s}
+.cell[contenteditable]:hover{background:rgba(255,255,255,.05)}
+.cell[contenteditable]:focus{background:rgba(45,212,191,.09);outline:1px solid var(--ac);outline-offset:-2px;color:var(--tx)}
+.cr{justify-content:flex-end;font-family:var(--mo)}
+.mdot{width:5px;height:5px;border-radius:50%;background:var(--am);flex-shrink:0;margin-left:4px}
+.mdot-s{width:5px;height:5px;border-radius:50%;background:transparent;border:1.5px solid var(--am);flex-shrink:0;margin-left:4px;opacity:.8}
+.isel{background:transparent;border:none;font-family:var(--fn);font-size:13px;color:var(--t2);outline:none;cursor:pointer;width:100%;padding:2px 8px;height:32px;appearance:none;-webkit-appearance:none;transition:background .1s}
+.isel:hover{background:rgba(255,255,255,.05)}
+.isel:focus{background:rgba(45,212,191,.09);outline:1px solid var(--ac)}
+.ab{display:inline-flex;align-items:center;justify-content:center;padding:3px 20px;border-radius:var(--r);font-size:12px;font-weight:600;cursor:pointer;min-width:76px;white-space:nowrap}
+.a-s{background:rgba(52,211,153,.2);color:#059669}
+.a-n{background:rgba(248,113,113,.2);color:#dc2626}
+.a-o{background:rgba(148,163,184,.15);color:var(--t2)}
+.pb{display:inline-flex;align-items:center;justify-content:center;padding:3px 20px;border-radius:var(--r);font-size:12px;font-weight:600;min-width:44px;white-space:nowrap}
+.p-a{background:rgba(52,211,153,.2);color:#059669}
+.p-b{background:rgba(251,191,36,.2);color:#b45309}
+.p-c{background:rgba(248,113,113,.2);color:#dc2626}
+.p-d{background:rgba(167,139,250,.2);color:#7c3aed}
+.p-o{background:rgba(148,163,184,.12);color:var(--t2)}
+.sbar{padding:4px 18px;border-top:1px solid var(--bd);background:var(--n2);font-size:11px;color:var(--t3);flex-shrink:0;display:flex;gap:16px}
+
+/* FILTER DROPDOWN */
+.fd{position:fixed;z-index:1000;background:var(--n2);border:1px solid var(--b2);border-radius:var(--rl);box-shadow:0 6px 20px rgba(0,0,0,.5);width:230px;max-height:290px;display:none;flex-direction:column}
+.fd.open{display:flex}
+.fd-h{padding:8px;border-bottom:1px solid var(--bd);display:flex;flex-direction:column;gap:4px}
+.fd-s{width:100%;background:var(--n3);border:1px solid var(--b2);border-radius:var(--r);padding:5px 8px;font-size:12px;color:var(--t2);font-family:var(--fn);outline:none}
+.fd-s:focus{border-color:var(--ac)}
+.fd-s::placeholder{color:var(--t3)}
+.fd-an{display:flex;gap:8px;font-size:10px}
+.fd-an span{cursor:pointer;color:var(--t3)}.fd-an span:hover{color:var(--ac)}
+.fd-l{overflow-y:auto;flex:1;padding:3px 0}
+.fd-i{display:flex;align-items:center;gap:8px;padding:5px 10px;cursor:pointer;font-size:12px;color:var(--t2);transition:background .1s}
+.fd-i:hover{background:rgba(255,255,255,.05)}
+.fd-i input{width:13px;height:13px;accent-color:var(--ac);cursor:pointer;flex-shrink:0}
+.fd-f{padding:6px 8px;border-top:1px solid var(--bd)}
+.fd-apply{width:100%;padding:5px;font-size:12px;font-weight:500;background:var(--ac);color:#0a1a2a;border:none;border-radius:var(--r);cursor:pointer;font-family:var(--fn)}
+.fd-apply:hover{background:#25c0ae}
+
+/* POPUPS — item 5: only one open at a time */
+.pop{position:fixed;z-index:1000;background:var(--n2);border:1px solid var(--b2);border-radius:var(--rl);box-shadow:0 4px 16px rgba(0,0,0,.4);padding:5px;display:none;flex-direction:column;gap:2px;min-width:155px}
+.pop.open{display:flex}
+.po{padding:5px 8px;border-radius:var(--r);cursor:pointer;transition:background .1s;display:flex;align-items:center;gap:8px}
+.po:hover{background:rgba(255,255,255,.06)}
+.psep{border-top:1px solid var(--bd);padding-top:4px;margin-top:2px;display:flex;gap:4px;align-items:center}
+.pinp{flex:1;background:var(--n3);border:1px solid var(--b2);border-radius:var(--r);padding:3px 6px;font-size:12px;color:var(--t2);font-family:var(--fn);outline:none}
+.pinp:focus{border-color:var(--ac)}
+.pok{padding:3px 8px;font-size:11px}
+
+/* MODALS */
+.mov{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:900;display:none;align-items:center;justify-content:center}
+.mov.open{display:flex}
+.modal{background:var(--n2);border:1px solid var(--b2);border-radius:var(--rl);width:520px;max-width:94vw;box-shadow:0 8px 32px rgba(0,0,0,.4)}
+.mh{padding:12px 16px;border-bottom:1px solid var(--bd);display:flex;align-items:flex-start;justify-content:space-between}
+.mh h3{font-size:14px;font-weight:600;color:var(--tx)}
+.mh-sub{font-size:11px;color:var(--t3);margin-top:2px}
+.mcl{cursor:pointer;color:var(--t3);font-size:18px;line-height:1;margin-left:8px}.mcl:hover{color:var(--tx)}
+.mb{padding:12px 16px;max-height:55vh;overflow-y:auto;display:flex;flex-direction:column;gap:6px}
+.mf{padding:10px 16px;border-top:1px solid var(--bd);display:flex;justify-content:space-between;gap:8px}
+
+/* item 4: draggable sort rows */
+.srow{display:flex;align-items:center;gap:8px;background:var(--n3);border:1px solid var(--bd);border-radius:var(--r);padding:6px 8px;cursor:default;transition:background .1s}
+.srow.drag-over{background:rgba(45,212,191,.1);outline:1px dashed var(--ac)}
+.srow-drag{cursor:grab;color:var(--t3);font-size:15px;flex-shrink:0}
+.srow-drag:active{cursor:grabbing}
+.srow select{background:var(--n2);border:1px solid var(--b2);border-radius:var(--r);padding:3px 6px;font-size:12px;color:var(--t2);font-family:var(--fn);outline:none}
+.srow select:first-of-type{flex:1}
+.srow select:last-of-type{width:80px}
+.srm{cursor:pointer;color:var(--rd);font-size:14px;flex-shrink:0}
+
+/* Changes modal */
+.ci{display:flex;align-items:center;gap:6px;padding:7px 0;border-bottom:1px solid var(--bd);font-size:12px;flex-wrap:wrap}
+.ci:last-child{border-bottom:none}
+.ci-ord{font-family:var(--mo);font-size:11px;color:var(--t3);width:65px;flex-shrink:0}
+.ci-fld{font-size:11px;color:var(--t3);width:110px;flex-shrink:0}
+.ci-from{color:var(--rd);font-size:12px;flex:1;min-width:60px}
+.ci-arr{color:var(--t3);margin:0 2px;flex-shrink:0}
+.ci-to{color:var(--gr);font-size:12px;flex:1;min-width:60px}
+.rv{margin-left:auto;font-size:11px;padding:2px 8px;border-radius:var(--r);border:1px solid var(--b2);background:transparent;color:var(--t3);cursor:pointer;font-family:var(--fn);flex-shrink:0}
+.rv:hover{color:var(--rd);border-color:rgba(248,113,113,.4)}
+.ci-ctx{width:100%;font-size:10px;color:var(--t3);padding:2px 0 0 65px;display:flex;gap:8px;flex-wrap:wrap}
+.ci-ctx span{background:var(--n3);padding:1px 6px;border-radius:4px}
+
+/* COL PANEL */
+.cov{position:fixed;inset:0;z-index:800;display:none}
+.cov.open{display:block}
+.cp{position:fixed;top:0;right:0;width:275px;height:100%;background:var(--n2);border-left:1px solid var(--bd);display:flex;flex-direction:column;box-shadow:-4px 0 16px rgba(0,0,0,.3)}
+.cph{padding:11px 12px;border-bottom:1px solid var(--bd);flex-shrink:0}
+.cph h3{font-size:13px;font-weight:600;color:var(--tx);display:flex;align-items:center;justify-content:space-between}
+.cps{font-size:10px;color:var(--t3);margin-top:2px}
+.cpa{display:flex;gap:6px;margin-top:8px}
+.cpb{flex:1;overflow-y:auto;padding:4px 0}
+.cpi{display:flex;align-items:center;gap:8px;padding:5px 10px;border-radius:var(--r);margin:1px 6px;user-select:none;transition:background .1s}
+.cpi:not(.nd){cursor:grab}
+.cpi:hover{background:rgba(255,255,255,.04)}
+.cpi.dov{background:rgba(45,212,191,.08);outline:1px dashed rgba(45,212,191,.4)}
+.cpf{padding:10px 12px;border-top:1px solid var(--bd);flex-shrink:0}
+
+/* item 9: month/year picker */
+.mpop{position:fixed;z-index:1100;background:var(--n2);border:1px solid var(--b2);border-radius:var(--rl);box-shadow:0 6px 20px rgba(0,0,0,.5);width:240px;display:none;flex-direction:column;padding:12px}
+.mpop.open{display:flex}
+.mp-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.mp-yr{display:flex;align-items:center;gap:8px}
+.mp-yr-btn{cursor:pointer;color:var(--t3);font-size:16px;padding:0 4px;transition:color .1s;background:none;border:none;font-family:var(--fn)}
+.mp-yr-btn:hover{color:var(--ac)}
+.mp-yr-val{font-size:14px;font-weight:600;color:var(--tx);min-width:44px;text-align:center;font-family:var(--mo)}
+.mp-clear{font-size:11px;color:var(--t3);cursor:pointer;padding:2px 6px;border:1px solid var(--bd);border-radius:var(--r);background:transparent;font-family:var(--fn)}
+.mp-clear:hover{color:var(--rd);border-color:rgba(248,113,113,.4)}
+.mp-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+.mp-m{padding:6px 4px;text-align:center;border-radius:var(--r);cursor:pointer;font-size:12px;color:var(--t2);transition:all .1s;border:1px solid transparent}
+.mp-m:hover{background:rgba(255,255,255,.07);color:var(--tx)}
+.mp-m.sel{background:rgba(45,212,191,.2);color:var(--ac);border-color:rgba(45,212,191,.4);font-weight:600}
+.mp-disabled{opacity:.25;cursor:not-allowed!important;pointer-events:none}
+
+/* Full date picker */
+.dpop{position:fixed;z-index:1100;background:var(--n2);border:1px solid var(--b2);border-radius:var(--rl);box-shadow:0 6px 20px rgba(0,0,0,.5);width:260px;display:none;flex-direction:column;padding:12px}
+.dpop.open{display:flex}
+.dp-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.dp-nav-btn{cursor:pointer;color:var(--t3);font-size:16px;padding:0 4px;background:none;border:none;font-family:var(--fn);transition:color .1s}
+.dp-nav-btn:hover{color:var(--ac)}
+.dp-nav-mid{display:flex;gap:6px;align-items:center}
+.dp-mon-sel,.dp-yr-sel{background:var(--n3);border:1px solid var(--b2);border-radius:var(--r);padding:3px 6px;font-size:12px;color:var(--t2);font-family:var(--fn);outline:none;cursor:pointer}
+.dp-mon-sel:focus,.dp-yr-sel:focus{border-color:var(--ac)}
+.dp-yr-sel{width:68px;font-family:var(--mo)}
+.dp-dow{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px}
+.dp-dow span{text-align:center;font-size:9px;font-weight:600;color:var(--t3);padding:3px 0;text-transform:uppercase}
+.dp-days{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.dp-day{text-align:center;padding:5px 2px;font-size:12px;color:var(--t2);border-radius:var(--r);cursor:pointer;border:1px solid transparent;transition:all .1s}
+.dp-day:hover{background:rgba(255,255,255,.07);color:var(--tx)}
+.dp-day.sel{background:rgba(45,212,191,.2);color:var(--ac);border-color:rgba(45,212,191,.4);font-weight:600}
+.dp-day.today{border-color:var(--b2)}
+.dp-day.other{color:var(--t3)}
+.dp-day.empty{cursor:default}
+.dp-day.empty:hover{background:transparent}
+.dp-foot{display:flex;justify-content:space-between;margin-top:8px;padding-top:8px;border-top:1px solid var(--bd)}
+.dp-today-btn{font-size:11px;color:var(--ac);cursor:pointer;background:none;border:none;font-family:var(--fn);padding:0}
+.dp-today-btn:hover{text-decoration:underline}
+.dp-clear{font-size:11px;color:var(--t3);cursor:pointer;padding:2px 6px;border:1px solid var(--bd);border-radius:var(--r);background:transparent;font-family:var(--fn)}
+.dp-clear:hover{color:var(--rd);border-color:rgba(248,113,113,.4)}
+/* NOVA LINHA FORM */
+.nl-lbl{font-size:10px;font-weight:600;color:var(--t3);letter-spacing:.4px;text-transform:uppercase;margin-bottom:4px}
+.nl-inp{width:100%;background:var(--n3);border:1px solid var(--b2);border-radius:var(--r);padding:5px 8px;font-size:12px;color:var(--t2);font-family:var(--fn);outline:none}
+.nl-inp:focus{border-color:var(--ac);color:var(--tx)}
+.nl-inp.err{border-color:var(--rd)!important}
+.nl-sel{width:100%;background:var(--n3);border:1px solid var(--b2);border-radius:var(--r);padding:5px 8px;font-size:12px;color:var(--t2);font-family:var(--fn);outline:none;cursor:pointer;appearance:none;-webkit-appearance:none}
+.nl-sel:focus{border-color:var(--ac)}
+.nl-sel.err{border-color:var(--rd)!important}
+/* SPLIT BUTTON */
+.split-btn{display:none;cursor:pointer;color:var(--t3);font-size:10px;margin-left:5px;padding:1px 4px;border-radius:3px;border:1px solid var(--bd);line-height:1.4;flex-shrink:0;background:transparent}
+.split-btn:hover{color:var(--ac);border-color:var(--ac);background:rgba(45,212,191,.08)}
+tr:hover .split-btn{display:inline}
+</style>
+</head>
+<body>
+<div class="shell">
+<div class="sb" id="sb">
+  <div class="sb-logo">
+    <div class="sb-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="9" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="1" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/></svg></div>
+    <div class="sb-txt"><div class="sb-mark">DIRMAB</div><div class="sb-title">Sistema MTA</div><div class="sb-sub">Módulo de Trabalho Anual</div></div>
+  </div>
+  <div class="tog" onclick="togSB()" title="Recolher painel"><svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M7.5 2L3.5 6l4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+  <nav class="nav">
+    <div class="ns">Principal</div>
+    <div class="ni" title="Painel geral"><svg class="ni-ico" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="1" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/></svg><span class="ni-lbl">Painel geral</span></div>
+    <div class="ni act" title="Linhas do MTA"><svg class="ni-ico" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h8M2 12h10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg><span class="ni-lbl">Linhas do MTA</span></div>
+    <div class="ni" title="Aprovações — 7 pendentes"><svg class="ni-ico" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.2"/><path d="M8 5v3l2 2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg><span class="ni-lbl">Aprovações</span><span class="ni-bdg">7</span><span class="ni-dot"></span></div>
+    <div class="ni" title="Por Parque"><svg class="ni-ico" viewBox="0 0 16 16" fill="none"><path d="M3 12V6l5-4 5 4v6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><rect x="6" y="9" width="4" height="3" rx=".5" stroke="currentColor" stroke-width="1.2"/></svg><span class="ni-lbl">Por Parque</span></div>
+    <div class="ns">Orçamento</div>
+    <div class="ni" title="Ações orçamentárias"><svg class="ni-ico" viewBox="0 0 16 16" fill="none"><rect x="1" y="4" width="14" height="9" rx="1" stroke="currentColor" stroke-width="1.2"/><path d="M5 4V3a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="1.2"/></svg><span class="ni-lbl">Ações orçamentárias</span></div>
+    <div class="ni" title="Sugestão de atendimento"><svg class="ni-ico" viewBox="0 0 16 16" fill="none"><path d="M2 12 6 7l3 3 2-4 3 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="ni-lbl">Sugestão de atendimento</span></div>
+    <div class="ns">Histórico</div>
+    <div class="ni" title="Histórico de aprovações" onclick="location.href='MTA_aprovacoes_v8.html?screen=historico'" style="cursor:pointer"><svg class="ni-ico" viewBox="0 0 16 16" fill="none"><path d="M8 2a6 6 0 1 1 0 12A6 6 0 0 1 8 2z" stroke="currentColor" stroke-width="1.2"/><path d="M8 5v3l2 1.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg><span class="ni-lbl">Histórico de aprovações</span></div>
+    <div class="ns">Configuração</div>
+    <div class="ni" title="Parâmetros e colunas"><svg class="ni-ico" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg><span class="ni-lbl">Parâmetros e colunas</span></div>
+    <div class="ni" title="Cenários"><svg class="ni-ico" viewBox="0 0 16 16" fill="none"><ellipse cx="8" cy="5" rx="6" ry="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M2 5v6c0 1.38 2.69 2.5 6 2.5s6-1.12 6-2.5V5" stroke="currentColor" stroke-width="1.2"/><path d="M2 8c0 1.38 2.69 2.5 6 2.5s6-1.12 6-2.5" stroke="currentColor" stroke-width="1.2"/></svg><span class="ni-lbl">Cenários</span></div>
+  </nav>
+  <div class="sb-foot"><div class="ua"><div class="uav">DB</div><div class="ui"><div style="font-size:12px;font-weight:500;color:var(--tx)">Ten Cel Silva</div><div style="font-size:10px;color:var(--t3)">DIRMAB · Administrador</div></div></div></div>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <div><div class="pt">Linhas do MTA — 2026</div><div class="ps" id="psub">Cenário A (ativo)</div></div>
+    <div class="tbr">
+      <button class="btn" onclick="openSM()"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M4 8h8M6 12h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg> Ordenar</button>
+      <button class="btn" onclick="openCP()"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><rect x="1" y="2" width="14" height="2.5" rx="1" fill="currentColor"/><rect x="1" y="6.75" width="10" height="2.5" rx="1" fill="currentColor"/><rect x="1" y="11.5" width="12" height="2.5" rx="1" fill="currentColor"/></svg> Configurar colunas</button>
+      <button class="btn"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M4 12h8M8 3v7M5 7l3 3 3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg> Exportar</button>
+      <button class="btn" onclick="openCambio()" title="Configurar taxas de câmbio planejado">⇄ Câmbio</button>
+      <button class="btn btn-p" onclick="openNL()"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg> Nova linha</button>
+    </div>
+  </div>
+  <div class="bars">
+    <div class="bar bar-s" id="bar-s"><span style="color:var(--ac)">Ordenando por:</span><div id="sc"></div><button class="btn btn-sm" onclick="clearSort()">Limpar ordenação</button></div>
+    <div class="bar bar-f" id="bar-f"><span style="color:var(--am)">Filtros ativos:</span><div id="fc"></div><button class="btn btn-am btn-sm" style="margin-left:auto" onclick="clearFilt()">Limpar filtros</button></div>
+    <div class="bar bar-p" id="bar-p">
+      <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--am)"><span style="width:7px;height:7px;border-radius:50%;background:var(--am);display:inline-block;flex-shrink:0"></span><span><span id="pc">0</span> alteração(ões) pendente(s)</span></div>
+      <div style="display:flex;gap:6px"><button class="btn btn-sm" onclick="openChg()">Ver alterações</button><button class="btn btn-d btn-sm" onclick="confDiscard()">Descartar tudo</button><button class="btn btn-am btn-sm" onclick="enviarParaAprovacao()">Enviar para aprovação ↗</button></div>
+    </div>
+  </div>
+  <div class="tw"><table><thead id="TH"></thead><tbody id="TB"></tbody></table></div>
+  <div class="sbar">
+    <span id="sv" style="font-weight:600;color:var(--ac);font-family:var(--mo);font-size:12px">—</span>
+    <span style="color:var(--b2)">|</span>
+    <span id="sr">—</span>
+    <span id="sf">Sem filtros</span>
+    <span id="sp" style="display:none;color:var(--am)"></span>
+  </div>
+</div>
+</div>
+
+<!-- POPUPS -->
+<div class="pop" id="apop">
+  <div class="po" onclick="setA('SIM')"><span class="ab a-s">SIM</span></div>
+  <div class="po" onclick="setA('NÃO')"><span class="ab a-n">NÃO</span></div>
+  <div class="psep"><input class="pinp" id="ainp" placeholder="Outro texto…" onkeydown="if(event.key==='Enter')setAc()"/><button class="btn pok" onclick="setAc()">OK</button></div>
+</div>
+<div class="pop" id="ppop">
+  <div class="po" onclick="setP('A')"><span class="pb p-a">A</span></div>
+  <div class="po" onclick="setP('B')"><span class="pb p-b">B</span></div>
+  <div class="po" onclick="setP('C')"><span class="pb p-c">C</span></div>
+  <div class="po" onclick="setP('D')"><span class="pb p-d">D</span></div>
+  <div class="psep"><input class="pinp" id="pinp" placeholder="Outro texto…" onkeydown="if(event.key==='Enter')setPc()"/><button class="btn pok" onclick="setPc()">OK</button></div>
+</div>
+<div class="fd" id="fd">
+  <div class="fd-h">
+    <input class="fd-s" id="fds" placeholder="Buscar…" oninput="fdSrch(this.value)"/>
+    <div class="fd-an"><span onclick="fdAll()">Selecionar visíveis</span>|<span onclick="fdNone()">Desmarcar todos</span></div>
+  </div>
+  <div class="fd-l" id="fdl"></div>
+  <div class="fd-f"><button class="fd-apply" onclick="applyFd()">Aplicar filtro</button></div>
+</div>
+
+<!-- SORT MODAL -->
+<div class="mov" id="sm">
+  <div class="modal">
+    <div class="mh"><div><h3>Configurar ordenação composta</h3><div class="mh-sub">Arraste para reordenar prioridade · 1ª regra tem precedência</div></div><span class="mcl" onclick="closeSM()">×</span></div>
+    <div class="mb" id="smb"></div>
+    <div class="mf"><button class="btn" onclick="addSR()">+ Adicionar critério</button><div style="display:flex;gap:6px"><button class="btn" onclick="closeSM()">Cancelar</button><button class="btn btn-p" onclick="applySort()">Aplicar</button></div></div>
+  </div>
+</div>
+
+<!-- CONFIRM DISCARD -->
+<div class="mov" id="cm">
+  <div class="modal" style="width:360px">
+    <div class="mh"><h3>⚠ Descartar alterações?</h3><span class="mcl" onclick="document.getElementById('cm').classList.remove('open')">×</span></div>
+    <div class="mb"><p style="font-size:13px;color:var(--t2)">As <strong id="cn"></strong> alteração(ões) serão descartadas permanentemente.</p></div>
+    <div class="mf"><div></div><div style="display:flex;gap:6px"><button class="btn" onclick="document.getElementById('cm').classList.remove('open')">Cancelar</button><button class="btn btn-d" onclick="doDiscard()">Descartar tudo</button></div></div>
+  </div>
+</div>
+
+<!-- CHANGES MODAL -->
+<div class="mov" id="chgm">
+  <div class="modal">
+    <div class="mh"><div><h3>Alterações pendentes</h3><div class="mh-sub">Clique em Reverter para cancelar uma alteração específica</div></div><span class="mcl" onclick="document.getElementById('chgm').classList.remove('open')">×</span></div>
+    <div class="mb" id="chgl"></div>
+    <div class="mf"><div></div><button class="btn" onclick="document.getElementById('chgm').classList.remove('open')">Fechar</button></div>
+  </div>
+</div>
+<div class="mov" id="subm">
+  <div class="modal" style="width:380px">
+    <div class="mh"><div><h3>Pedido enviado</h3><div class="mh-sub" id="sub-sub"></div></div><span class="mcl" onclick="document.getElementById('subm').classList.remove('open')">×</span></div>
+    <div class="mb" style="text-align:center;padding:16px 0">
+      <div style="font-size:36px;margin-bottom:10px;color:var(--gr)">✓</div>
+      <div style="font-weight:600;color:var(--gr);margin-bottom:6px">Alterações enviadas para aprovação</div>
+      <div id="sub-parques" style="font-size:12px;color:var(--t2);margin-top:4px"></div>
+    </div>
+    <div class="mf" style="flex-direction:column;gap:8px">
+      <button class="btn btn-p" onclick="document.getElementById('subm').classList.remove('open')" style="width:100%;justify-content:center">Fechar e continuar editando</button>
+      <button class="btn" onclick="document.getElementById('subm').classList.remove('open');location.href='MTA_aprovacoes_v8.html'" style="width:100%;justify-content:center;font-size:11px;color:var(--t2)">Ver em Aprovações ↗</button>
+    </div>
+  </div>
+</div>
+
+<!-- NOVA LINHA MODAL -->
+<div class="mov" id="nlm">
+  <div class="modal" style="width:660px">
+    <div class="mh"><div><h3>Nova linha mãe</h3><div class="mh-sub">Solicita nova linha para o Parque — passará por aprovação DIRMAB</div></div><span class="mcl" onclick="closeNL()">×</span></div>
+    <div class="mb" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px 14px">
+      <div>
+        <div class="nl-lbl">Parque <span style="color:var(--rd)">*</span></div>
+        <select id="nl-mta" class="nl-sel" onchange="nlMtaChange()">
+          <option value="">— Selecione —</option>
+          <option value="PAMAGL">PAMAGL</option>
+          <option value="PAMALS">PAMALS</option>
+          <option value="PAMASP">PAMASP</option>
+          <option value="PAMBRJ">PAMBRJ</option>
+          <option value="DIRMAB">DIRMAB</option>
+        </select>
+      </div>
+      <div>
+        <div class="nl-lbl">N° de Ordem (automático)</div>
+        <div id="nl-ord-display" style="font-family:var(--mo);font-size:12px;padding:5px 8px;border-radius:4px;background:var(--n3);border:1px solid var(--bd);color:var(--t2);min-height:28px;line-height:18px">—</div>
+      </div>
+      <div>
+        <div class="nl-lbl">Aprovado</div>
+        <select id="nl-aprov" class="nl-sel"><option value="NÃO">NÃO</option><option value="SIM">SIM</option></select>
+      </div>
+      <div>
+        <div class="nl-lbl">Pacote <span style="color:var(--rd)">*</span></div>
+        <select id="nl-pacote" class="nl-sel"><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option></select>
+      </div>
+      <div>
+        <div class="nl-lbl">UGE <span style="color:var(--rd)">*</span></div>
+        <input id="nl-uge" class="nl-inp" placeholder="ex: CELOG"/>
+      </div>
+      <div>
+        <div class="nl-lbl">Ação Orçamentária</div>
+        <input id="nl-acao" class="nl-inp" placeholder="ex: 2048"/>
+      </div>
+      <div>
+        <div class="nl-lbl">OM Origem <span style="color:var(--rd)">*</span></div>
+        <input id="nl-omorigem" class="nl-inp" placeholder="ex: PAMAGL"/>
+      </div>
+      <div>
+        <div class="nl-lbl">OM Beneficiada <span style="color:var(--rd)">*</span></div>
+        <input id="nl-ombenef" class="nl-inp" placeholder="ex: CELOG"/>
+      </div>
+      <div>
+        <div class="nl-lbl">PI</div>
+        <input id="nl-pi" class="nl-inp" placeholder="ex: CA080200KC3"/>
+      </div>
+      <div>
+        <div class="nl-lbl">Projeto <span style="color:var(--rd)">*</span></div>
+        <input id="nl-proj" class="nl-inp" placeholder="ex: KC-390"/>
+      </div>
+      <div style="grid-column:span 2">
+        <div class="nl-lbl">Atividade <span style="color:var(--rd)">*</span></div>
+        <input id="nl-ativ" class="nl-inp" placeholder="ex: CLS parcela fixa"/>
+      </div>
+      <div style="grid-column:1/-1">
+        <div class="nl-lbl">Tarefa <span style="color:var(--rd)">*</span></div>
+        <input id="nl-tar" class="nl-inp" placeholder="Descrição específica da tarefa"/>
+      </div>
+      <div>
+        <div class="nl-lbl">CAT <span style="color:var(--rd)">*</span></div>
+        <select id="nl-cat" class="nl-sel"><option value="">—</option><option>CLS</option><option>MOTOR</option><option>AVIÔNICA</option><option>ESTRUTURA</option><option>REPARÁVEL</option><option>DIVERSOS</option><option>APOIO</option><option>CAD-PAD</option></select>
+      </div>
+      <div>
+        <div class="nl-lbl">Para Motor <span style="color:var(--rd)">*</span></div>
+        <select id="nl-paramotores" class="nl-sel"><option value="NÃO">NÃO</option><option value="SIM">SIM</option></select>
+      </div>
+      <div>
+        <div class="nl-lbl">Para Contrato <span style="color:var(--rd)">*</span></div>
+        <select id="nl-paracontrato" class="nl-sel"><option value="SOB DEMANDA">SOB DEMANDA</option><option value="PARCELA FIXA">PARCELA FIXA</option><option value="REQUISIÇÃO">REQUISIÇÃO</option></select>
+      </div>
+      <div>
+        <div class="nl-lbl">ED <span style="color:var(--rd)">*</span></div>
+        <input id="nl-ed" class="nl-inp" type="number" placeholder="ex: 339039"/>
+      </div>
+      <div>
+        <div class="nl-lbl">Moeda <span style="color:var(--rd)">*</span></div>
+        <select id="nl-moeda" class="nl-sel" onchange="nlCalcValor()"></select>
+      </div>
+      <div>
+        <div class="nl-lbl">Valor Moeda <span style="color:var(--rd)">*</span></div>
+        <input id="nl-valormoeda" class="nl-inp" type="text" inputmode="numeric" placeholder="0,00" oninput="maskCur(this);nlCalcValor()"/>
+        <div id="nl-cambio-info" style="font-size:10px;color:var(--t3);padding:2px 0 0">Câmbio: 1,00 R$/BRL</div>
+      </div>
+      <div>
+        <div class="nl-lbl">Valor Total BRL</div>
+        <input id="nl-valor" class="nl-inp" type="text" readonly style="cursor:default;background:var(--n3);color:var(--t2)" placeholder="Calculado automaticamente"/>
+      </div>
+      <div>
+        <div class="nl-lbl">Mês Desc. <span style="color:var(--rd)">*</span></div>
+        <input id="nl-mesdesc" class="nl-inp" placeholder="Mês/Ano" readonly style="cursor:pointer" onclick="openMpModal(event,'nl-mesdesc')"/>
+      </div>
+      <div>
+        <div class="nl-lbl">Mês Liq. <span style="color:var(--rd)">*</span></div>
+        <input id="nl-mesliq" class="nl-inp" placeholder="Mês/Ano" readonly style="cursor:pointer" onclick="openMpModal(event,'nl-mesliq')"/>
+      </div>
+      <div style="grid-column:1/-1">
+        <div class="nl-lbl">Observação</div>
+        <input id="nl-obs" class="nl-inp" placeholder="Opcional"/>
+      </div>
+    </div>
+    <div class="mf"><button class="btn" onclick="closeNL()">Cancelar</button><button class="btn btn-p" onclick="submitNL()">Enviar para aprovação ↗</button></div>
+  </div>
+</div>
+
+<!-- QUEBRAR LINHA (LINHA FILHA) MODAL -->
+<div class="mov" id="splitm">
+  <div class="modal" style="width:660px">
+    <div class="mh"><div><h3>Quebrar linha / Nova linha filha</h3><div class="mh-sub" id="split-sub">O valor da filha será subtraído do valor da linha mãe</div></div><span class="mcl" onclick="closeSplit()">×</span></div>
+    <div class="mb">
+      <div id="split-mae-info" style="background:var(--n3);border:1px solid var(--bd);border-radius:var(--rl);padding:10px 14px;margin-bottom:12px;display:grid;grid-template-columns:auto auto 1fr auto;gap:4px 16px;align-items:center;font-size:12px">
+        <span style="color:var(--t3)">Linha mãe</span><span id="split-mae-ord" style="font-family:var(--mo)">—</span>
+        <span id="split-mae-tar" style="color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></span>
+        <span id="split-mae-val" style="font-family:var(--mo);font-weight:600;white-space:nowrap"></span>
+      </div>
+      <div id="split-remain-bar" style="background:rgba(45,212,191,.08);border:1px solid var(--ac);border-radius:var(--rl);padding:8px 14px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;font-size:12px">
+        <span style="color:var(--t2)">Valor restante na linha mãe após divisão:</span>
+        <span id="split-remain" style="font-family:var(--mo);font-weight:600;color:var(--ac)">—</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px 14px">
+        <div>
+          <div class="nl-lbl">N° de Ordem filha (auto)</div>
+          <div id="split-child-ord" style="font-family:var(--mo);font-size:12px;padding:5px 8px;border-radius:4px;background:var(--n3);border:1px solid var(--bd);color:var(--t2);min-height:28px;line-height:18px">—</div>
+        </div>
+        <div>
+          <div class="nl-lbl">Aprovado</div>
+          <select id="sp-aprov" class="nl-sel"><option value="NÃO">NÃO</option><option value="SIM">SIM</option></select>
+        </div>
+        <div>
+          <div class="nl-lbl">Pacote <span style="color:var(--rd)">*</span></div>
+          <select id="sp-pacote" class="nl-sel"><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option></select>
+        </div>
+        <div>
+          <div class="nl-lbl">UGE <span style="color:var(--rd)">*</span></div>
+          <input id="sp-uge" class="nl-inp" placeholder="ex: CELOG"/>
+        </div>
+        <div>
+          <div class="nl-lbl">Ação Orçamentária</div>
+          <input id="sp-acao" class="nl-inp" placeholder="ex: 2048"/>
+        </div>
+        <div>
+          <div class="nl-lbl">OM Origem <span style="color:var(--rd)">*</span></div>
+          <input id="sp-omorigem" class="nl-inp" placeholder="ex: PAMAGL"/>
+        </div>
+        <div>
+          <div class="nl-lbl">OM Beneficiada <span style="color:var(--rd)">*</span></div>
+          <input id="sp-ombenef" class="nl-inp" placeholder="ex: CELOG"/>
+        </div>
+        <div>
+          <div class="nl-lbl">PI</div>
+          <input id="sp-pi" class="nl-inp" placeholder="ex: CA080200KC3"/>
+        </div>
+        <div>
+          <div class="nl-lbl">Projeto <span style="color:var(--rd)">*</span></div>
+          <input id="sp-proj" class="nl-inp" placeholder="ex: KC-390"/>
+        </div>
+        <div>
+          <div class="nl-lbl">Atividade <span style="color:var(--rd)">*</span></div>
+          <input id="sp-ativ" class="nl-inp" placeholder="ex: CLS parcela fixa"/>
+        </div>
+        <div style="grid-column:1/-1">
+          <div class="nl-lbl">Tarefa <span style="color:var(--rd)">*</span></div>
+          <input id="sp-tar" class="nl-inp" placeholder="Descrição da linha filha"/>
+        </div>
+        <div>
+          <div class="nl-lbl">CAT <span style="color:var(--rd)">*</span></div>
+          <select id="sp-cat" class="nl-sel"><option value="">—</option><option>CLS</option><option>MOTOR</option><option>AVIÔNICA</option><option>ESTRUTURA</option><option>REPARÁVEL</option><option>DIVERSOS</option><option>APOIO</option><option>CAD-PAD</option></select>
+        </div>
+        <div>
+          <div class="nl-lbl">Para Motor <span style="color:var(--rd)">*</span></div>
+          <select id="sp-paramotores" class="nl-sel"><option value="NÃO">NÃO</option><option value="SIM">SIM</option></select>
+        </div>
+        <div>
+          <div class="nl-lbl">Para Contrato <span style="color:var(--rd)">*</span></div>
+          <select id="sp-paracontrato" class="nl-sel"><option value="SOB DEMANDA">SOB DEMANDA</option><option value="PARCELA FIXA">PARCELA FIXA</option><option value="REQUISIÇÃO">REQUISIÇÃO</option></select>
+        </div>
+        <div>
+          <div class="nl-lbl">ED <span style="color:var(--rd)">*</span></div>
+          <input id="sp-ed" class="nl-inp" type="number" placeholder="ex: 339039"/>
+        </div>
+        <div>
+          <div class="nl-lbl">Moeda <span style="color:var(--rd)">*</span></div>
+          <select id="sp-moeda" class="nl-sel"></select>
+        </div>
+        <div>
+          <div class="nl-lbl">Valor Moeda <span style="color:var(--rd)">*</span></div>
+          <input id="sp-valormoeda" class="nl-inp" type="text" inputmode="numeric" placeholder="0,00" oninput="maskCur(this);spCalcValor()" onchange="spCalcValor()"/>
+          <div id="sp-cambio-info" style="font-size:10px;color:var(--t3);padding:2px 0 0">Câmbio: 1,00 R$/BRL</div>
+        </div>
+        <div>
+          <div class="nl-lbl">Valor Total BRL</div>
+          <input id="sp-valor" class="nl-inp" type="text" readonly style="cursor:default;background:var(--n3);color:var(--t2)" placeholder="Calculado automaticamente"/>
+        </div>
+        <div>
+          <div class="nl-lbl">Mês Desc. <span style="color:var(--rd)">*</span></div>
+          <input id="sp-mesdesc" class="nl-inp" placeholder="Mês/Ano" readonly style="cursor:pointer" onclick="openMpModal(event,'sp-mesdesc')"/>
+        </div>
+        <div>
+          <div class="nl-lbl">Mês Liq. <span style="color:var(--rd)">*</span></div>
+          <input id="sp-mesliq" class="nl-inp" placeholder="Mês/Ano" readonly style="cursor:pointer" onclick="openMpModal(event,'sp-mesliq')"/>
+        </div>
+        <div style="grid-column:1/-1">
+          <div class="nl-lbl">Observação</div>
+          <input id="sp-obs" class="nl-inp" placeholder="Opcional"/>
+        </div>
+      </div>
+    </div>
+    <div id="sp-err-msg" style="display:none;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.4);border-radius:6px;padding:8px 12px;font-size:12px;color:#ef4444;margin:0 0 0"></div>
+    <div class="mf"><button class="btn" onclick="closeSplit()">Cancelar</button><button class="btn btn-p" onclick="submitSplit()">Enviar para aprovação ↗</button></div>
+  </div>
+</div>
+
+<!-- CÂMBIO MODAL -->
+<div class="mov" id="cambio-m">
+  <div class="modal" style="width:400px">
+    <div class="mh"><div><h3>Câmbio planejado</h3><div class="mh-sub">Taxas usadas para calcular o Valor Total BRL nas solicitações de novas linhas</div></div><span class="mcl" onclick="closeCambio()">×</span></div>
+    <div class="mb" style="display:grid;grid-template-columns:56px 1fr 50px;gap:8px 12px;align-items:center">
+      <span style="font-family:var(--mo);font-weight:600;font-size:13px">USD</span><input id="cb-USD" class="nl-inp" type="text" inputmode="decimal" placeholder="5.85"/><span style="font-size:11px;color:var(--t3)">R$/unit</span>
+      <span style="font-family:var(--mo);font-weight:600;font-size:13px">EUR</span><input id="cb-EUR" class="nl-inp" type="text" inputmode="decimal" placeholder="6.40"/><span style="font-size:11px;color:var(--t3)">R$/unit</span>
+      <span style="font-family:var(--mo);font-weight:600;font-size:13px">GBP</span><input id="cb-GBP" class="nl-inp" type="text" inputmode="decimal" placeholder="7.45"/><span style="font-size:11px;color:var(--t3)">R$/unit</span>
+      <span style="font-family:var(--mo);font-weight:600;font-size:13px">SEK</span><input id="cb-SEK" class="nl-inp" type="text" inputmode="decimal" placeholder="0.54"/><span style="font-size:11px;color:var(--t3)">R$/unit</span>
+      <span style="font-family:var(--mo);font-weight:600;font-size:13px">CAD</span><input id="cb-CAD" class="nl-inp" type="text" inputmode="decimal" placeholder="4.30"/><span style="font-size:11px;color:var(--t3)">R$/unit</span>
+      <span style="font-family:var(--mo);font-weight:600;font-size:13px">JPY</span><input id="cb-JPY" class="nl-inp" type="text" inputmode="decimal" placeholder="0.039"/><span style="font-size:11px;color:var(--t3)">R$/unit</span>
+      <span style="font-family:var(--mo);font-weight:600;font-size:13px">CHF</span><input id="cb-CHF" class="nl-inp" type="text" inputmode="decimal" placeholder="6.80"/><span style="font-size:11px;color:var(--t3)">R$/unit</span>
+    </div>
+    <div class="mf"><button class="btn" onclick="closeCambio()">Cancelar</button><button class="btn btn-p" onclick="saveCambioUI()">Salvar taxas</button></div>
+  </div>
+</div>
+
+<!-- COL PANEL -->
+<div class="cov" id="cov" onclick="if(event.target===this)closeCP()">
+  <div class="cp">
+    <div class="cph"><h3>Configurar colunas <span class="mcl" onclick="closeCP()">×</span></h3><div class="cps">Arraste para reordenar · N° de Ordem sempre fixa</div><div class="cpa"><button class="btn btn-sm" onclick="selAll()">Marcar todas</button><button class="btn btn-sm" onclick="deselAll()">Desmarcar opcionais</button></div></div>
+    <div class="cpb" id="cpb"></div>
+    <div class="cpf"><button class="btn" style="width:100%;justify-content:center" onclick="resetCols()">Restaurar ordem original</button></div>
+  </div>
+</div>
+
+<script>
+const CUR=['BRL','USD','EUR','GBP','SEK','CAD','JPY','CHF'];
+const MM={'01':'Jan','02':'Fev','03':'Mar','04':'Abr','05':'Mai','06':'Jun','07':'Jul','08':'Ago','09':'Set','10':'Out','11':'Nov','12':'Dez'};
+function fmtM(v){if(!v)return'';const m=String(v).match(/^(\d{2})\/(\d{4})$/);return m?(MM[m[1]]||m[1])+'/'+m[2]:v;}
+function fmtC(v,c='BRL'){if(v==null||v==='')return'—';try{const mp={BRL:{l:'pt-BR',c:'BRL'},USD:{l:'en-US',c:'USD'},EUR:{l:'de-DE',c:'EUR'},GBP:{l:'en-GB',c:'GBP'},SEK:{l:'sv-SE',c:'SEK'},CAD:{l:'en-CA',c:'CAD'},JPY:{l:'ja-JP',c:'JPY'},CHF:{l:'de-CH',c:'CHF'}};const r=mp[c]||mp.BRL;return new Intl.NumberFormat(r.l,{style:'currency',currency:r.c,minimumFractionDigits:2}).format(+v);}catch(e){return String(v);}}
+
+// item 6: all columns in original spreadsheet order
+const AC=[
+  {k:'ord',        l:'N° de Ordem',         fx:true, nm:true, v:true},
+  {k:'aprovado',   l:'APROVADO',            fx:false,         v:true},
+  {k:'acao',       l:'Ação',                fx:false,         v:true},
+  {k:'prio',       l:'Prioridade Parque',   fx:false,         v:false},
+  {k:'tramite',    l:'Trâmite',             fx:false,         v:true},
+  {k:'datasolic',  l:'Data Solic.',         fx:false,         v:false},
+  {k:'nropeddirmab',l:'Nro Ped DIRMAB',     fx:false,         v:false},
+  {k:'datapeddirmab',l:'Data Ped DIRMAB',   fx:false,         v:false},
+  {k:'digito',     l:'Dígito',              fx:false,         v:true},
+  {k:'mta',        l:'MTA',                 fx:true,          v:true},
+  {k:'pacote',     l:'Pacote',              fx:false,         v:true},
+  {k:'uge',        l:'UGE',                 fx:false,         v:true},
+  {k:'omorigem',   l:'OM Origem',           fx:false,         v:false},
+  {k:'ombenef',    l:'OM Beneficiada',      fx:false,         v:false},
+  {k:'pi',         l:'PI',                  fx:false,         v:false},
+  {k:'proj',       l:'Projeto',             fx:true,          v:true},
+  {k:'ativ',       l:'Atividade',           fx:true,          v:true},
+  {k:'tar',        l:'Tarefa',              fx:false,         v:true},
+  {k:'matricula',  l:'Aeronave Recuperada', fx:false,         v:false},
+  {k:'cat',        l:'CAT',                 fx:false,         v:true},
+  {k:'paramotores',l:'Para Motor',          fx:false,         v:false},
+  {k:'paracontrato',l:'Para Contrato',      fx:false,         v:false},
+  {k:'ed',         l:'ED',                  fx:false,         v:true},
+  {k:'moeda',      l:'Moeda',               fx:false,         v:true},
+  {k:'valormoeda', l:'Valor Moeda',         fx:false,         v:true},
+  {k:'valor',      l:'Valor Total',         fx:true,          v:true},
+  {k:'mesdesc',    l:'Mês Desc.',           fx:false,         v:true},
+  {k:'mesliq',     l:'Mês Liq.',            fx:false,         v:true},
+  {k:'obs',        l:'Observação',          fx:false,         v:false},
+];
+let cols=JSON.parse(JSON.stringify(AC));
+let filt={},sorts=[],pend={},pendSubmitted={},pendNewRows=[];
+
+const ROWS=[
+  {ord:'000020',aprovado:'SIM',acao:'2048',prio:1,tramite:'ATENDIDO',datasolic:'10/01/2026',nropeddirmab:'180',datapeddirmab:'10/01/2026',digito:'C26001',mta:'PAMAGL',pacote:'A',uge:'CELOG',omorigem:'PAMAGL',ombenef:'PAMAGL',pi:'CA080200KC3',matricula:'',paramotores:'NÃO',paracontrato:'PARCELA FIXA',proj:'KC-390',ativ:'CLS parcela fixa',tar:'Parcela fixa 1º sem 2026',cat:'CLS',ed:339039,moeda:'BRL',valormoeda:4800000,valor:4800000,mesdesc:'01/2026',mesliq:'01/2026',obs:'',sub:false},
+  {ord:'000040',aprovado:'SIM',acao:'2048',prio:2,tramite:'ATENDER',datasolic:'05/04/2026',nropeddirmab:'',datapeddirmab:'',digito:'',mta:'PAMAGL',pacote:'A',uge:'CELOG',omorigem:'PAMAGL',ombenef:'CELOG',pi:'CA080200KC3',proj:'KC-390',ativ:'Peças aviônica KC-390',tar:'Peças substituição 1/2',cat:'AVIÔNICA',paramotores:'NÃO',paracontrato:'SOB DEMANDA',matricula:'',ed:449052,moeda:'USD',valormoeda:620000,valor:3180000,mesdesc:'05/2026',mesliq:'07/2026',obs:'',sub:false},
+  {ord:'000060',aprovado:'SIM',acao:'20XV',prio:'',tramite:'',datasolic:'',nropeddirmab:'',datapeddirmab:'',digito:'',mta:'PAMAGL',pacote:'A',uge:'CELOG',omorigem:'PAMAGL',ombenef:'CELOG',pi:'CA080200KC3',proj:'KC-390',ativ:'Motor GE CF34 overhaul',tar:'Revisão geral 1/4',cat:'MOTOR',paramotores:'NÃO',paracontrato:'SOB DEMANDA',matricula:'',ed:339039,moeda:'USD',valormoeda:1200000,valor:6150000,mesdesc:'03/2026',mesliq:'06/2026',obs:'',sub:false},
+  {ord:'000080',aprovado:'NÃO',acao:'2048',prio:'',tramite:'',datasolic:'',nropeddirmab:'',datapeddirmab:'',digito:'',mta:'PAMAGL',pacote:'B',uge:'CELOG',omorigem:'PAMAGL',ombenef:'CELOG',pi:'CA080200KC3',proj:'KC-390',ativ:'Motor GE CF34 overhaul',tar:'Revisão geral 2/4',cat:'MOTOR',paramotores:'NÃO',paracontrato:'SOB DEMANDA',matricula:'',ed:339039,moeda:'USD',valormoeda:1200000,valor:6150000,mesdesc:'07/2026',mesliq:'10/2026',obs:'Aguarda suplementação',sub:false},
+  {ord:'000100',aprovado:'SIM',acao:'2048',prio:3,tramite:'',datasolic:'',nropeddirmab:'',datapeddirmab:'',digito:'',mta:'PAMAGL',pacote:'A',uge:'CABW',omorigem:'PAMAGL',ombenef:'CELOG',pi:'CA0802APOIO',proj:'APOIO',ativ:'Contrato seguro CABW 2026',tar:'Seguro carga aérea',cat:'APOIO',paramotores:'NÃO',paracontrato:'SOB DEMANDA',matricula:'',ed:339039,moeda:'BRL',valormoeda:98000,valor:98000,mesdesc:'02/2026',mesliq:'03/2026',obs:'',sub:false},
+  {ord:'050020',aprovado:'SIM',acao:'2048',prio:1,tramite:'ATENDIDO',datasolic:'12/01/2026',nropeddirmab:'',datapeddirmab:'',digito:'C26003',mta:'PAMALS',pacote:'A',uge:'CELOG',omorigem:'PAMALS',ombenef:'CELOG',pi:'CA080200A29',proj:'A-29',ativ:'CNT 012/CELOG-PAMALS/2024 - PW',tar:'Reparo PT6A-68C 1/3',cat:'MOTOR',paramotores:'NÃO',paracontrato:'SOB DEMANDA',matricula:'',ed:339039,moeda:'USD',valormoeda:410000,valor:2100000,mesdesc:'01/2026',mesliq:'03/2026',obs:'',sub:false},
+  {ord:'050040',aprovado:'SIM',acao:'2048',prio:2,tramite:'',datasolic:'',nropeddirmab:'',datapeddirmab:'',digito:'',mta:'PAMALS',pacote:'A',uge:'CELOG',omorigem:'PAMALS',ombenef:'CELOG',pi:'CA080200A29',proj:'A-29',ativ:'CNT 012/CELOG-PAMALS/2024 - PW',tar:'Reparo PT6A-68C 2/3',cat:'MOTOR',paramotores:'NÃO',paracontrato:'SOB DEMANDA',matricula:'',ed:339039,moeda:'USD',valormoeda:410000,valor:2100000,mesdesc:'04/2026',mesliq:'06/2026',obs:'',sub:false},
+  {ord:'050060',aprovado:'NÃO',acao:'2048',prio:'',tramite:'',datasolic:'',nropeddirmab:'',datapeddirmab:'',digito:'',mta:'PAMALS',pacote:'C',uge:'CELOG',omorigem:'PAMALS',ombenef:'CELOG',pi:'CA080200H60',proj:'H-60',ativ:'Recuperação H-60 FAB8802',tar:'Estrutura e sistemas',cat:'ESTRUTURA',paramotores:'NÃO',paracontrato:'SOB DEMANDA',matricula:'',ed:449030,moeda:'USD',valormoeda:290000,valor:1490000,mesdesc:'08/2026',mesliq:'11/2026',obs:'',sub:false},
+  {ord:'050080',aprovado:'SIM',acao:'21E7',prio:3,tramite:'',datasolic:'',nropeddirmab:'',datapeddirmab:'',digito:'',mta:'PAMALS',pacote:'A',uge:'CELOG',omorigem:'PAMALS',ombenef:'CELOG',pi:'CA0802MBF39',proj:'F-39',ativ:'Armamento F-39 PAMALS',tar:'Míssil PYTHON-5 1/2',cat:'DIVERSOS',paramotores:'NÃO',paracontrato:'SOB DEMANDA',matricula:'',ed:339039,moeda:'EUR',valormoeda:2400000,valor:12520000,mesdesc:'02/2026',mesliq:'04/2026',obs:'',sub:false},
+  {ord:'050100',aprovado:'SIM',acao:'2048',prio:'',tramite:'ATENDIDO',datasolic:'10/02/2026',nropeddirmab:'',datapeddirmab:'',digito:'C26008',mta:'PAMALS',pacote:'A',uge:'CELOG',omorigem:'PAMALS',ombenef:'CELOG',pi:'CA080200T27',proj:'T-27',ativ:'CLS T-27 parcela hora voo',tar:'Hora de voo 2026',cat:'CLS',paramotores:'NÃO',paracontrato:'SOB DEMANDA',matricula:'',ed:339039,moeda:'BRL',valormoeda:920000,valor:920000,mesdesc:'02/2026',mesliq:'02/2026',obs:'',sub:false},
+  {ord:'100020',aprovado:'SIM',acao:'2048',prio:1,tramite:'ATENDIDO',datasolic:'04/03/2026',nropeddirmab:'',datapeddirmab:'',digito:'C26027',mta:'PAMASP',pacote:'A',uge:'CELOG',omorigem:'PAMASP',ombenef:'CELOG',pi:'CA080200A29',proj:'A-29',ativ:'CNT 060/CELOG-PAMASP/2023 - PW',tar:'HSI PT6A-68C 1/4',cat:'MOTOR',paramotores:'NÃO',paracontrato:'SOB DEMANDA',matricula:'',ed:339039,moeda:'USD',valormoeda:490000,valor:2500000,mesdesc:'01/2026',mesliq:'03/2026',obs:'',sub:false},
+  {ord:'100021',aprovado:'NÃO',acao:'2048',prio:'',tramite:'',datasolic:'',nropeddirmab:'',datapeddirmab:'',digito:'',mta:'PAMASP',pacote:'B',uge:'CELOG',omorigem:'PAMASP',ombenef:'CELOG',pi:'CA080200A29',proj:'A-29',ativ:'CNT 060/CELOG-PAMASP/2023 - PW',tar:'HSI PT6A-68C 1/4 (complemento)',cat:'MOTOR',paramotores:'NÃO',paracontrato:'SOB DEMANDA',matricula:'',ed:339039,moeda:'USD',valormoeda:162000,valor:830000,mesdesc:'',mesliq:'',obs:'Aguarda suplementação',sub:true},
+  {ord:'100040',aprovado:'SIM',acao:'2048',prio:2,tramite:'',datasolic:'',nropeddirmab:'',datapeddirmab:'',digito:'',mta:'PAMASP',pacote:'A',uge:'CELOG',omorigem:'PAMASP',ombenef:'CELOG',pi:'CA080200A29',proj:'A-29',ativ:'CTT 004/CELOG-PAMASP/2025 - PW',tar:'Material PT6A-68C 1/3',cat:'MOTOR',paramotores:'NÃO',paracontrato:'SOB DEMANDA',matricula:'',ed:339047,moeda:'USD',valormoeda:358000,valor:1830599,mesdesc:'02/2026',mesliq:'04/2026',obs:'',sub:false},
+  {ord:'100060',aprovado:'SIM',acao:'21A0',prio:'',tramite:'',datasolic:'',nropeddirmab:'',datapeddirmab:'',digito:'',mta:'PAMASP',pacote:'A',uge:'CELOG',omorigem:'PAMASP',ombenef:'CELOG',pi:'CA0802CDPAD',proj:'F-39',ativ:'CAD-PAD F-39',tar:'Catálogo técnico F-39',cat:'CAD-PAD',paramotores:'NÃO',paracontrato:'SOB DEMANDA',matricula:'',ed:339030,moeda:'BRL',valormoeda:320000,valor:320000,mesdesc:'03/2026',mesliq:'05/2026',obs:'',sub:false},
+  {ord:'100080',aprovado:'SIM',acao:'2048',prio:3,tramite:'ATENDER',datasolic:'02/05/2026',nropeddirmab:'',datapeddirmab:'',digito:'',mta:'PAMASP',pacote:'A',uge:'CELOG',omorigem:'PAMASP',ombenef:'CELOG',pi:'CA0802MBF39',proj:'F-39',ativ:'Contrato reparáveis F-39',tar:'Reparo sob demanda 1/4',cat:'REPARÁVEL',paramotores:'NÃO',paracontrato:'SOB DEMANDA',matricula:'',ed:339047,moeda:'BRL',valormoeda:980000,valor:980000,mesdesc:'05/2026',mesliq:'06/2026',obs:'',sub:false},
+  {ord:'100100',aprovado:'SIM',acao:'20XV',prio:'',tramite:'ATENDIDO',datasolic:'15/01/2026',nropeddirmab:'',datapeddirmab:'',digito:'C26002',mta:'PAMASP',pacote:'A',uge:'CELOG',omorigem:'PAMASP',ombenef:'CELOG',pi:'CA080200KC3',proj:'KC-390',ativ:'CLS parcela fixa PAMASP',tar:'Parcela fixa jan–jun 2026',cat:'CLS',paramotores:'NÃO',paracontrato:'SOB DEMANDA',matricula:'',ed:339039,moeda:'BRL',valormoeda:5400000,valor:5400000,mesdesc:'01/2026',mesliq:'01/2026',obs:'',sub:false},
+  {ord:'100120',aprovado:'SIM',acao:'2048',prio:'',tramite:'',datasolic:'',nropeddirmab:'',datapeddirmab:'',digito:'',mta:'PAMASP',pacote:'A',uge:'CELOG',omorigem:'PAMASP',ombenef:'CELOG',pi:'CA080200T27',proj:'T-27',ativ:'CTT XXX/CELOG-PAMASP/2026',tar:'Material PT6A-25C 2/4',cat:'MOTOR',paramotores:'NÃO',paracontrato:'SOB DEMANDA',matricula:'',ed:339047,moeda:'BRL',valormoeda:750000,valor:750000,mesdesc:'06/2026',mesliq:'08/2026',obs:'',sub:false},
+  {ord:'100240',aprovado:'SIM',acao:'21E7',prio:5,tramite:'',datasolic:'',nropeddirmab:'',datapeddirmab:'',digito:'',mta:'PAMASP',pacote:'A',uge:'CELOG',omorigem:'PAMASP',ombenef:'CELOG',pi:'CA0802MBF39',proj:'F-39',ativ:'CNT 006/CABE-PAMBRJ/2021 - IRIS-T',tar:'Míssil IRIS-T 1/3',cat:'DIVERSOS',paramotores:'NÃO',paracontrato:'SOB DEMANDA',matricula:'',ed:339039,moeda:'EUR',valormoeda:3100000,valor:16175390,mesdesc:'02/2026',mesliq:'03/2026',obs:'',sub:false},
+  {ord:'100260',aprovado:'NÃO',acao:'20XV MOD',prio:'',tramite:'',datasolic:'',nropeddirmab:'',datapeddirmab:'',digito:'',mta:'PAMASP',pacote:'D',uge:'CELOG',omorigem:'PAMASP',ombenef:'CELOG',pi:'CA080200KC3',proj:'KC-390',ativ:'Modernização aviônica KC-390',tar:'Fase 1 aviônica',cat:'AVIÔNICA',paramotores:'NÃO',paracontrato:'SOB DEMANDA',matricula:'',ed:449052,moeda:'USD',valormoeda:1745000,valor:8900000,mesdesc:'09/2026',mesliq:'11/2026',obs:'',sub:false},
+  {ord:'150020',aprovado:'SIM',acao:'2048',prio:1,tramite:'ATENDIDO',datasolic:'08/01/2026',nropeddirmab:'',datapeddirmab:'',digito:'C26004',mta:'PAMBRJ',pacote:'A',uge:'CELOG',omorigem:'PAMBRJ',ombenef:'CELOG',pi:'CA080200C97',proj:'C-97',ativ:'CLS C-97 parcela fixa',tar:'Parcela fixa jan–jun 2026',cat:'CLS',paramotores:'NÃO',paracontrato:'SOB DEMANDA',matricula:'',ed:339039,moeda:'BRL',valormoeda:2100000,valor:2100000,mesdesc:'01/2026',mesliq:'01/2026',obs:'',sub:false},
+  {ord:'150040',aprovado:'SIM',acao:'2048',prio:2,tramite:'',datasolic:'',nropeddirmab:'',datapeddirmab:'',digito:'',mta:'PAMBRJ',pacote:'A',uge:'CELOG',omorigem:'PAMBRJ',ombenef:'CELOG',pi:'CA080200C97',proj:'C-97',ativ:'Peças C-97 estrutura',tar:'Kit asa C-97 1/2',cat:'ESTRUTURA',paramotores:'NÃO',paracontrato:'SOB DEMANDA',matricula:'',ed:339147,moeda:'USD',valormoeda:185000,valor:950000,mesdesc:'04/2026',mesliq:'07/2026',obs:'',sub:false},
+  {ord:'150060',aprovado:'NÃO',acao:'20XV MOD',prio:'',tramite:'',datasolic:'',nropeddirmab:'',datapeddirmab:'',digito:'',mta:'PAMBRJ',pacote:'C',uge:'CELOG',omorigem:'PAMBRJ',ombenef:'CELOG',pi:'CA080200C97',proj:'C-97',ativ:'Recuperação C-97 FAB2201',tar:'Revisão célula C-97',cat:'ESTRUTURA',paramotores:'NÃO',paracontrato:'SOB DEMANDA',matricula:'',ed:449030,moeda:'USD',valormoeda:410000,valor:2100000,mesdesc:'09/2026',mesliq:'12/2026',obs:'Aguarda aprovação',sub:false},
+  {ord:'150080',aprovado:'SIM',acao:'21E7',prio:3,tramite:'ATENDER',datasolic:'18/04/2026',nropeddirmab:'',datapeddirmab:'',digito:'',mta:'PAMBRJ',pacote:'A',uge:'CELOG',omorigem:'PAMBRJ',ombenef:'CELOG',pi:'CA0802MBF39',proj:'F-39',ativ:'CNT 006/CABE-PAMBRJ/2021 - IRIS-T',tar:'Míssil IRIS-T 2/3',cat:'DIVERSOS',paramotores:'NÃO',paracontrato:'SOB DEMANDA',matricula:'',ed:339039,moeda:'EUR',valormoeda:3100000,valor:16175390,mesdesc:'05/2026',mesliq:'06/2026',obs:'',sub:false},
+  {ord:'200020',aprovado:'SIM',acao:'2048',prio:'',tramite:'ATENDIDO',datasolic:'03/02/2026',nropeddirmab:'',datapeddirmab:'',digito:'C26009',mta:'DIRMAB',pacote:'A',uge:'DIRMAB',omorigem:'DIRMAB',ombenef:'CELOG',pi:'CA0802ADMIN',proj:'APOIO',ativ:'Contrato administrativo DIRMAB',tar:'Serviços gerais 2026',cat:'APOIO',paramotores:'NÃO',paracontrato:'SOB DEMANDA',matricula:'',ed:339039,moeda:'BRL',valormoeda:320000,valor:320000,mesdesc:'02/2026',mesliq:'02/2026',obs:'',sub:false},
+];
+
+function cv(r,k){
+  if(pend[r.ord]&&pend[r.ord][k]!==undefined)return pend[r.ord][k];
+  if(pendSubmitted[r.ord]&&pendSubmitted[r.ord][k]!==undefined)return pendSubmitted[r.ord][k];
+  return r[k];
+}
+function fmtOrig(k,v,moeda){
+  if(k==='valor')return fmtC(v,'BRL');
+  if(k==='valormoeda')return fmtC(v,moeda||'BRL');
+  if(k==='mesdesc'||k==='mesliq')return fmtM(v)||'—';
+  return v!=null&&v!==''?String(v):'(vazio)';
+}
+function newValFooter(ord,k,moeda){
+  const sub=pendSubmitted[ord];if(!sub||sub[k]===undefined)return'';
+  const origRow=ROWS.find(r=>r.ord===ord);
+  const origFmt=origRow?fmtOrig(k,origRow[k],origRow['moeda']||'BRL'):'—';
+  const newFmt=fmtOrig(k,sub[k],moeda);
+  return`<span style="font-size:10px;display:flex;align-items:center;gap:3px;margin-top:2px;line-height:1.3"><span style="color:var(--rd);text-decoration:line-through;opacity:.8">${origFmt}</span><span style="color:var(--t3)">→</span><span style="color:var(--gr);font-weight:600">${newFmt}</span></span>`;
+}
+function applyApprovedVals(){
+  try{
+    const approved=JSON.parse(localStorage.getItem('mta_approved_vals')||'{}');
+    ROWS.forEach(r=>{if(approved[r.ord])Object.assign(r,approved[r.ord]);});
+    const newRows=JSON.parse(localStorage.getItem('mta_approved_newrows')||'{}');
+    Object.values(newRows).forEach(nr=>{
+      if(ROWS.find(r=>r.ord===nr.ord))return;
+      if(nr.maOrd){
+        const pi=ROWS.findIndex(r=>r.ord===nr.maOrd);
+        if(pi>=0)ROWS.splice(pi+1,0,nr);else ROWS.push(nr);
+      }else{
+        // main line: insert in numeric ord order
+        const n=parseInt(nr.ord);
+        const ins=ROWS.findIndex(r=>parseInt(r.ord)>n);
+        if(ins>=0)ROWS.splice(ins,0,nr);else ROWS.push(nr);
+      }
+    });
+  }catch(e){}
+}
+function loadSubmittedPend(){
+  try{
+    const s=localStorage.getItem('mta_pkgs_pending');
+    const ids=s?JSON.parse(s):null;
+    const ud=JSON.parse(localStorage.getItem('mta_pkgs_userdata')||'{}');
+    pendSubmitted={};pendNewRows=[];
+    Object.values(ud).forEach(pkg=>{
+      if(!ids||ids.includes(pkg.id)){
+        (pkg.changes||[]).forEach(ch=>{
+          if(ch.newVals){
+            if(!pendSubmitted[ch.ord])pendSubmitted[ch.ord]={};
+            Object.assign(pendSubmitted[ch.ord],ch.newVals);
+          }
+          if(ch.tipo==='new'&&ch.ord&&!ROWS.find(r=>r.ord===ch.ord)&&!pendNewRows.find(r=>r.ord===ch.ord)){
+            pendNewRows.push({ord:ch.ord,mta:pkg.parque||'',sub:!ch.isMae,maOrd:ch.maOrd||null,
+              proj:ch.proj||'',ativ:ch.ativ||'',tar:ch.tar||'',...(ch.newVals||{})});
+          }
+        });
+      }
+    });
+  }catch(e){}
+}
+function vc(){return cols.filter(c=>c.v);}
+
+function uvf(key){
+  let rows=[...ROWS];
+  Object.entries(filt).forEach(([k,v])=>{if(k===key||!v||!v.length)return;rows=rows.filter(r=>v.includes(String(r[k]??'')));});
+  return[...new Set(rows.map(r=>String(r[key]??'')))].sort();
+}
+function getRows(){
+  let rows=[...ROWS];
+  pendNewRows.forEach(nr=>{
+    if(rows.find(r=>r.ord===nr.ord))return;
+    if(nr.sub&&nr.maOrd){
+      const maI=rows.findIndex(r=>r.ord===nr.maOrd);
+      if(maI>=0){let ins=maI+1;while(ins<rows.length&&rows[ins].sub)ins++;rows.splice(ins,0,nr);}
+      else rows.push(nr);
+    }else{
+      const n=parseInt(nr.ord);
+      const ins=rows.findIndex(r=>parseInt(r.ord)>n);
+      if(ins>=0)rows.splice(ins,0,nr);else rows.push(nr);
+    }
+  });
+  Object.entries(filt).forEach(([k,v])=>{if(!v||!v.length)return;rows=rows.filter(r=>v.includes(String(r[k]??'')));});
+  if(sorts.length){rows.sort((a,b)=>{for(const s of sorts){let av=cv(a,s.c)??'',bv=cv(b,s.c)??'';if(typeof av==='number'&&typeof bv==='number'){if(av!==bv)return s.d==='asc'?av-bv:bv-av;}else{av=String(av).toLowerCase();bv=String(bv).toLowerCase();if(av<bv)return s.d==='asc'?-1:1;if(av>bv)return s.d==='asc'?1:-1;}}return 0;});}
+  return rows;
+}
+
+function abadge(v){if(v==='SIM')return'<span class="ab a-s">SIM</span>';if(v==='NÃO')return'<span class="ab a-n">NÃO</span>';return`<span class="ab a-o">${v||'—'}</span>`;}
+function pbadge(v){const cl={A:'p-a',B:'p-b',C:'p-c',D:'p-d'}[v]||'p-o';return`<span class="pb ${cl}">${v||'—'}</span>`;}
+function stripe(v,hp){if(hp)return'background:var(--am)';if(v==='SIM')return'background:var(--gr)';if(v==='NÃO')return'background:var(--rd)';return'background:var(--b2)';}
+
+function render(){
+  const vcs=vc(),rows=getRows();
+  document.getElementById('TH').innerHTML='<tr>'+vcs.map(c=>{
+    const fa=filt[c.k]&&filt[c.k].length>0;
+    const sr=sorts.find(s=>s.c===c.k);
+    const si=sr?(sr.d==='asc'?'↓':'↑'):'↕';
+    const sc=sr?(sr.d==='asc'?' asc':' desc'):'';
+    // item 1: no filter icon, label click opens filter
+    return`<th><div class="thi"><span class="thl${fa?' fd-on':''}" onclick="openFd(event,'${c.k}')" title="Clique para filtrar · ${fa?'Filtro ativo':'Sem filtro'}">${c.l}</span><span class="ths${sc}" onclick="qs(event,'${c.k}')" title="Ordenar">${si}</span></div></th>`;
+  }).join('')+'</tr>';
+
+  document.getElementById('TB').innerHTML=rows.map(row=>{
+    const hp=!!(pend[row.ord]&&Object.keys(pend[row.ord]).length)||!!(pendSubmitted[row.ord]&&Object.keys(pendSubmitted[row.ord]).length);
+    const apv=cv(row,'aprovado');
+    const hd=!!(cv(row,'digito'));
+    const st=stripe(apv,hp);
+    // item 3: each td:first-child gets explicit background via inline style to override hover
+    const firstBg=hp?'background:#2b3e14':'background:var(--n2)';
+    const rowLocked=!!(pendSubmitted[row.ord]&&Object.keys(pendSubmitted[row.ord]).length);
+    const lockedTitle=rowLocked?' title="Aguardando aprovação DIRMAB — edição bloqueada"':'';
+    return`<tr class="${hp?'pd':''} ${rowLocked?'locked':''}">`+vcs.map(c=>{
+      const raw=cv(row,c.k);
+      const modPend=!!(pend[row.ord]&&pend[row.ord][c.k]!==undefined);
+      const modSub=!!(pendSubmitted[row.ord]&&pendSubmitted[row.ord][c.k]!==undefined);
+      const mod=modPend||modSub;
+      const dot=mod?`<span class="${modPend?'mdot-s':'mdot'}" title="${modPend?'Alteração não enviada':'Aguardando aprovação DIRMAB'}"></span>`:'';
+      if(c.k==='ord'){
+        const awaitTag=rowLocked?'<span title="Aguardando aprovação DIRMAB" style="font-size:10px;margin-left:4px;opacity:.75">⏳</span>':'';
+        const splitBtn=(!row.sub&&!rowLocked)?`<button class="split-btn" onclick="openSplit(event,'${row.ord}')" title="Quebrar linha / criar linha filha">✂</button>`:'';
+        return`<td style="${firstBg}"><div class="ordc"><div class="ords" style="${st}"></div><div class="ordv">${row.sub?'↳ ':''}<span style="font-family:var(--mo);font-size:12px">${raw}</span>${awaitTag}${splitBtn}</div></div></td>`;
+      }
+      const df=modSub?newValFooter(row.ord,c.k,cv(row,'moeda')):'';
+      const lkColStyle=modSub?'flex-direction:column;align-items:flex-start;gap:1px':'';
+      const lkCrStyle=modSub?'flex-direction:column;align-items:flex-end;gap:1px':'';
+      const wrap=(inner,isCr)=>modSub?`<div style="display:flex;align-items:center;gap:${isCr?4:6}px">${inner}</div>${df}`:inner;
+      if(c.k==='aprovado'){if(rowLocked)return`<td><div class="cell" style="${lkColStyle}"${lockedTitle}>${wrap(abadge(row[c.k])+dot,false)}</div></td>`;return`<td><div class="cell" style="cursor:pointer;gap:6px" onclick="openA(event,'${row.ord}')">${abadge(raw)}${dot}</div></td>`;}
+      if(c.k==='pacote'){if(rowLocked)return`<td><div class="cell" style="${lkColStyle}"${lockedTitle}>${wrap(pbadge(row[c.k])+dot,false)}</div></td>`;return`<td><div class="cell" style="cursor:pointer;gap:6px" onclick="openP(event,'${row.ord}')">${pbadge(raw)}${dot}</div></td>`;}
+      if(c.k==='tramite'){if(hd)return`<td><div class="cell"><span style="font-size:12px;padding:2px 10px;border-radius:var(--r);background:rgba(52,211,153,.15);color:#059669">ATENDIDO</span></div></td>`;if(rowLocked)return`<td><div class="cell" style="${lkColStyle}"${lockedTitle}>${wrap((row[c.k]||'—')+dot,false)}</div></td>`;return`<td><select class="isel" onchange="ce('${row.ord}','tramite',this.value)">${['—','ATENDER','EM TRÂMITE','ATENDIDO','CANCELADO'].map(s=>`<option value="${s==='—'?'':s}"${(raw===s||(s==='—'&&!raw))?' selected':''}>${s}</option>`).join('')}</select></td>`;}
+      if(c.k==='moeda'){if(rowLocked)return`<td><div class="cell" style="${lkColStyle}"${lockedTitle}>${wrap((row[c.k]||'—')+dot,false)}</div></td>`;return`<td><div style="display:flex;align-items:center;height:32px"><select class="isel" onchange="ce('${row.ord}','moeda',this.value);render()">${CUR.map(cur=>`<option value="${cur}"${raw===cur?' selected':''}>${cur}</option>`).join('')}</select>${dot}</div></td>`;}
+      if(c.k==='valormoeda'){const m=cv(row,'moeda')||'BRL';const origM=row['moeda']||'BRL';if(rowLocked)return`<td><div class="cell cr" style="${lkCrStyle}"${lockedTitle}>${wrap(fmtC(row[c.k],origM)+dot,true)}</div></td>`;return`<td><div class="cell cr" contenteditable="true" onblur="ceN('${row.ord}','valormoeda',this.textContent)">${fmtC(raw,m)}${dot}</div></td>`;}
+      if(c.k==='valor'){if(rowLocked)return`<td><div class="cell cr" style="${lkCrStyle}"${lockedTitle}>${wrap(fmtC(row[c.k],'BRL')+dot,true)}</div></td>`;return`<td><div class="cell cr" contenteditable="true" onblur="ceN('${row.ord}','valor',this.textContent)">${fmtC(raw,'BRL')}${dot}</div></td>`;}
+      if(c.k==='mesdesc'||c.k==='mesliq'){if(rowLocked)return`<td><div class="cell" style="${lkColStyle}"${lockedTitle}>${wrap((fmtM(row[c.k])||'—')+dot,false)}</div></td>`;return`<td><div class="cell" style="cursor:pointer;gap:6px" onclick="openMp(event,'${row.ord}','${c.k}')" title="Clique para selecionar mês/ano">${fmtM(raw)||'<span style=\"color:var(--t3);font-size:11px\">Selecionar…</span>'}${dot}</div></td>`;}
+      if(c.k==='datasolic')return`<td><div class="cell" style="color:var(--t3)">${raw||'—'}</div></td>`;
+      if(c.k==='datapeddirmab'){if(rowLocked)return`<td><div class="cell" style="${lkColStyle}"${lockedTitle}>${wrap((row[c.k]||'—')+dot,false)}</div></td>`;return`<td><div class="cell" style="cursor:pointer;gap:6px" onclick="openDp(event,'${row.ord}','datapeddirmab')" title="Clique para selecionar data">${raw||'<span style=\"color:var(--t3);font-size:11px\">Selecionar…</span>'}${dot}</div></td>`;}
+      if(rowLocked)return`<td><div class="cell" style="${lkColStyle}"${lockedTitle}>${wrap((row[c.k]!=null&&row[c.k]!==''?row[c.k]:'')+dot,false)}</div></td>`;
+      return`<td><div class="cell" contenteditable="true" onblur="ce('${row.ord}','${c.k}',this.textContent.trim())">${raw!=null&&raw!==''?raw:''}${dot}</div></td>`;
+    }).join('')+'</tr>';
+  }).join('');
+
+  updSB();updFB();updPB();
+  const fc=Object.values(filt).filter(v=>v&&v.length).length;
+  // sum valor total of visible rows
+  const totalValor=rows.reduce((sum,r)=>{const v=parseFloat(cv(r,'valor'))||0;return sum+v;},0);
+  document.getElementById('sv').textContent='Total: '+fmtC(totalValor,'BRL');
+  document.getElementById('sr').textContent=`${rows.length} linha${rows.length!==1?'s':''} exibida${rows.length!==1?'s':''}`;
+  document.getElementById('sf').textContent=fc?`${fc} filtro${fc>1?'s':''} ativo${fc>1?'s':''}`:'Sem filtros';
+  document.getElementById('psub').textContent=`Cenário A (ativo) · ${rows.length} linhas · 5 Parques`;
+}
+
+// item 5: close all popups before opening another
+function closeAllPopups(){['apop','ppop','fd','mpop','dpop'].forEach(id=>document.getElementById(id).classList.remove('open'));}
+
+let cA=null,cP=null;
+function openA(e,ord){
+  e.stopPropagation();closeAllPopups();
+  cA=ord;const p=document.getElementById('apop');
+  const r=e.currentTarget.getBoundingClientRect();
+  p.style.top=(r.bottom+4)+'px';p.style.left=r.left+'px';
+  document.getElementById('ainp').value='';p.classList.add('open');
+}
+function setA(v){if(cA)ce(cA,'aprovado',v);document.getElementById('apop').classList.remove('open');}
+function setAc(){const v=document.getElementById('ainp').value.trim();if(v)setA(v);}
+function openP(e,ord){
+  e.stopPropagation();closeAllPopups();
+  cP=ord;const p=document.getElementById('ppop');
+  const r=e.currentTarget.getBoundingClientRect();
+  p.style.top=(r.bottom+4)+'px';p.style.left=r.left+'px';
+  document.getElementById('pinp').value='';p.classList.add('open');
+}
+function setP(v){if(cP)ce(cP,'pacote',v);document.getElementById('ppop').classList.remove('open');}
+function setPc(){const v=document.getElementById('pinp').value.trim();if(v)setP(v);}
+
+document.addEventListener('click',e=>{
+  ['apop','ppop','fd'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el&&el.classList.contains('open')&&!el.contains(e.target))el.classList.remove('open');
+  });
+});
+
+// FILTER — items 1,2
+let fdC=null,fdT={},fdV=[],fdVisible=[];
+function openFd(e,key){
+  e.stopPropagation();closeAllPopups();
+  fdC=key;
+  const r=e.currentTarget.getBoundingClientRect();
+  const d=document.getElementById('fd');
+  d.style.top=(r.bottom+2)+'px';
+  d.style.left=Math.min(r.left,window.innerWidth-234)+'px';
+  fdV=uvf(key);
+  fdVisible=[...fdV];
+  // item 3.2: pre-check based on active filter or all
+  if(filt[key]&&filt[key].length){fdT={};fdV.forEach(v=>fdT[v]=filt[key].includes(v));}
+  else{fdT={};fdV.forEach(v=>fdT[v]=true);}
+  document.getElementById('fds').value='';
+  renderFdl(fdV);
+  d.classList.add('open');
+}
+function renderFdl(vals){
+  fdVisible=vals;
+  document.getElementById('fdl').innerHTML=vals.map(v=>`
+    <div class="fd-i">
+      <input type="checkbox" ${fdT[v]!==false?'checked':''} onchange="fdT['${v}']=this.checked"/>
+      <span>${v===''?'(vazio)':v}</span>
+    </div>`).join('');
+}
+// item 2: search filters visible list; Selecionar visíveis marks only visible
+function fdSrch(q){
+  const filtered=fdV.filter(v=>v.toLowerCase().includes(q.toLowerCase()));
+  // When search is active, pre-mark all visible items as checked
+  // (user sees them = they are implicitly selected unless explicitly unchecked)
+  filtered.forEach(v=>{ if(fdT[v]===undefined) fdT[v]=true; });
+  renderFdl(filtered);
+}
+// item 2: select only what is currently visible in the list
+function fdAll(){fdVisible.forEach(v=>fdT[v]=true);renderFdl(fdVisible);}
+function fdNone(){fdV.forEach(v=>fdT[v]=false);renderFdl(fdVisible);}
+// item 2: apply uses visible items (fdVisible) as the selected set,
+// respecting individual checkbox state within that visible set
+function applyFd(){
+  // For items in fdVisible: use their checked state in fdT
+  // For items NOT in fdVisible (filtered out by search): treat as deselected
+  const sel=fdVisible.filter(v=>fdT[v]!==false);
+  if(!sel.length||sel.length>=fdV.length)delete filt[fdC];
+  else filt[fdC]=sel;
+  document.getElementById('fd').classList.remove('open');
+  render();
+}
+function updFB(){
+  const e2=Object.entries(filt).filter(([,v])=>v&&v.length);
+  document.getElementById('bar-f').classList.toggle('vis',e2.length>0);
+  const cm=Object.fromEntries(cols.map(c=>[c.k,c.l]));
+  document.getElementById('fc').innerHTML=e2.map(([k,vs])=>`<span class="chip chip-f">${cm[k]||k}: ${vs.length===1?vs[0]:vs.length+' seleç.'}<span class="crm" onclick="rmF('${k}')">✕</span></span>`).join('');
+}
+function rmF(k){delete filt[k];render();}
+function clearFilt(){filt={};render();}
+
+function ce(ord,k,val){
+  const row=ROWS.find(r=>r.ord===ord);if(!row)return;
+  if(String(row[k]??'')===String(val)){if(pend[ord]){delete pend[ord][k];if(!Object.keys(pend[ord]).length)delete pend[ord];}}
+  else{if(!pend[ord])pend[ord]={};pend[ord][k]=val;}
+  render();
+}
+function ceN(ord,k,raw){ce(ord,k,parseFloat(raw.replace(/[^\d,]/g,'').replace(',','.'))||0);}
+
+// item 1: stop propagation from sort button so it doesn't trigger filter
+function qs(e,k){e.stopPropagation();const ex=sorts.find(s=>s.c===k);if(ex)ex.d=ex.d==='asc'?'desc':'asc';else sorts=[{c:k,d:'asc'}];render();}
+
+// SORT MODAL — item 4: draggable rows
+function openSM(){if(!sorts.length)sorts=[{c:'ord',d:'asc'}];renderSR();document.getElementById('sm').classList.add('open');}
+function closeSM(){document.getElementById('sm').classList.remove('open');}
+let srDrag=null;
+function renderSR(){
+  const colOpts=cols.map(c=>`<option value="${c.k}">${c.l}</option>`).join('');
+  document.getElementById('smb').innerHTML=sorts.map((s,i)=>`
+    <div class="srow" draggable="true"
+      ondragstart="srDrag=${i};this.style.opacity='.4'"
+      ondragend="this.style.opacity='1'"
+      ondragover="event.preventDefault();this.classList.add('drag-over')"
+      ondragleave="this.classList.remove('drag-over')"
+      ondrop="event.preventDefault();this.classList.remove('drag-over');srDrop(${i})">
+      <span class="srow-drag" title="Arrastar para reordenar">⠿</span>
+      <span style="font-size:11px;color:var(--t3);width:16px;flex-shrink:0">${i+1}</span>
+      <select onchange="sorts[${i}].c=this.value">${cols.map(c=>`<option value="${c.k}"${c.k===s.c?' selected':''}>${c.l}</option>`).join('')}</select>
+      <select style="width:80px" onchange="sorts[${i}].d=this.value">
+        <option value="asc"${s.d==='asc'?' selected':''}>A→Z ↓</option>
+        <option value="desc"${s.d==='desc'?' selected':''}>Z→A ↑</option>
+      </select>
+      <span class="srm" onclick="sorts.splice(${i},1);renderSR()">✕</span>
+    </div>`).join('');
+}
+function srDrop(ti){
+  if(srDrag===null||srDrag===ti)return;
+  const m=sorts.splice(srDrag,1)[0];sorts.splice(ti,0,m);
+  srDrag=null;renderSR();
+}
+function addSR(){sorts.push({c:'proj',d:'asc'});renderSR();}
+function applySort(){closeSM();render();}
+function clearSort(){sorts=[];render();}
+function updSB(){
+  const b=document.getElementById('bar-s');b.classList.toggle('vis',sorts.length>0);
+  document.getElementById('sc').innerHTML=sorts.map((s,i)=>{const c=cols.find(x=>x.k===s.c);return`<span class="chip chip-s">${i+1}. ${c?c.l:s.c} ${s.d==='asc'?'↓':'↑'}<span class="crm" onclick="sorts.splice(${i},1);render()">✕</span></span>`;}).join('');
+}
+
+function updPB(){
+  const n=Object.values(pend).filter(p=>p&&Object.keys(p).length).length;
+  document.getElementById('bar-p').classList.toggle('vis',n>0);document.getElementById('pc').textContent=n;
+  const sp=document.getElementById('sp');if(n){sp.style.display='';sp.textContent=`${n} alteração(ões) pendente(s)`;}else sp.style.display='none';
+}
+function confDiscard(){const n=Object.values(pend).filter(p=>p&&Object.keys(p).length).length;document.getElementById('cn').textContent=n;document.getElementById('cm').classList.add('open');}
+function doDiscard(){pend={};document.getElementById('cm').classList.remove('open');render();}
+
+// item 8: changes modal shows context fields
+function openChg(){
+  const cm=Object.fromEntries(cols.map(c=>[c.k,c.l]));
+  // item 8: context fields to always display alongside the changed field
+  const CTX=['aprovado','acao','mta','pacote','uge','proj','ativ','ed','moeda','valor'];
+  let html='';
+  Object.entries(pend).forEach(([ord,ch])=>{
+    const row=ROWS.find(r=>r.ord===ord);if(!row)return;
+    Object.entries(ch).forEach(([k,nv])=>{
+      const ov=row[k];
+      // build context tags (exclude the changed field itself)
+      const ctxTags=CTX.filter(ck=>ck!==k).map(ck=>{
+        const val=cv(row,ck);
+        if(val==null||val==='')return'';
+        const lbl=cm[ck]||ck;
+        let display=val;
+        if(ck==='valor')display=fmtC(val,'BRL');
+        else if(ck==='moeda')display=val;
+        return`<span title="${lbl}"><strong style="color:var(--t3)">${lbl}:</strong> ${display}</span>`;
+      }).filter(Boolean).join('');
+      html+=`<div class="ci">
+        <span class="ci-ord">${ord}</span>
+        <span class="ci-fld">${cm[k]||k}</span>
+        <span class="ci-from">${ov!=null&&ov!==''?ov:'(vazio)'}</span>
+        <span class="ci-arr">→</span>
+        <span class="ci-to">${nv!=null&&nv!==''?nv:'(vazio)'}</span>
+        <button class="rv" onclick="revert('${ord}','${k}')">Reverter</button>
+        ${ctxTags?`<div class="ci-ctx">${ctxTags}</div>`:''}
+      </div>`;
+    });
+  });
+  document.getElementById('chgl').innerHTML=html||`<p style="font-size:12px;color:var(--t3)">Nenhuma alteração pendente.</p>`;
+  document.getElementById('chgm').classList.add('open');
+}
+function revert(ord,k){if(pend[ord]){delete pend[ord][k];if(!Object.keys(pend[ord]).length)delete pend[ord];}openChg();render();}
+
+// COL PANEL
+let dSrc=null;
+function openCP(){document.getElementById('cov').classList.add('open');renderCP();}
+function closeCP(){document.getElementById('cov').classList.remove('open');}
+function renderCP(){
+  document.getElementById('cpb').innerHTML=cols.map((c,i)=>`
+    <div class="cpi${c.nm?' nd':''}" ${c.nm?'':`draggable="true"
+      ondragstart="dSrc=${i}"
+      ondragover="event.preventDefault();this.classList.add('dov')"
+      ondragleave="this.classList.remove('dov')"
+      ondrop="event.preventDefault();this.classList.remove('dov');dropC(${i})"`}>
+      <span style="color:var(--t3);opacity:${c.nm?.2:.8};font-size:13px">⠿</span>
+      <input type="checkbox" style="accent-color:var(--ac);width:13px;height:13px;flex-shrink:0"
+        ${c.v?'checked':''} ${c.fx?'disabled':''}
+        onchange="cols[${i}].v=this.checked;render()"/>
+      <span style="font-size:12px;color:var(--t2);flex:1">${c.l}</span>
+      ${c.fx?`<span style="font-size:9px;color:var(--t3)">${c.nm?'fixa·imóvel':'fixa'}</span>`:''}
+    </div>`).join('');
+}
+function dropC(ti){if(dSrc===null||dSrc===ti||cols[dSrc].nm)return;const m=cols.splice(dSrc,1)[0];cols.splice(ti,0,m);const oi=cols.findIndex(c=>c.k==='ord');if(oi!==0){const o=cols.splice(oi,1)[0];cols.unshift(o);}dSrc=null;renderCP();render();}
+function selAll(){cols.forEach(c=>c.v=true);renderCP();render();}
+function deselAll(){cols.forEach(c=>{if(!c.fx)c.v=false;});renderCP();render();}
+function resetCols(){cols=JSON.parse(JSON.stringify(AC));renderCP();render();}
+
+function togSB(){const sb=document.getElementById('sb');sb.classList.toggle('col');document.querySelector('.tog').title=sb.classList.contains('col')?'Expandir painel':'Recolher painel';}
+
+(function(){
+  const p=new URLSearchParams(location.search);
+  if(p.get('clear')==='1'){
+    ['mta_pkgs_pending','mta_pkgs_userdata','mta_approved_vals','mta_approved_newrows','mta_hist'].forEach(k=>localStorage.removeItem(k));
+    location.replace(location.pathname);return;
+  }
+})();
+applyApprovedVals();
+loadSubmittedPend();
+render();
+document.addEventListener('visibilitychange',function(){if(!document.hidden){applyApprovedVals();loadSubmittedPend();render();}});
+
+// item 9: month/year picker
+const MP_MONTHS=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+const MP_NUMS=['01','02','03','04','05','06','07','08','09','10','11','12'];
+let mpOrd=null,mpKey=null,mpYear=2026,mpSelM=null,mpModalTarget=null,mpMinY=null,mpMinM=null;
+
+function openMp(e,ord,key){
+  e.stopPropagation();closeAllPopups();
+  mpOrd=ord;mpKey=key;
+  const cur=cv(ROWS.find(r=>r.ord===ord),key)||'';
+  const m=String(cur).match(/^([A-Za-z]+)\/(\d{4})$/);
+  if(m){const mi=MP_MONTHS.findIndex(x=>x.toLowerCase()===m[1].toLowerCase());mpSelM=mi>=0?mi:null;mpYear=parseInt(m[2]);}
+  else{mpSelM=null;mpYear=new Date().getFullYear();}
+  const p=document.getElementById('mpop');
+  const rect=e.currentTarget.getBoundingClientRect();
+  // position below cell, clamp to viewport
+  let top=rect.bottom+4,left=rect.left;
+  if(top+200>window.innerHeight)top=rect.top-204;
+  if(left+244>window.innerWidth)left=window.innerWidth-248;
+  p.style.top=top+'px';p.style.left=left+'px';
+  renderMp();p.classList.add('open');
+}
+function openMpModal(e,inputId){
+  e.stopPropagation();closeAllPopups();
+  mpModalTarget=inputId;mpOrd=null;mpKey=null;
+  const now=new Date();
+  mpMinY=null;mpMinM=null;
+  if(inputId.endsWith('mesdesc')){
+    mpMinY=now.getFullYear();mpMinM=now.getMonth();
+  }else if(inputId.endsWith('mesliq')){
+    const descId=inputId.replace('mesliq','mesdesc');
+    const descVal=document.getElementById(descId)?.value||'';
+    const dm=String(descVal).match(/^([A-Za-z]+)\/(\d{4})$/);
+    if(dm){const mi=MP_MONTHS.findIndex(x=>x.toLowerCase()===dm[1].toLowerCase());if(mi>=0){mpMinM=mi;mpMinY=parseInt(dm[2]);}else{mpMinY=now.getFullYear();mpMinM=now.getMonth();}}
+    else{mpMinY=now.getFullYear();mpMinM=now.getMonth();}
+  }
+  const cur=document.getElementById(inputId)?.value||'';
+  const m=String(cur).match(/^([A-Za-z]+)\/(\d{4})$/);
+  if(m){const mi=MP_MONTHS.findIndex(x=>x.toLowerCase()===m[1].toLowerCase());mpSelM=mi>=0?mi:null;mpYear=parseInt(m[2]);}
+  else{mpSelM=null;mpYear=mpMinY||now.getFullYear();}
+  if(mpMinY!==null&&mpYear<mpMinY)mpYear=mpMinY;
+  const p=document.getElementById('mpop');
+  const rect=e.currentTarget.getBoundingClientRect();
+  let top=rect.bottom+4,left=rect.left;
+  if(top+200>window.innerHeight)top=rect.top-204;
+  if(left+244>window.innerWidth)left=window.innerWidth-248;
+  p.style.top=top+'px';p.style.left=left+'px';
+  renderMp();p.classList.add('open');
+}
+function renderMp(){
+  document.getElementById('mp-yr-val').textContent=mpYear;
+  document.getElementById('mp-grid').innerHTML=MP_MONTHS.map((m,i)=>{
+    const disabled=mpMinY!==null&&(mpYear<mpMinY||(mpYear===mpMinY&&i<mpMinM));
+    return`<div class="mp-m${mpSelM===i?' sel':''}${disabled?' mp-disabled':''}" ${disabled?'':'onclick="mpSel('+i+')\"'}>${m}</div>`;
+  }).join('');
+  const backBtn=document.querySelector('#mpop .mp-yr-btn:first-child');
+  if(backBtn&&mpMinY!==null){const atMin=mpYear<=mpMinY;backBtn.style.opacity=atMin?'.25':'1';backBtn.style.pointerEvents=atMin?'none':'auto';}
+}
+function mpYr(d){if(d<0&&mpMinY!==null&&mpYear<=mpMinY)return;mpYear+=d;renderMp();}
+function mpSel(i){
+  mpSelM=i;
+  const val=MP_MONTHS[i]+'/'+mpYear;
+  if(mpModalTarget){const el=document.getElementById(mpModalTarget);if(el){el.value=val;el.classList.remove('err');}mpModalTarget=null;}
+  else if(mpOrd&&mpKey){ce(mpOrd,mpKey,val);}
+  document.getElementById('mpop').classList.remove('open');
+}
+function mpClear(){
+  if(mpModalTarget){const el=document.getElementById(mpModalTarget);if(el)el.value='';mpModalTarget=null;}
+  else if(mpOrd&&mpKey){ce(mpOrd,mpKey,'');}
+  document.getElementById('mpop').classList.remove('open');
+}
+
+// close mpop on outside click
+document.addEventListener('click',e=>{
+  const p2=document.getElementById('dpop');
+  if(p2&&p2.classList.contains('open')&&!p2.contains(e.target))p2.classList.remove('open');
+  const p=document.getElementById('mpop');
+  if(p&&p.classList.contains('open')&&!p.contains(e.target))p.classList.remove('open');
+},true);
+
+
+// Full date picker
+let dpOrd=null,dpKey=null,dpYear=2026,dpMonth=0,dpSelDay=null,dpSelMonth=null,dpSelYear=null;
+
+function openDp(e,ord,key){
+  e.stopPropagation();closeAllPopups();
+  dpOrd=ord;dpKey=key;
+  const cur=cv(ROWS.find(r=>r.ord===ord),key)||'';
+  // parse DD/MM/YYYY
+  const m=String(cur).match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  const today=new Date();
+  if(m){dpSelDay=parseInt(m[1]);dpSelMonth=parseInt(m[2])-1;dpSelYear=parseInt(m[3]);dpYear=dpSelYear;dpMonth=dpSelMonth;}
+  else{dpSelDay=null;dpSelMonth=null;dpSelYear=null;dpYear=today.getFullYear();dpMonth=today.getMonth();}
+  const p=document.getElementById('dpop');
+  const rect=e.currentTarget.getBoundingClientRect();
+  let top=rect.bottom+4,left=rect.left;
+  if(top+300>window.innerHeight)top=rect.top-304;
+  if(left+264>window.innerWidth)left=window.innerWidth-268;
+  p.style.top=top+'px';p.style.left=left+'px';
+  renderDp();p.classList.add('open');
+}
+function renderDp(){
+  document.getElementById('dp-mon').value=dpMonth;
+  document.getElementById('dp-yr').value=dpYear;
+  const today=new Date();
+  const firstDay=new Date(dpYear,dpMonth,1).getDay(); // 0=Sun
+  const daysInMonth=new Date(dpYear,dpMonth+1,0).getDate();
+  let html='';
+  // empty cells before first day
+  for(let i=0;i<firstDay;i++) html+='<div class="dp-day empty"></div>';
+  for(let d=1;d<=daysInMonth;d++){
+    const isSel=dpSelDay===d&&dpSelMonth===dpMonth&&dpSelYear===dpYear;
+    const isToday=today.getDate()===d&&today.getMonth()===dpMonth&&today.getFullYear()===dpYear;
+    const isFuture=new Date(dpYear,dpMonth,d)>today;
+    if(isFuture){
+      html+=`<div class="dp-day other" style="opacity:.25;cursor:not-allowed" title="Data futura não permitida">${d}</div>`;
+    } else {
+      html+=`<div class="dp-day${isSel?' sel':''}${isToday&&!isSel?' today':''}" onclick="dpSel(${d})">${d}</div>`;
+    }
+  }
+  document.getElementById('dp-days').innerHTML=html;
+  // Disable forward navigation when at current month
+  const atCurrent=dpYear===today.getFullYear()&&dpMonth===today.getMonth();
+  const fwdBtn=document.querySelector('.dp-nav-btn:last-of-type');
+  if(fwdBtn){fwdBtn.style.opacity=atCurrent?'.25':'1';fwdBtn.style.pointerEvents=atCurrent?'none':'auto';}
+}
+function dpNav(d){
+  dpMonth+=d;
+  if(dpMonth<0){dpMonth=11;dpYear--;}
+  if(dpMonth>11){dpMonth=0;dpYear++;}
+  document.getElementById('dp-mon').value=dpMonth;
+  document.getElementById('dp-yr').value=dpYear;
+  renderDp();
+}
+function dpMonChange(v){dpMonth=parseInt(v);renderDp();}
+function dpYrChange(v){const y=parseInt(v);if(y>=2020&&y<=2040){dpYear=y;renderDp();}}
+function dpSel(d){
+  dpSelDay=d;dpSelMonth=dpMonth;dpSelYear=dpYear;
+  const mm=String(dpMonth+1).padStart(2,'0');
+  const dd=String(d).padStart(2,'0');
+  const val=dd+'/'+mm+'/'+dpYear;
+  if(dpOrd&&dpKey)ce(dpOrd,dpKey,val);
+  document.getElementById('dpop').classList.remove('open');
+}
+function dpToday(){
+  const t=new Date();dpYear=t.getFullYear();dpMonth=t.getMonth();dpSel(t.getDate());
+}
+function dpClear(){if(dpOrd&&dpKey)ce(dpOrd,dpKey,'');document.getElementById('dpop').classList.remove('open');}
+
+// ── SUBMIT TO APROVAÇÕES ──
+const FIELD_LBL={aprovado:'Aprovado',pacote:'Pacote',acao:'Ação',tramite:'Trâmite',valor:'Valor Total',
+  moeda:'Moeda',valormoeda:'Valor Moeda',mesdesc:'Mês Desc.',mesliq:'Mês Liq.',obs:'Observação',prio:'Prioridade'};
+function fmtV(k,v){
+  if(k==='valor'||k==='valormoeda')return'R$ '+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2});
+  return String(v??'');
+}
+function enviarParaAprovacao(){
+  const byParque={};
+  Object.entries(pend).forEach(([ord,ch])=>{
+    if(!ch||!Object.keys(ch).length)return;
+    const row=ROWS.find(r=>r.ord===ord);if(!row)return;
+    if(!byParque[row.mta])byParque[row.mta]=[];
+    const diffs=Object.entries(ch).map(([k,nv])=>({campo:FIELD_LBL[k]||k,de:fmtV(k,row[k]),para:fmtV(k,nv)}));
+    byParque[row.mta].push({ord:row.ord,tipo:'alt',proj:row.proj,ativ:row.ativ,tar:row.tar,diffs,newVals:{...ch}});
+  });
+  if(!Object.keys(byParque).length)return;
+  const ts=Date.now();
+  const autor='Ten Cel Silva';
+  const dataStr=new Date().toLocaleString('pt-BR',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}).replace(',','·');
+  let userdata={};try{userdata=JSON.parse(localStorage.getItem('mta_pkgs_userdata')||'{}');}catch(e){}
+  let pendIds=null;try{const s=localStorage.getItem('mta_pkgs_pending');if(s)pendIds=JSON.parse(s);}catch(e){}
+  if(!pendIds)pendIds=['pkg1','pkg2','pkg3','pkg4','pkg5','pkg6','pkg7'];
+  const newIds=[];
+  Object.entries(byParque).forEach(([parque,changes],i)=>{
+    const id=`user_${ts}_${i}`;
+    const nL=changes.length;
+    userdata[id]={id,parque,tipo:'alt',autor,data:dataStr,
+      desc:`${nL} alteraç${nL===1?'ão':'ões'} via editor de Linhas`,changes};
+    newIds.push(id);
+  });
+  pendIds.push(...newIds);
+  localStorage.setItem('mta_pkgs_userdata',JSON.stringify(userdata));
+  localStorage.setItem('mta_pkgs_pending',JSON.stringify(pendIds));
+  pend={};loadSubmittedPend();render();
+  const parquesStr=Object.keys(byParque).join(', ');
+  document.getElementById('sub-parques').textContent='Parque(s): '+parquesStr;
+  document.getElementById('sub-sub').textContent=Object.values(byParque).reduce((s,c)=>s+c.length,0)+' linha(s) · '+Object.keys(byParque).length+' parque(s)';
+  document.getElementById('subm').classList.add('open');
+}
+
+// ── CÂMBIO PLANEJADO ──
+const CAMBIO_DEFAULT={BRL:1,USD:5.85,EUR:6.40,GBP:7.45,SEK:0.54,CAD:4.30,JPY:0.039,CHF:6.80};
+function getCambio(){try{return{...CAMBIO_DEFAULT,...JSON.parse(localStorage.getItem('mta_cambio')||'{}')};}catch(e){return{...CAMBIO_DEFAULT};}}
+function openCambio(){
+  const cb=getCambio();
+  ['USD','EUR','GBP','SEK','CAD','JPY','CHF'].forEach(c=>{
+    const el=document.getElementById('cb-'+c);
+    if(el)el.value=String(cb[c]||CAMBIO_DEFAULT[c]);
+  });
+  document.getElementById('cambio-m').classList.add('open');
+}
+function closeCambio(){document.getElementById('cambio-m').classList.remove('open');}
+function saveCambioUI(){
+  const cb={BRL:1};
+  ['USD','EUR','GBP','SEK','CAD','JPY','CHF'].forEach(c=>{
+    const el=document.getElementById('cb-'+c);
+    const v=el?parseFloat(el.value.replace(',','.')):null;
+    if(v&&v>0)cb[c]=v;else cb[c]=CAMBIO_DEFAULT[c];
+  });
+  localStorage.setItem('mta_cambio',JSON.stringify(cb));
+  closeCambio();
+}
+
+// ── CURRENCY MASK ──
+function maskCur(el){
+  let digits=el.value.replace(/\D/g,'');
+  if(!digits){el.value='';return 0;}
+  const num=parseInt(digits,10)/100;
+  el.value=num.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  return num;
+}
+function parseMasked(s){
+  if(!s)return 0;
+  return parseFloat(String(s).replace(/\./g,'').replace(',','.'))||0;
+}
+
+// ── NOVA LINHA MÃE ──
+const PARQUE_BASE={PAMAGL:0,PAMALS:50000,PAMASP:100000,PAMBRJ:150000,DIRMAB:200000};
+function genNextMainOrd(mta){
+  const base=PARQUE_BASE[mta];
+  if(base===undefined)return null;
+  let maxN=base;
+  ROWS.forEach(r=>{
+    const n=parseInt(r.ord);
+    if(n>base&&n<base+50000&&n%20===0)maxN=Math.max(maxN,n);
+  });
+  try{
+    const ud=JSON.parse(localStorage.getItem('mta_pkgs_userdata')||'{}');
+    Object.values(ud).forEach(pkg=>{
+      (pkg.changes||[]).forEach(c=>{
+        if(c.isMae&&c.tipo==='new'){const n=parseInt(c.ord);if(n>base&&n<base+50000&&n%20===0)maxN=Math.max(maxN,n);}
+      });
+    });
+  }catch(e){}
+  return String(maxN+20).padStart(6,'0')+'*';
+}
+function nlCalcValor(){
+  const moeda=document.getElementById('nl-moeda').value||'BRL';
+  const vm=parseMasked(document.getElementById('nl-valormoeda').value);
+  const cb=getCambio();
+  const rate=cb[moeda]||1;
+  const total=moeda==='BRL'?vm:vm*rate;
+  document.getElementById('nl-valor').value=total>0?total.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}):'';
+  const rateStr=rate.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:4});
+  document.getElementById('nl-cambio-info').textContent=`Câmbio: ${rateStr} R$/${moeda}`;
+}
+function nlMtaChange(){
+  const mta=document.getElementById('nl-mta').value;
+  document.getElementById('nl-mta').classList.remove('err');
+  const nextOrd=mta?genNextMainOrd(mta):'—';
+  document.getElementById('nl-ord-display').textContent=nextOrd||'—';
+  const el=document.getElementById('nl-omorigem');
+  if(el&&mta&&!el.value)el.value=mta;
+}
+function openNL(){
+  document.getElementById('nl-moeda').innerHTML=CUR.map(c=>`<option value="${c}"${c==='BRL'?' selected':''}>${c}</option>`).join('');
+  ['nl-uge','nl-acao','nl-omorigem','nl-ombenef','nl-pi','nl-proj','nl-ativ','nl-tar','nl-ed','nl-valormoeda','nl-valor','nl-mesdesc','nl-mesliq','nl-obs'].forEach(id=>{
+    const el=document.getElementById(id);if(el){el.value='';el.classList.remove('err');}
+  });
+  ['nl-mta','nl-ativ','nl-tar','nl-uge','nl-omorigem','nl-ombenef','nl-mesdesc','nl-mesliq','nl-cat','nl-proj'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('err');});
+  document.getElementById('nl-mta').value='';
+  document.getElementById('nl-pacote').value='A';
+  document.getElementById('nl-cat').value='';
+  document.getElementById('nl-aprov').value='NÃO';
+  document.getElementById('nl-paramotores').value='NÃO';
+  document.getElementById('nl-paracontrato').value='SOB DEMANDA';
+  document.getElementById('nl-ord-display').textContent='—';
+  document.getElementById('nl-cambio-info').textContent='Câmbio: 1,00 R$/BRL';
+  document.getElementById('nlm').classList.add('open');
+}
+function closeNL(){document.getElementById('nlm').classList.remove('open');}
+function submitNL(){
+  const mta=document.getElementById('nl-mta').value;
+  const uge=document.getElementById('nl-uge').value.trim();
+  const proj=document.getElementById('nl-proj').value.trim();
+  const omorigem=document.getElementById('nl-omorigem').value.trim();
+  const ombenef=document.getElementById('nl-ombenef').value.trim();
+  const ativ=document.getElementById('nl-ativ').value.trim();
+  const tar=document.getElementById('nl-tar').value.trim();
+  const valorStr=document.getElementById('nl-valor').value;
+  const valor=parseMasked(valorStr);
+  const mesdesc=document.getElementById('nl-mesdesc').value.trim();
+  const mesliq=document.getElementById('nl-mesliq').value.trim();
+  const cat=document.getElementById('nl-cat').value;
+  const edVal=document.getElementById('nl-ed').value.trim();
+  let err=false;
+  [{id:'nl-mta',bad:!mta},{id:'nl-uge',bad:!uge},{id:'nl-proj',bad:!proj},{id:'nl-omorigem',bad:!omorigem},
+   {id:'nl-ombenef',bad:!ombenef},{id:'nl-ativ',bad:!ativ},{id:'nl-tar',bad:!tar},
+   {id:'nl-mesdesc',bad:!mesdesc},{id:'nl-mesliq',bad:!mesliq},
+   {id:'nl-cat',bad:!cat},{id:'nl-ed',bad:!edVal}
+  ].forEach(({id,bad})=>{const el=document.getElementById(id);if(el){el.classList.toggle('err',bad);if(bad)err=true;}});
+  if(!valor){document.getElementById('nl-valormoeda').classList.add('err');err=true;}
+  else{document.getElementById('nl-valormoeda').classList.remove('err');}
+  if(err)return;
+  const newOrd=genNextMainOrd(mta);if(!newOrd)return;
+  const pi=document.getElementById('nl-pi').value.trim();
+  const acao=document.getElementById('nl-acao').value.trim()||'2048';
+  const pacote=document.getElementById('nl-pacote').value;
+  const moeda=document.getElementById('nl-moeda').value;
+  const valormoeda=parseMasked(document.getElementById('nl-valormoeda').value)||valor;
+  const ed=parseInt(edVal)||0;
+  const aprov=document.getElementById('nl-aprov').value;
+  const paramotores=document.getElementById('nl-paramotores').value;
+  const paracontrato=document.getElementById('nl-paracontrato').value;
+  const obs=document.getElementById('nl-obs').value.trim();
+  const ts=Date.now();
+  const autor='Ten Cel Silva';
+  const dataStr=new Date().toLocaleString('pt-BR',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}).replace(',','·');
+  const change={
+    ord:newOrd,tipo:'new',proj,ativ,tar,isMae:true,maOrd:null,
+    diffs:[{campo:'NOVA LINHA MÃE',de:'—',para:`Nova linha mãe solicitada por ${mta}`}],
+    newVals:{aprovado:aprov,valor,valormoeda,pacote,acao,uge,omorigem,ombenef,pi,moeda,
+             cat:cat||'—',paramotores,paracontrato,ed,obs,mesdesc,mesliq}
+  };
+  let userdata={};try{userdata=JSON.parse(localStorage.getItem('mta_pkgs_userdata')||'{}');}catch(e){}
+  let pendIds=null;try{const s=localStorage.getItem('mta_pkgs_pending');if(s)pendIds=JSON.parse(s);}catch(e){}
+  if(!pendIds)pendIds=['pkg1','pkg2','pkg3','pkg4','pkg5','pkg6','pkg7'];
+  const id=`user_${ts}_new`;
+  userdata[id]={id,parque:mta,tipo:'new',autor,data:dataStr,
+    desc:`1 nova linha mãe — ${proj||mta} · ${tar}`,changes:[change]};
+  pendIds.push(id);
+  localStorage.setItem('mta_pkgs_userdata',JSON.stringify(userdata));
+  localStorage.setItem('mta_pkgs_pending',JSON.stringify(pendIds));
+  closeNL();
+  loadSubmittedPend();render();
+  document.getElementById('sub-parques').textContent=`Parque: ${mta} · Nova linha: ${newOrd}`;
+  document.getElementById('sub-sub').textContent='1 linha mãe solicitada · aguardando aprovação DIRMAB';
+  document.getElementById('subm').classList.add('open');
+}
+
+// ── QUEBRAR LINHA / LINHA FILHA ──
+let splitMaOrd=null;
+function genChildOrd(maOrd){
+  const n=parseInt(maOrd);
+  for(let d=1;d<=19;d++){
+    const c=String(n+d).padStart(6,'0');
+    if(!ROWS.find(r=>r.ord===c||r.ord.replace('*','')===c))return c+'*';
+  }
+  return null;
+}
+function spCalcValor(){
+  const moeda=document.getElementById('sp-moeda').value||'BRL';
+  const vm=parseMasked(document.getElementById('sp-valormoeda').value);
+  const cb=getCambio();
+  const rate=cb[moeda]||1;
+  const total=moeda==='BRL'?vm:vm*rate;
+  document.getElementById('sp-valor').value=total>0?total.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}):'';
+  const rateStr=rate.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:4});
+  document.getElementById('sp-cambio-info').textContent=`Câmbio: ${rateStr} R$/${moeda}`;
+  splitCalc();
+}
+function openSplit(e,ord){
+  e.stopPropagation();
+  const row=ROWS.find(r=>r.ord===ord);if(!row)return;
+  splitMaOrd=ord;
+  const childOrd=genChildOrd(ord);
+  document.getElementById('split-child-ord').textContent=childOrd||'(sem filhas disponíveis)';
+  document.getElementById('split-mae-ord').textContent=ord;
+  document.getElementById('split-mae-tar').textContent=row.tar||row.ativ||'';
+  const fmtV=v=>v!=null?new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',minimumFractionDigits:2,maximumFractionDigits:2}).format(v):'—';
+  document.getElementById('split-mae-val').textContent=fmtV(row.valor);
+  document.getElementById('split-sub').textContent=`Linha mãe ${ord} · valor atual: ${fmtV(row.valor)}`;
+  document.getElementById('sp-moeda').innerHTML=CUR.map(c=>`<option value="${c}"${(c===row.moeda||(!row.moeda&&c==='BRL'))?' selected':''}>${c}</option>`).join('');
+  ['sp-uge','sp-acao','sp-omorigem','sp-ombenef','sp-pi','sp-proj','sp-ativ','sp-tar','sp-ed','sp-valor','sp-mesdesc','sp-mesliq','sp-obs'].forEach(id=>{
+    const el=document.getElementById(id);if(!el)return;
+    el.classList.remove('err');
+    const k=id.replace('sp-','');
+    const mapped={uge:'uge',acao:'acao',omorigem:'omorigem',ombenef:'ombenef',pi:'pi',proj:'proj',ativ:'ativ',tar:'tar',ed:'ed',mesdesc:'mesdesc',mesliq:'mesliq',obs:'obs'};
+    el.value=(mapped[k]!==undefined&&mapped[k]!=='')?row[mapped[k]]||'':'';
+  });
+  document.getElementById('sp-pacote').value=row.pacote||'A';
+  document.getElementById('sp-cat').value=row.cat||'';
+  document.getElementById('sp-aprov').value='NÃO';
+  document.getElementById('sp-paramotores').value=row.paramotores||'NÃO';
+  document.getElementById('sp-paracontrato').value=row.paracontrato||'SOB DEMANDA';
+  const vmEl=document.getElementById('sp-valormoeda');
+  if(vmEl){vmEl.classList.remove('err');vmEl.value='';}
+  const cb=getCambio();const moedaM=row.moeda||'BRL';const rateM=cb[moedaM]||1;
+  document.getElementById('sp-cambio-info').textContent=`Câmbio: ${rateM.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:4})} R$/${moedaM}`;
+  document.getElementById('sp-valor').value='';
+  document.getElementById('splitm').classList.add('open');
+  splitCalc();
+}
+function closeSplit(){document.getElementById('splitm').classList.remove('open');splitMaOrd=null;}
+function splitCalc(){
+  if(!splitMaOrd)return;
+  const row=ROWS.find(r=>r.ord===splitMaOrd);if(!row)return;
+  const childVal=parseMasked(document.getElementById('sp-valor').value);
+  const existingChildren=ROWS.filter(r=>r.sub&&r.maOrd===splitMaOrd);
+  const sumChildren=existingChildren.reduce((s,r)=>s+(r.valor||0),0);
+  const remain=(row.valor||0)-sumChildren-childVal;
+  const fmtV=v=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',minimumFractionDigits:2,maximumFractionDigits:2}).format(v);
+  const el=document.getElementById('split-remain');
+  el.textContent=fmtV(remain);
+  el.style.color=remain<0?'var(--rd)':'var(--ac)';
+}
+function submitSplit(){
+  const spErr=document.getElementById('sp-err-msg');
+  if(spErr){spErr.style.display='none';spErr.textContent='';}
+  if(!splitMaOrd){if(spErr){spErr.textContent='Erro interno: modal não inicializado. Feche e abra novamente.';spErr.style.display='block';}return;}
+  const maRow=ROWS.find(r=>r.ord===splitMaOrd);
+  if(!maRow){if(spErr){spErr.textContent='Erro interno: linha mãe não encontrada em ROWS.';spErr.style.display='block';}return;}
+  try{
+    const maOrdSnap=splitMaOrd;
+    const uge=document.getElementById('sp-uge').value.trim();
+    const proj=document.getElementById('sp-proj').value.trim();
+    const omorigem=document.getElementById('sp-omorigem').value.trim();
+    const ombenef=document.getElementById('sp-ombenef').value.trim();
+    const ativ=document.getElementById('sp-ativ').value.trim();
+    const tar=document.getElementById('sp-tar').value.trim();
+    const mesdesc=document.getElementById('sp-mesdesc').value.trim();
+    const mesliq=document.getElementById('sp-mesliq').value.trim();
+    const cat=document.getElementById('sp-cat').value;
+    const edVal=document.getElementById('sp-ed').value.trim();
+    const valormoeda=parseMasked(document.getElementById('sp-valormoeda').value);
+    const moeda=document.getElementById('sp-moeda').value||'BRL';
+    const cb=getCambio();const rate=cb[moeda]||1;
+    const valor=moeda==='BRL'?valormoeda:valormoeda*rate;
+    document.getElementById('sp-valor').value=valor>0?valor.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}):'';
+    let err=false;const missing=[];
+    const labels={uge:'UGE',proj:'Projeto',omorigem:'OM Origem',ombenef:'OM Beneficiada',ativ:'Atividade',tar:'Tarefa',mesdesc:'Mês Desc.',mesliq:'Mês Liq.',cat:'CAT',ed:'ED'};
+    [{id:'sp-uge',bad:!uge,l:'uge'},{id:'sp-proj',bad:!proj,l:'proj'},{id:'sp-omorigem',bad:!omorigem,l:'omorigem'},
+     {id:'sp-ombenef',bad:!ombenef,l:'ombenef'},{id:'sp-ativ',bad:!ativ,l:'ativ'},{id:'sp-tar',bad:!tar,l:'tar'},
+     {id:'sp-mesdesc',bad:!mesdesc,l:'mesdesc'},{id:'sp-mesliq',bad:!mesliq,l:'mesliq'},
+     {id:'sp-cat',bad:!cat,l:'cat'},{id:'sp-ed',bad:!edVal,l:'ed'}
+    ].forEach(({id,bad,l})=>{const el=document.getElementById(id);if(el){el.classList.toggle('err',bad);if(bad){err=true;missing.push(labels[l]||l);}}});
+    if(!valormoeda){document.getElementById('sp-valormoeda').classList.add('err');err=true;missing.push('Valor Moeda');}
+    else{document.getElementById('sp-valormoeda').classList.remove('err');}
+    if(err){
+      if(spErr){spErr.textContent='Preencha os campos obrigatórios: '+missing.join(', ');spErr.style.display='block';}
+      return;
+    }
+    const existingChildren=ROWS.filter(r=>r.sub&&r.maOrd===maOrdSnap);
+    const sumChildren=existingChildren.reduce((s,r)=>s+(r.valor||0),0);
+    const remain=(maRow.valor||0)-sumChildren-valor;
+    if(remain<0){
+      document.getElementById('sp-valormoeda').classList.add('err');
+      if(spErr){spErr.textContent='Valor excede o saldo disponível na linha mãe ('+new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format((maRow.valor||0)-sumChildren)+').';spErr.style.display='block';}
+      return;
+    }
+    const childOrd=genChildOrd(maOrdSnap);if(!childOrd){alert('Limite de linhas filhas atingido.');return;}
+    const pi=document.getElementById('sp-pi').value.trim();
+    const acao=(document.getElementById('sp-acao').value||'').trim()||maRow.acao||'2048';
+    const pacote=document.getElementById('sp-pacote').value;
+    const ed=parseInt(edVal)||maRow.ed||0;
+    const aprov=document.getElementById('sp-aprov').value;
+    const pi2=pi||maRow.pi||'';
+    const paramotores=document.getElementById('sp-paramotores').value;
+    const paracontrato=document.getElementById('sp-paracontrato').value;
+    const obs=document.getElementById('sp-obs').value.trim();
+    const ts=Date.now();
+    const autor='Ten Cel Silva';
+    const dataStr=new Date().toLocaleString('pt-BR',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}).replace(',','·');
+    const fmtV=v=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',minimumFractionDigits:2,maximumFractionDigits:2}).format(v);
+    const changeAlt={ord:maOrdSnap,tipo:'alt',
+      diffs:[{campo:'valor',de:fmtV(maRow.valor),para:fmtV(remain)}],
+      newVals:{valor:remain}};
+    const changeNew={ord:childOrd,tipo:'new',proj:proj||maRow.proj,ativ,tar,
+      isMae:false,maOrd:maOrdSnap,
+      diffs:[{campo:'NOVA LINHA FILHA',de:'—',para:`Quebra de ${maOrdSnap}`}],
+      newVals:{aprovado:aprov,valor,valormoeda,pacote,acao,uge,omorigem,ombenef,pi:pi2,moeda,
+               cat:cat||'—',paramotores,paracontrato,ed,obs,mesdesc,mesliq}};
+    let userdata={};try{userdata=JSON.parse(localStorage.getItem('mta_pkgs_userdata')||'{}');}catch(e){}
+    let pendIds=null;try{const s=localStorage.getItem('mta_pkgs_pending');if(s)pendIds=JSON.parse(s);}catch(e){}
+    if(!pendIds)pendIds=['pkg1','pkg2','pkg3','pkg4','pkg5','pkg6','pkg7'];
+    const id=`user_${ts}_split`;
+    userdata[id]={id,parque:maRow.mta,tipo:'split',autor,data:dataStr,
+      desc:`Quebra de ${maOrdSnap} → ${childOrd} · ${tar}`,changes:[changeAlt,changeNew]};
+    pendIds.push(id);
+    localStorage.setItem('mta_pkgs_userdata',JSON.stringify(userdata));
+    localStorage.setItem('mta_pkgs_pending',JSON.stringify(pendIds));
+    closeSplit();
+    loadSubmittedPend();render();
+    document.getElementById('sub-parques').textContent=`Parque: ${maRow.mta} · Quebra: ${maOrdSnap} → ${childOrd}`;
+    document.getElementById('sub-sub').textContent='1 linha filha solicitada · aguardando aprovação DIRMAB';
+    document.getElementById('subm').classList.add('open');
+  }catch(e){if(spErr){spErr.textContent='Erro inesperado: '+e.message;spErr.style.display='block';}else{alert('Erro inesperado: '+e.message);}}
+}
+
+</script>
+
+<!-- item 9: month/year picker -->
+<div class="mpop" id="mpop">
+  <div class="mp-head">
+    <div class="mp-yr">
+      <button class="mp-yr-btn" onclick="mpYr(-1)">‹</button>
+      <span class="mp-yr-val" id="mp-yr-val">2026</span>
+      <button class="mp-yr-btn" onclick="mpYr(+1)">›</button>
+    </div>
+    <button class="mp-clear" onclick="mpClear()">Limpar</button>
+  </div>
+  <div class="mp-grid" id="mp-grid"></div>
+</div>
+
+<!-- Full date picker (dia/mês/ano) -->
+<div class="dpop" id="dpop">
+  <div class="dp-nav">
+    <button class="dp-nav-btn" onclick="dpNav(-1)">‹</button>
+    <div class="dp-nav-mid">
+      <select class="dp-mon-sel" id="dp-mon" onchange="dpMonChange(this.value)">
+        <option value="0">Jan</option><option value="1">Fev</option><option value="2">Mar</option>
+        <option value="3">Abr</option><option value="4">Mai</option><option value="5">Jun</option>
+        <option value="6">Jul</option><option value="7">Ago</option><option value="8">Set</option>
+        <option value="9">Out</option><option value="10">Nov</option><option value="11">Dez</option>
+      </select>
+      <input class="dp-yr-sel" id="dp-yr" type="number" min="2020" max="2040" value="2026" onchange="dpYrChange(this.value)"/>
+    </div>
+    <button class="dp-nav-btn" onclick="dpNav(+1)">›</button>
+  </div>
+  <div class="dp-dow">
+    <span>Dom</span><span>Seg</span><span>Ter</span><span>Qua</span>
+    <span>Qui</span><span>Sex</span><span>Sáb</span>
+  </div>
+  <div class="dp-days" id="dp-days"></div>
+  <div class="dp-foot">
+    <button class="dp-today-btn" onclick="dpToday()">Hoje</button>
+    <button class="dp-clear" onclick="dpClear()">Limpar</button>
+  </div>
+</div>
+</body>
+</html>
