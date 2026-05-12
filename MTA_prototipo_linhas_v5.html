@@ -542,10 +542,6 @@ tr:hover .split-btn{display:inline}
           <input id="sp-uge" class="nl-inp" placeholder="ex: CELOG"/>
         </div>
         <div>
-          <div class="nl-lbl">Ação Orçamentária</div>
-          <input id="sp-acao" class="nl-inp" placeholder="ex: 2048"/>
-        </div>
-        <div>
           <div class="nl-lbl">OM Origem <span style="color:var(--rd)">*</span></div>
           <input id="sp-omorigem" class="nl-inp" placeholder="ex: PAMAGL"/>
         </div>
@@ -1447,7 +1443,7 @@ function openSplit(e,ord){
   document.getElementById('split-mae-val').textContent=fmtV(row.valor);
   document.getElementById('split-sub').textContent=`Linha mãe ${ord} · valor atual: ${fmtV(row.valor)}`;
   document.getElementById('sp-moeda').innerHTML=CUR.map(c=>`<option value="${c}"${(c===row.moeda||(!row.moeda&&c==='BRL'))?' selected':''}>${c}</option>`).join('');
-  ['sp-uge','sp-acao','sp-omorigem','sp-ombenef','sp-pi','sp-proj','sp-ativ','sp-tar','sp-ed','sp-valor','sp-mesdesc','sp-mesliq','sp-obs'].forEach(id=>{
+  ['sp-uge','sp-omorigem','sp-ombenef','sp-pi','sp-proj','sp-ativ','sp-tar','sp-ed','sp-valor','sp-mesdesc','sp-mesliq','sp-obs'].forEach(id=>{
     const el=document.getElementById(id);if(!el)return;
     el.classList.remove('err');
     const k=id.replace('sp-','');
@@ -1527,7 +1523,7 @@ function submitSplit(){
     }
     const childOrd=genChildOrd(maOrdSnap);if(!childOrd){alert('Limite de linhas filhas atingido.');return;}
     const pi=document.getElementById('sp-pi').value.trim();
-    const acao=(document.getElementById('sp-acao').value||'').trim()||maRow.acao||'2048';
+    const acao=maRow.acao||'2048';
     const pacote=document.getElementById('sp-pacote').value;
     const ed=parseInt(edVal)||maRow.ed||0;
     const aprov=document.getElementById('sp-aprov').value;
