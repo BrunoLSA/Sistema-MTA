@@ -419,7 +419,7 @@ const ALL_ROWS = {
 };
 
 // Packages — item 2: sort by Parque asc, then desc > alt > new
-const TIPO_ORDER = {desc:0,alt:1,new:2};
+const TIPO_ORDER = {desc:0,alt:1,new:2,split:3};
 const PKGS_RAW = [
   { id:'pkg1', parque:'PAMBRJ', tipo:'alt', autor:'Maj Lima', data:'01 mai 2026 · 09h15',
     desc:'Alteração de pacote e trâmite em 2 linhas do C-97',
@@ -557,8 +557,8 @@ let filtSearch = '';
 
 // ──────────────────────── HELPERS ────────────────────────
 const BRL = v=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(v);
-const TIPO_COLOR = {alt:'var(--am)',new:'var(--bl)',desc:'var(--gr)'};
-const TIPO_LABEL = {alt:'Alteração',new:'Nova linha',desc:'Descentralização'};
+const TIPO_COLOR = {alt:'var(--am)',new:'var(--bl)',desc:'var(--gr)',split:'var(--ac)'};
+const TIPO_LABEL = {alt:'Alteração',new:'Nova linha',desc:'Descentralização',split:'Quebra de linha'};
 const TIPO_BDCLS  = {alt:'st-alt',new:'st-new',desc:'st-desc'};
 
 function badgeHtml(tipo, status){
