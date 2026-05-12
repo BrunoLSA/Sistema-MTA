@@ -317,6 +317,7 @@ tr:hover .split-btn{display:inline}
       <button class="btn" onclick="openSM()"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M4 8h8M6 12h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg> Ordenar</button>
       <button class="btn" onclick="openCP()"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><rect x="1" y="2" width="14" height="2.5" rx="1" fill="currentColor"/><rect x="1" y="6.75" width="10" height="2.5" rx="1" fill="currentColor"/><rect x="1" y="11.5" width="12" height="2.5" rx="1" fill="currentColor"/></svg> Configurar colunas</button>
       <button class="btn"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M4 12h8M8 3v7M5 7l3 3 3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg> Exportar</button>
+      <button class="btn" onclick="openCambio()" title="Configurar taxas de câmbio planejado">⇄ Câmbio</button>
       <button class="btn btn-p" onclick="openNL()"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg> Nova linha</button>
     </div>
   </div>
@@ -447,7 +448,7 @@ tr:hover .split-btn{display:inline}
         <input id="nl-ombenef" class="nl-inp" placeholder="ex: CELOG"/>
       </div>
       <div>
-        <div class="nl-lbl">PI <span style="color:var(--rd)">*</span></div>
+        <div class="nl-lbl">PI</div>
         <input id="nl-pi" class="nl-inp" placeholder="ex: CA080200KC3"/>
       </div>
       <div>
@@ -455,7 +456,7 @@ tr:hover .split-btn{display:inline}
         <input id="nl-proj" class="nl-inp" placeholder="ex: KC-390"/>
       </div>
       <div style="grid-column:span 2">
-        <div class="nl-lbl">Atividade</div>
+        <div class="nl-lbl">Atividade <span style="color:var(--rd)">*</span></div>
         <input id="nl-ativ" class="nl-inp" placeholder="ex: CLS parcela fixa"/>
       </div>
       <div style="grid-column:1/-1">
@@ -472,7 +473,7 @@ tr:hover .split-btn{display:inline}
       </div>
       <div>
         <div class="nl-lbl">Para Contrato</div>
-        <select id="nl-paracontrato" class="nl-sel"><option value="SOB DEMANDA">SOB DEMANDA</option><option value="PARCELA FIXA">PARCELA FIXA</option></select>
+        <select id="nl-paracontrato" class="nl-sel"><option value="SOB DEMANDA">SOB DEMANDA</option><option value="PARCELA FIXA">PARCELA FIXA</option><option value="REQUISIÇÃO">REQUISIÇÃO</option></select>
       </div>
       <div>
         <div class="nl-lbl">ED</div>
@@ -480,23 +481,24 @@ tr:hover .split-btn{display:inline}
       </div>
       <div>
         <div class="nl-lbl">Moeda</div>
-        <select id="nl-moeda" class="nl-sel"></select>
+        <select id="nl-moeda" class="nl-sel" onchange="nlCalcValor()"></select>
       </div>
       <div>
         <div class="nl-lbl">Valor Moeda</div>
-        <input id="nl-valormoeda" class="nl-inp" type="number" min="0" step="0.01" placeholder="0.00"/>
+        <input id="nl-valormoeda" class="nl-inp" type="text" inputmode="numeric" placeholder="0,00" oninput="maskCur(this);nlCalcValor()"/>
+        <div id="nl-cambio-info" style="font-size:10px;color:var(--t3);padding:2px 0 0">Câmbio: 1,00 R$/BRL</div>
       </div>
       <div>
-        <div class="nl-lbl">Valor Total BRL <span style="color:var(--rd)">*</span></div>
-        <input id="nl-valor" class="nl-inp" type="number" min="0" step="0.01" placeholder="0.00"/>
+        <div class="nl-lbl">Valor Total BRL</div>
+        <input id="nl-valor" class="nl-inp" type="text" readonly style="cursor:default;background:var(--n3);color:var(--t2)" placeholder="Calculado automaticamente"/>
       </div>
       <div>
         <div class="nl-lbl">Mês Desc. <span style="color:var(--rd)">*</span></div>
-        <input id="nl-mesdesc" class="nl-inp" placeholder="Jan/2026"/>
+        <input id="nl-mesdesc" class="nl-inp" placeholder="Mês/Ano" readonly style="cursor:pointer" onclick="openMpModal(event,'nl-mesdesc')"/>
       </div>
       <div>
         <div class="nl-lbl">Mês Liq. <span style="color:var(--rd)">*</span></div>
-        <input id="nl-mesliq" class="nl-inp" placeholder="Mar/2026"/>
+        <input id="nl-mesliq" class="nl-inp" placeholder="Mês/Ano" readonly style="cursor:pointer" onclick="openMpModal(event,'nl-mesliq')"/>
       </div>
       <div style="grid-column:1/-1">
         <div class="nl-lbl">Observação</div>
@@ -555,7 +557,7 @@ tr:hover .split-btn{display:inline}
           <input id="sp-proj" class="nl-inp" placeholder="ex: KC-390"/>
         </div>
         <div>
-          <div class="nl-lbl">Atividade</div>
+          <div class="nl-lbl">Atividade <span style="color:var(--rd)">*</span></div>
           <input id="sp-ativ" class="nl-inp" placeholder="ex: CLS parcela fixa"/>
         </div>
         <div style="grid-column:1/-1">
@@ -572,7 +574,7 @@ tr:hover .split-btn{display:inline}
         </div>
         <div>
           <div class="nl-lbl">Para Contrato</div>
-          <select id="sp-paracontrato" class="nl-sel"><option value="SOB DEMANDA">SOB DEMANDA</option><option value="PARCELA FIXA">PARCELA FIXA</option></select>
+          <select id="sp-paracontrato" class="nl-sel"><option value="SOB DEMANDA">SOB DEMANDA</option><option value="PARCELA FIXA">PARCELA FIXA</option><option value="REQUISIÇÃO">REQUISIÇÃO</option></select>
         </div>
         <div>
           <div class="nl-lbl">ED</div>
@@ -584,19 +586,20 @@ tr:hover .split-btn{display:inline}
         </div>
         <div>
           <div class="nl-lbl">Valor Moeda</div>
-          <input id="sp-valormoeda" class="nl-inp" type="number" min="0" step="0.01" placeholder="0.00"/>
+          <input id="sp-valormoeda" class="nl-inp" type="text" inputmode="numeric" placeholder="0,00" oninput="maskCur(this);spCalcValor()" onchange="spCalcValor()"/>
+          <div id="sp-cambio-info" style="font-size:10px;color:var(--t3);padding:2px 0 0">Câmbio: 1,00 R$/BRL</div>
         </div>
         <div>
-          <div class="nl-lbl">Valor Total BRL <span style="color:var(--rd)">*</span></div>
-          <input id="sp-valor" class="nl-inp" type="number" min="0" step="0.01" placeholder="0.00" oninput="splitCalc()"/>
+          <div class="nl-lbl">Valor Total BRL</div>
+          <input id="sp-valor" class="nl-inp" type="text" readonly style="cursor:default;background:var(--n3);color:var(--t2)" placeholder="Calculado automaticamente"/>
         </div>
         <div>
           <div class="nl-lbl">Mês Desc.</div>
-          <input id="sp-mesdesc" class="nl-inp" placeholder="Jan/2026"/>
+          <input id="sp-mesdesc" class="nl-inp" placeholder="Mês/Ano" readonly style="cursor:pointer" onclick="openMpModal(event,'sp-mesdesc')"/>
         </div>
         <div>
           <div class="nl-lbl">Mês Liq.</div>
-          <input id="sp-mesliq" class="nl-inp" placeholder="Mar/2026"/>
+          <input id="sp-mesliq" class="nl-inp" placeholder="Mês/Ano" readonly style="cursor:pointer" onclick="openMpModal(event,'sp-mesliq')"/>
         </div>
         <div style="grid-column:1/-1">
           <div class="nl-lbl">Observação</div>
@@ -605,6 +608,23 @@ tr:hover .split-btn{display:inline}
       </div>
     </div>
     <div class="mf"><button class="btn" onclick="closeSplit()">Cancelar</button><button class="btn btn-p" onclick="submitSplit()">Enviar para aprovação ↗</button></div>
+  </div>
+</div>
+
+<!-- CÂMBIO MODAL -->
+<div class="mov" id="cambio-m">
+  <div class="modal" style="width:400px">
+    <div class="mh"><div><h3>Câmbio planejado</h3><div class="mh-sub">Taxas usadas para calcular o Valor Total BRL nas solicitações de novas linhas</div></div><span class="mcl" onclick="closeCambio()">×</span></div>
+    <div class="mb" style="display:grid;grid-template-columns:56px 1fr 50px;gap:8px 12px;align-items:center">
+      <span style="font-family:var(--mo);font-weight:600;font-size:13px">USD</span><input id="cb-USD" class="nl-inp" type="text" inputmode="decimal" placeholder="5.85"/><span style="font-size:11px;color:var(--t3)">R$/unit</span>
+      <span style="font-family:var(--mo);font-weight:600;font-size:13px">EUR</span><input id="cb-EUR" class="nl-inp" type="text" inputmode="decimal" placeholder="6.40"/><span style="font-size:11px;color:var(--t3)">R$/unit</span>
+      <span style="font-family:var(--mo);font-weight:600;font-size:13px">GBP</span><input id="cb-GBP" class="nl-inp" type="text" inputmode="decimal" placeholder="7.45"/><span style="font-size:11px;color:var(--t3)">R$/unit</span>
+      <span style="font-family:var(--mo);font-weight:600;font-size:13px">SEK</span><input id="cb-SEK" class="nl-inp" type="text" inputmode="decimal" placeholder="0.54"/><span style="font-size:11px;color:var(--t3)">R$/unit</span>
+      <span style="font-family:var(--mo);font-weight:600;font-size:13px">CAD</span><input id="cb-CAD" class="nl-inp" type="text" inputmode="decimal" placeholder="4.30"/><span style="font-size:11px;color:var(--t3)">R$/unit</span>
+      <span style="font-family:var(--mo);font-weight:600;font-size:13px">JPY</span><input id="cb-JPY" class="nl-inp" type="text" inputmode="decimal" placeholder="0.039"/><span style="font-size:11px;color:var(--t3)">R$/unit</span>
+      <span style="font-family:var(--mo);font-weight:600;font-size:13px">CHF</span><input id="cb-CHF" class="nl-inp" type="text" inputmode="decimal" placeholder="6.80"/><span style="font-size:11px;color:var(--t3)">R$/unit</span>
+    </div>
+    <div class="mf"><button class="btn" onclick="closeCambio()">Cancelar</button><button class="btn btn-p" onclick="saveCambioUI()">Salvar taxas</button></div>
   </div>
 </div>
 
@@ -1036,7 +1056,7 @@ document.addEventListener('visibilitychange',function(){if(!document.hidden){app
 // item 9: month/year picker
 const MP_MONTHS=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 const MP_NUMS=['01','02','03','04','05','06','07','08','09','10','11','12'];
-let mpOrd=null,mpKey=null,mpYear=2026,mpSelM=null;
+let mpOrd=null,mpKey=null,mpYear=2026,mpSelM=null,mpModalTarget=null;
 
 function openMp(e,ord,key){
   e.stopPropagation();closeAllPopups();
@@ -1054,6 +1074,21 @@ function openMp(e,ord,key){
   p.style.top=top+'px';p.style.left=left+'px';
   renderMp();p.classList.add('open');
 }
+function openMpModal(e,inputId){
+  e.stopPropagation();closeAllPopups();
+  mpModalTarget=inputId;mpOrd=null;mpKey=null;
+  const cur=document.getElementById(inputId)?.value||'';
+  const m=String(cur).match(/^([A-Za-z]+)\/(\d{4})$/);
+  if(m){const mi=MP_MONTHS.findIndex(x=>x.toLowerCase()===m[1].toLowerCase());mpSelM=mi>=0?mi:null;mpYear=parseInt(m[2]);}
+  else{mpSelM=null;mpYear=new Date().getFullYear();}
+  const p=document.getElementById('mpop');
+  const rect=e.currentTarget.getBoundingClientRect();
+  let top=rect.bottom+4,left=rect.left;
+  if(top+200>window.innerHeight)top=rect.top-204;
+  if(left+244>window.innerWidth)left=window.innerWidth-248;
+  p.style.top=top+'px';p.style.left=left+'px';
+  renderMp();p.classList.add('open');
+}
 function renderMp(){
   document.getElementById('mp-yr-val').textContent=mpYear;
   document.getElementById('mp-grid').innerHTML=MP_MONTHS.map((m,i)=>
@@ -1064,11 +1099,13 @@ function mpYr(d){mpYear+=d;renderMp();}
 function mpSel(i){
   mpSelM=i;
   const val=MP_MONTHS[i]+'/'+mpYear;
-  if(mpOrd&&mpKey)ce(mpOrd,mpKey,val);
+  if(mpModalTarget){const el=document.getElementById(mpModalTarget);if(el){el.value=val;el.classList.remove('err');}mpModalTarget=null;}
+  else if(mpOrd&&mpKey){ce(mpOrd,mpKey,val);}
   document.getElementById('mpop').classList.remove('open');
 }
 function mpClear(){
-  if(mpOrd&&mpKey)ce(mpOrd,mpKey,'');
+  if(mpModalTarget){const el=document.getElementById(mpModalTarget);if(el)el.value='';mpModalTarget=null;}
+  else if(mpOrd&&mpKey){ce(mpOrd,mpKey,'');}
   document.getElementById('mpop').classList.remove('open');
 }
 
@@ -1190,6 +1227,42 @@ function enviarParaAprovacao(){
   document.getElementById('subm').classList.add('open');
 }
 
+// ── CÂMBIO PLANEJADO ──
+const CAMBIO_DEFAULT={BRL:1,USD:5.85,EUR:6.40,GBP:7.45,SEK:0.54,CAD:4.30,JPY:0.039,CHF:6.80};
+function getCambio(){try{return{...CAMBIO_DEFAULT,...JSON.parse(localStorage.getItem('mta_cambio')||'{}')};}catch(e){return{...CAMBIO_DEFAULT};}}
+function openCambio(){
+  const cb=getCambio();
+  ['USD','EUR','GBP','SEK','CAD','JPY','CHF'].forEach(c=>{
+    const el=document.getElementById('cb-'+c);
+    if(el)el.value=String(cb[c]||CAMBIO_DEFAULT[c]);
+  });
+  document.getElementById('cambio-m').classList.add('open');
+}
+function closeCambio(){document.getElementById('cambio-m').classList.remove('open');}
+function saveCambioUI(){
+  const cb={BRL:1};
+  ['USD','EUR','GBP','SEK','CAD','JPY','CHF'].forEach(c=>{
+    const el=document.getElementById('cb-'+c);
+    const v=el?parseFloat(el.value.replace(',','.')):null;
+    if(v&&v>0)cb[c]=v;else cb[c]=CAMBIO_DEFAULT[c];
+  });
+  localStorage.setItem('mta_cambio',JSON.stringify(cb));
+  closeCambio();
+}
+
+// ── CURRENCY MASK ──
+function maskCur(el){
+  let digits=el.value.replace(/\D/g,'');
+  if(!digits){el.value='';return 0;}
+  const num=parseInt(digits,10)/100;
+  el.value=num.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  return num;
+}
+function parseMasked(s){
+  if(!s)return 0;
+  return parseFloat(String(s).replace(/\./g,'').replace(',','.'))||0;
+}
+
 // ── NOVA LINHA MÃE ──
 const PARQUE_BASE={PAMAGL:0,PAMALS:50000,PAMASP:100000,PAMBRJ:150000,DIRMAB:200000};
 function genNextMainOrd(mta){
@@ -1210,6 +1283,16 @@ function genNextMainOrd(mta){
   }catch(e){}
   return String(maxN+20).padStart(6,'0')+'*';
 }
+function nlCalcValor(){
+  const moeda=document.getElementById('nl-moeda').value||'BRL';
+  const vm=parseMasked(document.getElementById('nl-valormoeda').value);
+  const cb=getCambio();
+  const rate=cb[moeda]||1;
+  const total=moeda==='BRL'?vm:vm*rate;
+  document.getElementById('nl-valor').value=total>0?total.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}):'';
+  const rateStr=rate.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:4});
+  document.getElementById('nl-cambio-info').textContent=`Câmbio: ${rateStr} R$/${moeda}`;
+}
 function nlMtaChange(){
   const mta=document.getElementById('nl-mta').value;
   document.getElementById('nl-mta').classList.remove('err');
@@ -1223,7 +1306,7 @@ function openNL(){
   ['nl-uge','nl-acao','nl-omorigem','nl-ombenef','nl-pi','nl-proj','nl-ativ','nl-tar','nl-ed','nl-valormoeda','nl-valor','nl-mesdesc','nl-mesliq','nl-obs'].forEach(id=>{
     const el=document.getElementById(id);if(el){el.value='';el.classList.remove('err');}
   });
-  ['nl-mta','nl-tar','nl-valor','nl-uge','nl-omorigem','nl-ombenef','nl-pi','nl-mesdesc','nl-mesliq'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('err');});
+  ['nl-mta','nl-ativ','nl-tar','nl-uge','nl-omorigem','nl-ombenef','nl-mesdesc','nl-mesliq'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('err');});
   document.getElementById('nl-mta').value='';
   document.getElementById('nl-pacote').value='A';
   document.getElementById('nl-cat').value='';
@@ -1231,6 +1314,7 @@ function openNL(){
   document.getElementById('nl-paramotores').value='NÃO';
   document.getElementById('nl-paracontrato').value='SOB DEMANDA';
   document.getElementById('nl-ord-display').textContent='—';
+  document.getElementById('nl-cambio-info').textContent='Câmbio: 1,00 R$/BRL';
   document.getElementById('nlm').classList.add('open');
 }
 function closeNL(){document.getElementById('nlm').classList.remove('open');}
@@ -1239,25 +1323,28 @@ function submitNL(){
   const uge=document.getElementById('nl-uge').value.trim();
   const omorigem=document.getElementById('nl-omorigem').value.trim();
   const ombenef=document.getElementById('nl-ombenef').value.trim();
-  const pi=document.getElementById('nl-pi').value.trim();
+  const ativ=document.getElementById('nl-ativ').value.trim();
   const tar=document.getElementById('nl-tar').value.trim();
-  const valor=parseFloat(document.getElementById('nl-valor').value)||0;
+  const valorStr=document.getElementById('nl-valor').value;
+  const valor=parseMasked(valorStr);
   const mesdesc=document.getElementById('nl-mesdesc').value.trim();
   const mesliq=document.getElementById('nl-mesliq').value.trim();
   let err=false;
   [{id:'nl-mta',bad:!mta},{id:'nl-uge',bad:!uge},{id:'nl-omorigem',bad:!omorigem},
-   {id:'nl-ombenef',bad:!ombenef},{id:'nl-pi',bad:!pi},{id:'nl-tar',bad:!tar},
-   {id:'nl-valor',bad:!valor},{id:'nl-mesdesc',bad:!mesdesc},{id:'nl-mesliq',bad:!mesliq}
+   {id:'nl-ombenef',bad:!ombenef},{id:'nl-ativ',bad:!ativ},{id:'nl-tar',bad:!tar},
+   {id:'nl-mesdesc',bad:!mesdesc},{id:'nl-mesliq',bad:!mesliq}
   ].forEach(({id,bad})=>{const el=document.getElementById(id);if(el){el.classList.toggle('err',bad);if(bad)err=true;}});
+  if(!valor){document.getElementById('nl-valormoeda').classList.add('err');err=true;}
+  else{document.getElementById('nl-valormoeda').classList.remove('err');}
   if(err)return;
   const newOrd=genNextMainOrd(mta);if(!newOrd)return;
   const proj=document.getElementById('nl-proj').value.trim();
-  const ativ=document.getElementById('nl-ativ').value.trim();
+  const pi=document.getElementById('nl-pi').value.trim();
   const cat=document.getElementById('nl-cat').value;
   const acao=document.getElementById('nl-acao').value.trim()||'2048';
   const pacote=document.getElementById('nl-pacote').value;
   const moeda=document.getElementById('nl-moeda').value;
-  const valormoeda=parseFloat(document.getElementById('nl-valormoeda').value)||valor;
+  const valormoeda=parseMasked(document.getElementById('nl-valormoeda').value)||valor;
   const ed=parseInt(document.getElementById('nl-ed').value)||0;
   const aprov=document.getElementById('nl-aprov').value;
   const paramotores=document.getElementById('nl-paramotores').value;
@@ -1297,6 +1384,17 @@ function genChildOrd(maOrd){
   }
   return null;
 }
+function spCalcValor(){
+  const moeda=document.getElementById('sp-moeda').value||'BRL';
+  const vm=parseMasked(document.getElementById('sp-valormoeda').value);
+  const cb=getCambio();
+  const rate=cb[moeda]||1;
+  const total=moeda==='BRL'?vm:vm*rate;
+  document.getElementById('sp-valor').value=total>0?total.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}):'';
+  const rateStr=rate.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:4});
+  document.getElementById('sp-cambio-info').textContent=`Câmbio: ${rateStr} R$/${moeda}`;
+  splitCalc();
+}
 function openSplit(e,ord){
   e.stopPropagation();
   const row=ROWS.find(r=>r.ord===ord);if(!row)return;
@@ -1321,6 +1419,10 @@ function openSplit(e,ord){
   document.getElementById('sp-aprov').value='NÃO';
   document.getElementById('sp-paramotores').value=row.paramotores||'NÃO';
   document.getElementById('sp-paracontrato').value=row.paracontrato||'SOB DEMANDA';
+  const cb=getCambio();
+  const moeda=row.moeda||'BRL';
+  const rate=cb[moeda]||1;
+  document.getElementById('sp-cambio-info').textContent=`Câmbio: ${rate.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:4})} R$/${moeda}`;
   document.getElementById('split-remain').textContent='—';
   document.getElementById('splitm').classList.add('open');
 }
@@ -1328,7 +1430,7 @@ function closeSplit(){document.getElementById('splitm').classList.remove('open')
 function splitCalc(){
   if(!splitMaOrd)return;
   const row=ROWS.find(r=>r.ord===splitMaOrd);if(!row)return;
-  const childVal=parseFloat(document.getElementById('sp-valor').value)||0;
+  const childVal=parseMasked(document.getElementById('sp-valor').value);
   const existingChildren=ROWS.filter(r=>r.sub&&r.maOrd===splitMaOrd);
   const sumChildren=existingChildren.reduce((s,r)=>s+(r.valor||0),0);
   const remain=(row.valor||0)-sumChildren-childVal;
@@ -1341,30 +1443,33 @@ function submitSplit(){
   if(!splitMaOrd)return;
   const maRow=ROWS.find(r=>r.ord===splitMaOrd);if(!maRow)return;
   const uge=document.getElementById('sp-uge').value.trim();
+  const ativ=document.getElementById('sp-ativ').value.trim();
   const tar=document.getElementById('sp-tar').value.trim();
-  const valor=parseFloat(document.getElementById('sp-valor').value)||0;
+  const valor=parseMasked(document.getElementById('sp-valor').value);
   let err=false;
-  [{id:'sp-uge',bad:!uge},{id:'sp-tar',bad:!tar},{id:'sp-valor',bad:!valor}].forEach(({id,bad})=>{
+  [{id:'sp-uge',bad:!uge},{id:'sp-ativ',bad:!ativ},{id:'sp-tar',bad:!tar}].forEach(({id,bad})=>{
     const el=document.getElementById(id);if(el){el.classList.toggle('err',bad);if(bad)err=true;}
   });
+  if(!valor){document.getElementById('sp-valormoeda').classList.add('err');err=true;}
+  else{document.getElementById('sp-valormoeda').classList.remove('err');}
   if(err)return;
   const existingChildren=ROWS.filter(r=>r.sub&&r.maOrd===splitMaOrd);
   const sumChildren=existingChildren.reduce((s,r)=>s+(r.valor||0),0);
   const remain=(maRow.valor||0)-sumChildren-valor;
-  if(remain<0){document.getElementById('sp-valor').classList.add('err');return;}
+  if(remain<0){document.getElementById('sp-valormoeda').classList.add('err');return;}
   const childOrd=genChildOrd(splitMaOrd);if(!childOrd){alert('Limite de linhas filhas atingido.');return;}
   const proj=document.getElementById('sp-proj').value.trim();
-  const ativ=document.getElementById('sp-ativ').value.trim();
+  const pi=document.getElementById('sp-pi').value.trim();
   const cat=document.getElementById('sp-cat').value;
   const acao=document.getElementById('sp-acao').value.trim()||maRow.acao||'2048';
   const pacote=document.getElementById('sp-pacote').value;
   const moeda=document.getElementById('sp-moeda').value;
-  const valormoeda=parseFloat(document.getElementById('sp-valormoeda').value)||valor;
+  const valormoeda=parseMasked(document.getElementById('sp-valormoeda').value)||valor;
   const ed=parseInt(document.getElementById('sp-ed').value)||maRow.ed||0;
   const aprov=document.getElementById('sp-aprov').value;
   const omorigem=document.getElementById('sp-omorigem').value.trim()||maRow.omorigem||'';
   const ombenef=document.getElementById('sp-ombenef').value.trim()||maRow.ombenef||'';
-  const pi=document.getElementById('sp-pi').value.trim()||maRow.pi||'';
+  const pi2=pi||maRow.pi||'';
   const paramotores=document.getElementById('sp-paramotores').value;
   const paracontrato=document.getElementById('sp-paracontrato').value;
   const mesdesc=document.getElementById('sp-mesdesc').value.trim();
@@ -1378,10 +1483,10 @@ function submitSplit(){
   const changeAlt={ord:splitMaOrd,tipo:'alt',
     diffs:[{campo:'valor',de:fmtV(maRow.valor),para:fmtV(newMaValor)}],
     newVals:{valor:newMaValor}};
-  const changeNew={ord:childOrd,tipo:'new',proj:proj||maRow.proj,ativ:ativ||maRow.ativ,tar,
+  const changeNew={ord:childOrd,tipo:'new',proj:proj||maRow.proj,ativ,tar,
     isMae:false,maOrd:splitMaOrd,
     diffs:[{campo:'NOVA LINHA FILHA',de:'—',para:`Quebra de ${splitMaOrd}`}],
-    newVals:{aprovado:aprov,valor,valormoeda,pacote,acao,uge,omorigem,ombenef,pi,moeda,
+    newVals:{aprovado:aprov,valor,valormoeda,pacote,acao,uge,omorigem,ombenef,pi:pi2,moeda,
              cat:cat||'—',paramotores,paracontrato,ed,obs,mesdesc,mesliq}};
   let userdata={};try{userdata=JSON.parse(localStorage.getItem('mta_pkgs_userdata')||'{}');}catch(e){}
   let pendIds=null;try{const s=localStorage.getItem('mta_pkgs_pending');if(s)pendIds=JSON.parse(s);}catch(e){}
