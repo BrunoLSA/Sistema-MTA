@@ -215,14 +215,14 @@ tr.tbl-row:hover td{background:rgba(255,255,255,.03)}
   <nav class="nav">
     <div class="ns">Principal</div>
     <div class="ni act" title="Painel geral"><svg class="ni-ico" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="1" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/></svg><span class="ni-lbl">Painel geral</span></div>
-    <div class="ni" title="Linhas do MTA"><svg class="ni-ico" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h8M2 12h10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg><span class="ni-lbl">Linhas do MTA</span></div>
-    <div class="ni" id="sb-aprov-item" title="Aprovações — 7 pendentes"><svg class="ni-ico" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.2"/><path d="M8 5v3l2 2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg><span class="ni-lbl">Aprovações</span><span class="ni-bdg" id="sb-pend-badge">7</span><span class="ni-dot"></span></div>
+    <div class="ni" title="Linhas do MTA" onclick="location.href='MTA_prototipo_linhas.html'" style="cursor:pointer"><svg class="ni-ico" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h8M2 12h10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg><span class="ni-lbl">Linhas do MTA</span></div>
+    <div class="ni" id="sb-aprov-item" title="Aprovações — 7 pendentes" onclick="location.href='MTA_aprovacoes.html'" style="cursor:pointer"><svg class="ni-ico" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.2"/><path d="M8 5v3l2 2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg><span class="ni-lbl">Aprovações</span><span class="ni-bdg" id="sb-pend-badge">7</span><span class="ni-dot"></span></div>
     <div class="ni" title="Por Parque"><svg class="ni-ico" viewBox="0 0 16 16" fill="none"><path d="M3 12V6l5-4 5 4v6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><rect x="6" y="9" width="4" height="3" rx=".5" stroke="currentColor" stroke-width="1.2"/></svg><span class="ni-lbl">Por Parque</span></div>
     <div class="ns">Orçamento</div>
     <div class="ni" title="Ações orçamentárias"><svg class="ni-ico" viewBox="0 0 16 16" fill="none"><rect x="1" y="4" width="14" height="9" rx="1" stroke="currentColor" stroke-width="1.2"/><path d="M5 4V3a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="1.2"/></svg><span class="ni-lbl">Ações orçamentárias</span></div>
     <div class="ni" title="Sugestão de atendimento"><svg class="ni-ico" viewBox="0 0 16 16" fill="none"><path d="M2 12 6 7l3 3 2-4 3 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="ni-lbl">Sugestão de atendimento</span></div>
     <div class="ns">Histórico</div>
-    <div class="ni" title="Histórico de aprovações" onclick="location.href='MTA_aprovacoes_v8.html?screen=historico'" style="cursor:pointer"><svg class="ni-ico" viewBox="0 0 16 16" fill="none"><path d="M8 2a6 6 0 1 1 0 12A6 6 0 0 1 8 2z" stroke="currentColor" stroke-width="1.2"/><path d="M8 5v3l2 1.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg><span class="ni-lbl">Histórico de aprovações</span></div>
+    <div class="ni" title="Histórico de aprovações" onclick="location.href='MTA_aprovacoes.html?screen=historico'" style="cursor:pointer"><svg class="ni-ico" viewBox="0 0 16 16" fill="none"><path d="M8 2a6 6 0 1 1 0 12A6 6 0 0 1 8 2z" stroke="currentColor" stroke-width="1.2"/><path d="M8 5v3l2 1.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg><span class="ni-lbl">Histórico de aprovações</span></div>
     <div class="ns">Configuração</div>
     <div class="ni" title="Parâmetros e colunas"><svg class="ni-ico" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg><span class="ni-lbl">Parâmetros e colunas</span></div>
     <div class="ni" title="Cenários"><svg class="ni-ico" viewBox="0 0 16 16" fill="none"><ellipse cx="8" cy="5" rx="6" ry="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M2 5v6c0 1.38 2.69 2.5 6 2.5s6-1.12 6-2.5V5" stroke="currentColor" stroke-width="1.2"/><path d="M2 8c0 1.38 2.69 2.5 6 2.5s6-1.12 6-2.5" stroke="currentColor" stroke-width="1.2"/></svg><span class="ni-lbl">Cenários</span></div>
@@ -362,7 +362,7 @@ tr.tbl-row:hover td{background:rgba(255,255,255,.03)}
         <div class="pend-card">
           <div class="card-head">
             <div><div class="card-title">Pedidos pendentes</div><div class="card-sub" id="pend-sub">7 pedidos · do mais antigo ao mais recente</div></div>
-            <button class="btn btn-p btn-sm" onclick="location.href='MTA_aprovacoes_v8.html'">Ver todos ↗</button>
+            <button class="btn btn-p btn-sm" onclick="location.href='MTA_aprovacoes.html'">Ver todos ↗</button>
           </div>
           <div class="filter-row">
             <span class="filter-lbl">Parque:</span>
@@ -464,7 +464,7 @@ function renderPendList(parque){
   if(shown.length===0){list.innerHTML='';empty.style.display='block';}
   else{
     empty.style.display='none';
-    list.innerHTML=shown.map(p=>`<div class="pend-item" data-parque="${p.parque}" onclick="location.href='MTA_aprovacoes_v8.html?pkg=${p.id}'" style="cursor:pointer">
+    list.innerHTML=shown.map(p=>`<div class="pend-item" data-parque="${p.parque}" onclick="location.href='MTA_aprovacoes.html?pkg=${p.id}'" style="cursor:pointer">
       <div class="pend-dot ${TIPO_DOT[p.tipo]}"></div>
       <div class="pend-body"><div class="pend-type ${TIPO_CLS[p.tipo]}">${TIPO_LBL[p.tipo]}</div><div class="pend-desc">${p.desc}</div><div class="pend-meta">${p.meta}</div></div>
       <span class="pend-badge ${p.badgeCls}">${p.badge}</span></div>`).join('');
