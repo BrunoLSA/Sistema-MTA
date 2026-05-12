@@ -557,7 +557,7 @@ let filtSearch = '';
 
 // ──────────────────────── HELPERS ────────────────────────
 const BRL = v=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(v);
-const TIPO_COLOR = {alt:'var(--am)',new:'var(--bl)',desc:'var(--gr)',split:'var(--ac)'};
+const TIPO_COLOR = {alt:'var(--am)',new:'var(--bl)',desc:'var(--gr)',split:'var(--bl)'};
 const TIPO_LABEL = {alt:'Alteração',new:'Nova linha',desc:'Descentralização',split:'Quebra de linha'};
 const TIPO_BDCLS  = {alt:'st-alt',new:'st-new',desc:'st-desc'};
 
@@ -856,14 +856,18 @@ function renderMtaTable(){
     if(isPend&&ci>=0){
       const decIdx=r.isNew?r.changeIdx:ci;
       const d=pkg2.decisions[decIdx];
-      decBar=`<td>
-        <div class="dec-bar" onclick="event.stopPropagation()">
-          <div class="rb${d==='aprov'?' aprov':''}" onclick="setDec(${decIdx},'aprov')" title="Aprovar"></div>
-          <span class="rb-lbl">A</span>
-          <div class="rb${d==='ret'?' ret':''}" onclick="setDec(${decIdx},'ret')" title="Retornar"></div>
-          <span class="rb-lbl">R</span>
-        </div>
-      </td>`;
+      // Split package: linha mãe (changeAlt) não tem botão — decisão vinculada à filha
+      const isSplitMae=pkg2.tipo==='split'&&!r.isNew&&pkg2.changes[ci]?.tipo==='alt';
+      if(!isSplitMae){
+        decBar=`<td>
+          <div class="dec-bar" onclick="event.stopPropagation()">
+            <div class="rb${d==='aprov'?' aprov':''}" onclick="setDec(${decIdx},'aprov')" title="Aprovar"></div>
+            <span class="rb-lbl">A</span>
+            <div class="rb${d==='ret'?' ret':''}" onclick="setDec(${decIdx},'ret')" title="Retornar"></div>
+            <span class="rb-lbl">R</span>
+          </div>
+        </td>`;
+      }
     }
 
     const cells=MTA_COLS.map(k=>{
@@ -925,8 +929,15 @@ function renderDiff(){
 
 function setDec(i,dec){
   const pkg=currentPkg(); if(!pkg) return;
-  if(pkg.decisions[i]===dec) delete pkg.decisions[i];
-  else pkg.decisions[i]=dec;
+  const toggling=pkg.decisions[i]===dec;
+  if(pkg.tipo==='split'){
+    // Decisão vinculada: todas as changes aprovadas/retornadas juntas
+    if(toggling) pkg.changes.forEach((_,j)=>delete pkg.decisions[j]);
+    else pkg.changes.forEach((_,j)=>pkg.decisions[j]=dec);
+  } else {
+    if(toggling) delete pkg.decisions[i];
+    else pkg.decisions[i]=dec;
+  }
   renderMtaTable();
   renderImpact();
   updateFoot();
