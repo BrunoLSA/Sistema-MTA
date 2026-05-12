@@ -1481,6 +1481,7 @@ function splitCalc(){
   el.style.color=remain<0?'var(--rd)':'var(--ac)';
 }
 function submitSplit(){
+  alert('DIAGNÓSTICO: submitSplit chamado. splitMaOrd='+splitMaOrd);
   const spErr=document.getElementById('sp-err-msg');
   if(spErr){spErr.style.display='none';spErr.textContent='';}
   if(!splitMaOrd){if(spErr){spErr.textContent='Erro interno: modal não inicializado. Feche e abra novamente.';spErr.style.display='block';}return;}
