@@ -71,23 +71,6 @@ body{font-family:var(--fn);background:var(--n);color:var(--tx);font-size:13px;di
 .btn-am:hover{background:rgba(251,191,36,.3)}
 .btn-d{background:rgba(248,113,113,.16);color:var(--rd);border-color:rgba(248,113,113,.4)}
 .btn-d:hover{background:rgba(248,113,113,.28)}
-.btn-gr{background:rgba(52,211,153,.16);color:var(--gr);border-color:rgba(52,211,153,.4)}
-.btn-gr:hover{background:rgba(52,211,153,.28)}
-/* DESCENTRALIZAÇÃO LIST */
-.dc-item{display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid rgba(42,68,96,.45);cursor:pointer;transition:background .1s;user-select:none}
-.dc-item:last-child{border-bottom:none}
-.dc-item:hover{background:rgba(255,255,255,.03)}
-.dc-item.dc-sel{background:rgba(52,211,153,.05);border-left:3px solid var(--gr)}
-.dc-item:not(.dc-sel){border-left:3px solid transparent}
-.dc-chk{width:14px;height:14px;cursor:pointer;accent-color:var(--gr);flex-shrink:0}
-.dc-info{flex:1;min-width:0;display:flex;align-items:center;gap:10px}
-.dc-ord{font-family:var(--mo);font-size:11px;color:var(--t3);flex-shrink:0;width:56px}
-.dc-proj{font-size:12px;color:var(--tx);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.dc-val{font-family:var(--mo);font-size:11px;color:var(--t2);flex-shrink:0}
-.dc-prio-wrap{display:flex;align-items:center;gap:4px;flex-shrink:0}
-.dc-prio-inp{width:44px;background:var(--n3);border:1px solid var(--b2);border-radius:var(--r);padding:2px 6px;font-family:var(--mo);font-size:12px;color:var(--ac);text-align:center;outline:none;-moz-appearance:textfield}
-.dc-prio-inp::-webkit-outer-spin-button,.dc-prio-inp::-webkit-inner-spin-button{-webkit-appearance:none}
-.dc-prio-inp:focus{border-color:var(--ac)}
 .btn-sm{padding:3px 8px;font-size:11px}
 
 .bars{flex-shrink:0}
@@ -336,7 +319,6 @@ tr:hover .split-btn{display:inline}
       <button class="btn" onclick="openCP()"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><rect x="1" y="2" width="14" height="2.5" rx="1" fill="currentColor"/><rect x="1" y="6.75" width="10" height="2.5" rx="1" fill="currentColor"/><rect x="1" y="11.5" width="12" height="2.5" rx="1" fill="currentColor"/></svg> Configurar colunas</button>
       <button class="btn"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M4 12h8M8 3v7M5 7l3 3 3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg> Exportar</button>
       <button class="btn" onclick="openCambio()" title="Configurar taxas de câmbio planejado">⇄ Câmbio</button>
-      <button class="btn btn-gr" onclick="openDesc()" title="Solicitar descentralização orçamentária"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M8 2v12M2 8l6 6 6-6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Descentralizar</button>
       <button class="btn btn-p" onclick="openNL()"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg> Nova linha</button>
     </div>
   </div>
@@ -652,40 +634,6 @@ tr:hover .split-btn{display:inline}
   </div>
 </div>
 
-<!-- DESCENTRALIZAÇÃO MODAL -->
-<div class="mov" id="desc-m">
-  <div class="modal" style="width:620px">
-    <div class="mh">
-      <div><h3>Descentralização</h3><div class="mh-sub">Selecione linhas aprovadas para solicitar descentralização orçamentária</div></div>
-      <span class="mcl" onclick="closeDesc()">×</span>
-    </div>
-    <div class="mb" style="gap:10px">
-      <div style="display:flex;align-items:center;gap:10px">
-        <div style="display:flex;flex-direction:column;gap:4px;flex:0 0 160px">
-          <div class="nl-lbl">Parque</div>
-          <select id="dc-parque" class="nl-sel" onchange="renderDescList()">
-            <option value="">Todos os Parques</option>
-            <option value="PAMAGL">PAMAGL</option>
-            <option value="PAMALS">PAMALS</option>
-            <option value="PAMASP">PAMASP</option>
-            <option value="PAMBRJ">PAMBRJ</option>
-            <option value="DIRMAB">DIRMAB</option>
-          </select>
-        </div>
-        <div style="font-size:11px;color:var(--t3);margin-top:16px">Somente linhas aprovadas com trâmite ainda não iniciado</div>
-      </div>
-      <div id="dc-list" style="border:1px solid var(--bd);border-radius:var(--r);max-height:260px;overflow-y:auto;background:var(--n)"></div>
-      <div id="dc-total" style="font-size:11px;color:var(--t3);text-align:right;font-family:var(--mo)">0 linhas selecionadas · R$ 0,00</div>
-      <div>
-        <div class="nl-lbl">Observações</div>
-        <textarea id="dc-obs" class="nl-inp" rows="2" placeholder="Justificativa ou informações adicionais..." style="resize:vertical;height:54px"></textarea>
-      </div>
-      <div id="dc-err" style="display:none;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.4);border-radius:6px;padding:8px 12px;font-size:12px;color:#ef4444"></div>
-    </div>
-    <div class="mf"><button class="btn" onclick="closeDesc()">Cancelar</button><button class="btn btn-p" onclick="submitDesc()">Enviar para aprovação ↗</button></div>
-  </div>
-</div>
-
 <!-- COL PANEL -->
 <div class="cov" id="cov" onclick="if(event.target===this)closeCP()">
   <div class="cp">
@@ -889,13 +837,26 @@ function render(){
       const wrap=(inner,isCr)=>modSub?`<div style="display:flex;align-items:center;gap:${isCr?4:6}px">${inner}</div>${df}`:inner;
       if(c.k==='aprovado'){if(rowLocked)return`<td><div class="cell" style="${lkColStyle}"${lockedTitle}>${wrap(abadge(row[c.k])+dot,false)}</div></td>`;return`<td><div class="cell" style="cursor:pointer;gap:6px" onclick="openA(event,'${row.ord}')">${abadge(raw)}${dot}</div></td>`;}
       if(c.k==='pacote'){if(rowLocked)return`<td><div class="cell" style="${lkColStyle}"${lockedTitle}>${wrap(pbadge(row[c.k])+dot,false)}</div></td>`;return`<td><div class="cell" style="cursor:pointer;gap:6px" onclick="openP(event,'${row.ord}')">${pbadge(raw)}${dot}</div></td>`;}
-      if(c.k==='tramite'){if(hd)return`<td><div class="cell"><span style="font-size:12px;padding:2px 10px;border-radius:var(--r);background:rgba(52,211,153,.15);color:#059669">ATENDIDO</span></div></td>`;if(rowLocked)return`<td><div class="cell" style="${lkColStyle}"${lockedTitle}>${wrap((row[c.k]||'—')+dot,false)}</div></td>`;return`<td><select class="isel" onchange="ce('${row.ord}','tramite',this.value)">${['—','ATENDER','EM TRÂMITE','ATENDIDO','CANCELADO'].map(s=>`<option value="${s==='—'?'':s}"${(raw===s||(s==='—'&&!raw))?' selected':''}>${s}</option>`).join('')}</select></td>`;}
+      if(c.k==='tramite'){
+        if(hd)return`<td><div class="cell"><span style="font-size:12px;padding:2px 10px;border-radius:var(--r);background:rgba(52,211,153,.15);color:#059669">ATENDIDO</span></div></td>`;
+        if(rowLocked)return`<td><div class="cell" style="${lkColStyle}"${lockedTitle}>${wrap((row[c.k]||'—')+dot,false)}</div></td>`;
+        const origTr=row.tramite||'';
+        if(row.aprovado==='SIM'&&origTr===''){
+          return`<td><select class="isel" onchange="ce('${row.ord}','tramite',this.value)">${['','SOLICITADO'].map(s=>`<option value="${s}"${raw===s?' selected':''}>${s||'—'}</option>`).join('')}</select>${dot}</td>`;
+        }
+        const trVal=raw||'—';
+        let trSpan=trVal;
+        if(raw==='SOLICITADO')trSpan=`<span style="font-size:12px;padding:2px 10px;border-radius:var(--r);background:rgba(251,191,36,.15);color:var(--am)">SOLICITADO</span>`;
+        else if(raw==='ATENDER')trSpan=`<span style="color:var(--gr);font-weight:500">ATENDER</span>`;
+        else if(raw==='EM TRÂMITE')trSpan=`<span style="color:var(--bl);font-weight:500">EM TRÂMITE</span>`;
+        else if(raw==='CANCELADO')trSpan=`<span style="color:var(--rd)">CANCELADO</span>`;
+        return`<td><div class="cell">${wrap(trSpan+dot,false)}</div></td>`;
+      }
       if(c.k==='moeda'){if(rowLocked)return`<td><div class="cell" style="${lkColStyle}"${lockedTitle}>${wrap((row[c.k]||'—')+dot,false)}</div></td>`;return`<td><div style="display:flex;align-items:center;height:32px"><select class="isel" onchange="ce('${row.ord}','moeda',this.value);render()">${CUR.map(cur=>`<option value="${cur}"${raw===cur?' selected':''}>${cur}</option>`).join('')}</select>${dot}</div></td>`;}
       if(c.k==='valormoeda'){const m=cv(row,'moeda')||'BRL';const origM=row['moeda']||'BRL';if(rowLocked)return`<td><div class="cell cr" style="${lkCrStyle}"${lockedTitle}>${wrap(fmtC(row[c.k],origM)+dot,true)}</div></td>`;return`<td><div class="cell cr" contenteditable="true" onblur="ceN('${row.ord}','valormoeda',this.textContent)">${fmtC(raw,m)}${dot}</div></td>`;}
       if(c.k==='valor'){if(rowLocked)return`<td><div class="cell cr" style="${lkCrStyle}"${lockedTitle}>${wrap(fmtC(row[c.k],'BRL')+dot,true)}</div></td>`;return`<td><div class="cell cr" contenteditable="true" onblur="ceN('${row.ord}','valor',this.textContent)">${fmtC(raw,'BRL')}${dot}</div></td>`;}
       if(c.k==='mesdesc'||c.k==='mesliq'){if(rowLocked)return`<td><div class="cell" style="${lkColStyle}"${lockedTitle}>${wrap((fmtM(row[c.k])||'—')+dot,false)}</div></td>`;return`<td><div class="cell" style="cursor:pointer;gap:6px" onclick="openMp(event,'${row.ord}','${c.k}')" title="Clique para selecionar mês/ano">${fmtM(raw)||'<span style=\"color:var(--t3);font-size:11px\">Selecionar…</span>'}${dot}</div></td>`;}
-      if(c.k==='datasolic')return`<td><div class="cell" style="color:var(--t3)">${raw||'—'}</div></td>`;
-      if(c.k==='datapeddirmab'){if(rowLocked)return`<td><div class="cell" style="${lkColStyle}"${lockedTitle}>${wrap((row[c.k]||'—')+dot,false)}</div></td>`;return`<td><div class="cell" style="cursor:pointer;gap:6px" onclick="openDp(event,'${row.ord}','datapeddirmab')" title="Clique para selecionar data">${raw||'<span style=\"color:var(--t3);font-size:11px\">Selecionar…</span>'}${dot}</div></td>`;}
+      if(c.k==='datasolic'||c.k==='datapeddirmab'||c.k==='nropeddirmab'||c.k==='digito')return`<td><div class="cell" style="color:var(--t3)">${raw||'—'}</div></td>`;
       if(rowLocked)return`<td><div class="cell" style="${lkColStyle}"${lockedTitle}>${wrap((row[c.k]!=null&&row[c.k]!==''?row[c.k]:'')+dot,false)}</div></td>`;
       return`<td><div class="cell" contenteditable="true" onblur="ce('${row.ord}','${c.k}',this.textContent.trim())">${raw!=null&&raw!==''?raw:''}${dot}</div></td>`;
     }).join('')+'</tr>';
@@ -1283,25 +1244,53 @@ function fmtV(k,v){
   return String(v??'');
 }
 function enviarParaAprovacao(){
-  const byParque={};
+  const descPend={};const altPend={};const conflitos=[];
   Object.entries(pend).forEach(([ord,ch])=>{
     if(!ch||!Object.keys(ch).length)return;
-    const row=ROWS.find(r=>r.ord===ord);if(!row)return;
-    if(!byParque[row.mta])byParque[row.mta]=[];
-    const diffs=Object.entries(ch).map(([k,nv])=>({campo:FIELD_LBL[k]||k,de:fmtV(k,row[k]),para:fmtV(k,nv)}));
-    byParque[row.mta].push({ord:row.ord,tipo:'alt',proj:row.proj,ativ:row.ativ,tar:row.tar,diffs,newVals:{...ch}});
+    const hasSOL=ch.tramite==='SOLICITADO';
+    const hasOther=Object.keys(ch).some(k=>k!=='tramite')||(hasSOL&&Object.keys(ch).length>1);
+    if(hasSOL&&hasOther)conflitos.push(ord);
+    else if(hasSOL)descPend[ord]=ch;
+    else altPend[ord]=ch;
   });
-  if(!Object.keys(byParque).length)return;
+  if(conflitos.length>0){
+    alert(`A linha ${conflitos.join(', ')} possui outras alterações pendentes além da solicitação de descentralização.\nRemova as demais alterações antes de solicitar a descentralização.`);
+    return;
+  }
+  if(!Object.keys(descPend).length&&!Object.keys(altPend).length)return;
   const ts=Date.now();
   const autor='Ten Cel Silva';
   const dataStr=new Date().toLocaleString('pt-BR',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}).replace(',','·');
+  const dataSOL=new Date().toLocaleDateString('pt-BR');
   let userdata={};try{userdata=JSON.parse(localStorage.getItem('mta_pkgs_userdata')||'{}');}catch(e){}
   let pendIds=null;try{const s=localStorage.getItem('mta_pkgs_pending');if(s)pendIds=JSON.parse(s);}catch(e){}
   if(!pendIds)pendIds=['pkg1','pkg2','pkg3','pkg4','pkg5','pkg6','pkg7'];
-  const newIds=[];
-  Object.entries(byParque).forEach(([parque,changes],i)=>{
-    const id=`user_${ts}_${i}`;
-    const nL=changes.length;
+  const newIds=[];let i=0;
+  // Pacotes de descentralização (tramite → SOLICITADO)
+  const descByParque={};
+  Object.entries(descPend).forEach(([ord])=>{
+    const row=ROWS.find(r=>r.ord===ord);if(!row)return;
+    if(!descByParque[row.mta])descByParque[row.mta]=[];
+    descByParque[row.mta].push({ord,tipo:'desc',proj:row.proj,ativ:row.ativ,tar:row.tar,
+      diffs:[{campo:'Trâmite',de:'—',para:'SOLICITADO'}],
+      newVals:{tramite:'SOLICITADO',datasolic:dataSOL}});
+  });
+  Object.entries(descByParque).forEach(([parque,changes])=>{
+    const id=`user_${ts}_d${i++}`;const nL=changes.length;
+    userdata[id]={id,parque,tipo:'desc',autor,data:dataStr,
+      desc:`${nL} linha${nL!==1?'s':''} · Solicitação de descentralização`,changes};
+    newIds.push(id);
+  });
+  // Pacotes de alteração (demais mudanças)
+  const altByParque={};
+  Object.entries(altPend).forEach(([ord,ch])=>{
+    const row=ROWS.find(r=>r.ord===ord);if(!row)return;
+    if(!altByParque[row.mta])altByParque[row.mta]=[];
+    const diffs=Object.entries(ch).map(([k,nv])=>({campo:FIELD_LBL[k]||k,de:fmtV(k,row[k]),para:fmtV(k,nv)}));
+    altByParque[row.mta].push({ord,tipo:'alt',proj:row.proj,ativ:row.ativ,tar:row.tar,diffs,newVals:{...ch}});
+  });
+  Object.entries(altByParque).forEach(([parque,changes])=>{
+    const id=`user_${ts}_${i++}`;const nL=changes.length;
     userdata[id]={id,parque,tipo:'alt',autor,data:dataStr,
       desc:`${nL} alteraç${nL===1?'ão':'ões'} via editor de Linhas`,changes};
     newIds.push(id);
@@ -1310,9 +1299,13 @@ function enviarParaAprovacao(){
   localStorage.setItem('mta_pkgs_userdata',JSON.stringify(userdata));
   localStorage.setItem('mta_pkgs_pending',JSON.stringify(pendIds));
   pend={};loadSubmittedPend();render();
-  const parquesStr=Object.keys(byParque).join(', ');
-  document.getElementById('sub-parques').textContent='Parque(s): '+parquesStr;
-  document.getElementById('sub-sub').textContent=Object.values(byParque).reduce((s,c)=>s+c.length,0)+' linha(s) · '+Object.keys(byParque).length+' parque(s)';
+  const allParques=[...new Set([...Object.keys(descByParque),...Object.keys(altByParque)])];
+  const descCount=Object.keys(descPend).length;const altCount=Object.keys(altPend).length;
+  const parts=[];
+  if(descCount)parts.push(descCount+` linha${descCount!==1?'s':''} · descentralização`);
+  if(altCount)parts.push(altCount+` alteraç${altCount===1?'ão':'ões'}`);
+  document.getElementById('sub-parques').textContent='Parque(s): '+allParques.join(', ');
+  document.getElementById('sub-sub').textContent=parts.join(' · ')+' · aguardando aprovação DIRMAB';
   document.getElementById('subm').classList.add('open');
 }
 
@@ -1350,101 +1343,6 @@ function saveCambioUI(){
   });
   localStorage.setItem('mta_cambio',JSON.stringify(cb));
   closeCambio();
-}
-
-// ── DESCENTRALIZAÇÃO ──
-let descSel={};
-function openDesc(){
-  descSel={};
-  document.getElementById('dc-parque').value='';
-  document.getElementById('dc-obs').value='';
-  const e=document.getElementById('dc-err');if(e){e.style.display='none';e.textContent='';}
-  renderDescList();
-  document.getElementById('desc-m').classList.add('open');
-}
-function closeDesc(){document.getElementById('desc-m').classList.remove('open');}
-function renderDescList(){
-  const parque=document.getElementById('dc-parque').value;
-  const eligible=ROWS.filter(r=>
-    r.aprovado==='SIM'&&
-    r.tramite!=='ATENDIDO'&&
-    r.tramite!=='ATENDER'&&
-    (!parque||r.mta===parque)
-  );
-  const list=document.getElementById('dc-list');
-  if(eligible.length===0){
-    list.innerHTML='<div style="padding:20px;text-align:center;font-size:12px;color:var(--t3)">Nenhuma linha elegível para este Parque.</div>';
-    updateDescTotal();return;
-  }
-  list.innerHTML=eligible.map(r=>{
-    const sel=descSel[r.ord]!==undefined;
-    const prio=descSel[r.ord]||'';
-    return`<div class="dc-item${sel?' dc-sel':''}" onclick="toggleDescLine('${r.ord}')">
-      <input type="checkbox" class="dc-chk"${sel?' checked':''} onclick="event.stopPropagation();toggleDescLine('${r.ord}')">
-      <div class="dc-info">
-        <span class="dc-ord">${r.ord}</span>
-        <span class="dc-proj">${r.proj} · ${r.tar}</span>
-        <span class="dc-val">${fmtC(r.valor,'BRL')}</span>
-      </div>
-      <div class="dc-prio-wrap" style="display:${sel?'flex':'none'}" onclick="event.stopPropagation()">
-        <span style="font-size:11px;color:var(--t3)">Prior.</span>
-        <input type="number" class="dc-prio-inp" id="dc-prio-${r.ord}" min="1" max="99" value="${prio}" placeholder="—"
-          onchange="descSel['${r.ord}']=parseInt(this.value)||1;updateDescTotal()"
-          onclick="event.stopPropagation()">
-      </div>
-    </div>`;
-  }).join('');
-  updateDescTotal();
-}
-function toggleDescLine(ord){
-  if(descSel[ord]!==undefined)delete descSel[ord];
-  else descSel[ord]=1;
-  renderDescList();
-}
-function updateDescTotal(){
-  const ords=Object.keys(descSel);
-  const total=ords.reduce((s,ord)=>{const r=ROWS.find(r=>r.ord===ord);return s+(r?r.valor||0:0);},0);
-  const n=ords.length;
-  document.getElementById('dc-total').textContent=`${n} linha${n!==1?'s':''} selecionada${n!==1?'s':''} · ${fmtC(total,'BRL')}`;
-}
-function submitDesc(){
-  const errEl=document.getElementById('dc-err');
-  if(errEl){errEl.style.display='none';errEl.textContent='';}
-  const ords=Object.keys(descSel);
-  if(ords.length===0){
-    if(errEl){errEl.textContent='Selecione ao menos uma linha para descentralizar.';errEl.style.display='block';}
-    return;
-  }
-  const ts=Date.now();
-  const autor='Ten Cel Silva';
-  const dataStr=new Date().toLocaleString('pt-BR',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}).replace(',','·');
-  const obs=document.getElementById('dc-obs').value.trim();
-  const firstRow=ROWS.find(r=>r.ord===ords[0]);
-  const mta=firstRow?.mta||'—';
-  const prios=ords.map(ord=>descSel[ord]).filter(Boolean).sort((a,b)=>a-b);
-  const prioLabel=prios.length===0?'':(prios.length===1?`Prior. ${prios[0]}`:`Prior. ${prios[0]}–${prios[prios.length-1]}`);
-  const fmtV=v=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',minimumFractionDigits:2,maximumFractionDigits:2}).format(v);
-  const changes=ords.map(ord=>{
-    const r=ROWS.find(r=>r.ord===ord);
-    const diffs=[{campo:'trâmite',de:r?.tramite||'—',para:'ATENDER'}];
-    if(descSel[ord])diffs.push({campo:'prioridade',de:r?.prio!=null?String(r.prio):'—',para:String(descSel[ord])});
-    const newVals={tramite:'ATENDER',...(descSel[ord]?{prio:descSel[ord]}:{}),...(obs?{obs}:{})};
-    return{ord,tipo:'desc',diffs,newVals};
-  });
-  let userdata={};try{userdata=JSON.parse(localStorage.getItem('mta_pkgs_userdata')||'{}');}catch(e){}
-  let pendIds=null;try{const s=localStorage.getItem('mta_pkgs_pending');if(s)pendIds=JSON.parse(s);}catch(e){}
-  if(!pendIds)pendIds=['pkg1','pkg2','pkg3','pkg4','pkg5','pkg6','pkg7'];
-  const id=`user_${ts}_desc`;
-  userdata[id]={id,parque:mta,tipo:'desc',autor,data:dataStr,
-    desc:`${ords.length} linha${ords.length!==1?'s':''} · ${prioLabel}`,changes};
-  pendIds.push(id);
-  localStorage.setItem('mta_pkgs_userdata',JSON.stringify(userdata));
-  localStorage.setItem('mta_pkgs_pending',JSON.stringify(pendIds));
-  closeDesc();
-  loadSubmittedPend();render();
-  document.getElementById('sub-parques').textContent=`Parque: ${mta} · ${ords.length} linha${ords.length!==1?'s':''} para descentralizar`;
-  document.getElementById('sub-sub').textContent=`${ords.length} linha${ords.length!==1?'s':''} solicitada${ords.length!==1?'s':''} · aguardando aprovação DIRMAB`;
-  document.getElementById('subm').classList.add('open');
 }
 
 // ── CURRENCY MASK ──

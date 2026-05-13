@@ -1148,7 +1148,9 @@ function confirmarEnvio(){
         };
       } else {
         if(!approved[c.ord]) approved[c.ord]={};
-        Object.assign(approved[c.ord],c.newVals);
+        const vals={...c.newVals};
+        if(c.tipo==='desc'&&vals.tramite==='SOLICITADO') vals.tramite='ATENDER';
+        Object.assign(approved[c.ord],vals);
       }
     });
     localStorage.setItem('mta_approved_vals',JSON.stringify(approved));
