@@ -1114,7 +1114,9 @@ function confirmarEnvio(){
       }
       return;
     }
-    Object.entries(c.newVals).forEach(([k,v])=>{rowArr[rowIdx][k]=v;});
+    const convVals={...c.newVals};
+    if(c.tipo==='desc'&&convVals.tramite==='SOLICITADO')convVals.tramite='ATENDER';
+    Object.entries(convVals).forEach(([k,v])=>{rowArr[rowIdx][k]=v;});
   });
   // Persist approved vals so Linhas reflects the approved state on next load
   try{

@@ -284,10 +284,10 @@ td:first-child{padding:0;min-width:110px}
 .split-btn:hover{color:var(--ac);border-color:var(--ac);background:rgba(45,212,191,.08)}
 tr:hover .split-btn{display:inline}
 /* PROFILE TOGGLE */
-.prof-toggle{display:flex;background:var(--n3);border-radius:var(--r);border:1px solid var(--bd);padding:2px;gap:2px;flex-shrink:0}
-.ptog{padding:4px 14px;border-radius:4px;font-size:11px;font-weight:600;border:none;background:transparent;color:var(--t3);cursor:pointer;font-family:var(--fn);transition:all .15s;white-space:nowrap}
-.ptog:hover{color:var(--t2)}
-.ptog.ptog-act{background:var(--n4);color:var(--tx);box-shadow:0 1px 3px rgba(0,0,0,.4)}
+.prof-wrap{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.prof-lbl{font-size:10px;color:var(--t3);font-weight:600;letter-spacing:.4px;text-transform:uppercase;white-space:nowrap}
+.prof-sel{background:var(--n3);border:1px solid var(--b2);border-radius:var(--r);padding:5px 28px 5px 10px;font-size:12px;font-weight:600;color:var(--tx);font-family:var(--fn);outline:none;cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236b8aaa' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center}
+.prof-sel:focus{border-color:var(--ac);color:var(--tx)}
 </style>
 </head>
 <body>
@@ -319,9 +319,15 @@ tr:hover .split-btn{display:inline}
 <div class="main">
   <div class="topbar">
     <div><div class="pt">Linhas do MTA — 2026</div><div class="ps" id="psub">Cenário A (ativo)</div></div>
-    <div class="prof-toggle">
-      <button class="ptog ptog-act" id="pt-parque" onclick="setPerfil('parque')">Parque</button>
-      <button class="ptog" id="pt-dirmab" onclick="setPerfil('dirmab')">DIRMAB</button>
+    <div class="prof-wrap">
+      <span class="prof-lbl">Perfil</span>
+      <select class="prof-sel" id="prof-sel" onchange="setPerfil(this.value)">
+        <option value="pamagl">PAMAGL</option>
+        <option value="pamals">PAMALS</option>
+        <option value="pamasp">PAMASP</option>
+        <option value="pambrj">PAMBRJ</option>
+        <option value="dirmab">DIRMAB</option>
+      </select>
     </div>
     <div class="tbr">
       <button class="btn" onclick="openSM()"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M4 8h8M6 12h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg> Ordenar</button>
@@ -692,14 +698,16 @@ const AC=[
 ];
 let cols=JSON.parse(JSON.stringify(AC));
 let filt={},sorts=[],pend={},pendSubmitted={},pendNewRows=[];
-let perfil='parque';
+let perfil='pamagl';
+function isDirmab(){return perfil==='dirmab';}
+function myMta(){return isDirmab()?null:perfil.toUpperCase();}
+function canEditRow(row){return isDirmab()||row.mta===myMta();}
 function setPerfil(p){
   perfil=p;
-  document.getElementById('pt-parque').classList.toggle('ptog-act',p==='parque');
-  document.getElementById('pt-dirmab').classList.toggle('ptog-act',p==='dirmab');
-  document.getElementById('btn-novalinha').style.display=p==='parque'?'':'none';
-  document.getElementById('btn-enviar').style.display=p==='parque'?'':'none';
-  document.getElementById('btn-aplicar').style.display=p==='dirmab'?'':'none';
+  document.getElementById('prof-sel').value=p;
+  document.getElementById('btn-novalinha').style.display=isDirmab()?'none':'';
+  document.getElementById('btn-enviar').style.display=isDirmab()?'none':'';
+  document.getElementById('btn-aplicar').style.display=isDirmab()?'':'none';
   render();
 }
 
@@ -793,6 +801,7 @@ function loadSubmittedPend(){
     Object.values(ud).forEach(pkg=>{
       if(!ids||ids.includes(pkg.id)){
         (pkg.changes||[]).forEach(ch=>{
+          if(ch.tipo==='desc') return; // SOLICITADO aplicado diretamente à linha
           if(ch.newVals){
             if(!pendSubmitted[ch.ord])pendSubmitted[ch.ord]={};
             Object.assign(pendSubmitted[ch.ord],ch.newVals);
@@ -854,7 +863,8 @@ function render(){
     const st=stripe(apv,hp);
     // item 3: each td:first-child gets explicit background via inline style to override hover
     const firstBg=hp?'background:#2b3e14':'background:var(--n2)';
-    const rowLocked=perfil==='parque'&&!!(pendSubmitted[row.ord]&&Object.keys(pendSubmitted[row.ord]).length);
+    const rowEditable=canEditRow(row);
+    const rowLocked=rowEditable&&!isDirmab()&&!!(pendSubmitted[row.ord]&&Object.keys(pendSubmitted[row.ord]).length);
     const lockedTitle=rowLocked?' title="Aguardando aprovação DIRMAB — edição bloqueada"':'';
     return`<tr class="${hp?'pd':''} ${rowLocked?'locked':''}">`+vcs.map(c=>{
       const raw=cv(row,c.k);
@@ -864,56 +874,56 @@ function render(){
       const dot=mod?`<span class="${modPend?'mdot-s':'mdot'}" title="${modPend?'Alteração não enviada':'Aguardando aprovação DIRMAB'}"></span>`:'';
       if(c.k==='ord'){
         const awaitTag=rowLocked?'<span title="Aguardando aprovação DIRMAB" style="font-size:10px;margin-left:4px;opacity:.75">⏳</span>':'';
-        const splitBtn=(!row.sub&&!rowLocked)?`<button class="split-btn" onclick="openSplit(event,'${row.ord}')" title="Quebrar linha / criar linha filha">✂</button>`:'';
+        const splitBtn=(rowEditable&&!row.sub&&!rowLocked)?`<button class="split-btn" onclick="openSplit(event,'${row.ord}')" title="Quebrar linha / criar linha filha">✂</button>`:'';
         return`<td style="${firstBg}"><div class="ordc"><div class="ords" style="${st}"></div><div class="ordv">${row.sub?'↳ ':''}<span style="font-family:var(--mo);font-size:12px">${raw}</span>${awaitTag}${splitBtn}</div></div></td>`;
       }
       const df=modSub?newValFooter(row.ord,c.k,cv(row,'moeda')):'';
       const lkColStyle=modSub?'flex-direction:column;align-items:flex-start;gap:1px':'';
       const lkCrStyle=modSub?'flex-direction:column;align-items:flex-end;gap:1px':'';
       const wrap=(inner,isCr)=>modSub?`<div style="display:flex;align-items:center;gap:${isCr?4:6}px">${inner}</div>${df}`:inner;
-      if(c.k==='aprovado'){if(rowLocked)return`<td><div class="cell" style="${lkColStyle}"${lockedTitle}>${wrap(abadge(row[c.k])+dot,false)}</div></td>`;return`<td><div class="cell" style="cursor:pointer;gap:6px" onclick="openA(event,'${row.ord}')">${abadge(raw)}${dot}</div></td>`;}
-      if(c.k==='pacote'){if(rowLocked)return`<td><div class="cell" style="${lkColStyle}"${lockedTitle}>${wrap(pbadge(row[c.k])+dot,false)}</div></td>`;return`<td><div class="cell" style="cursor:pointer;gap:6px" onclick="openP(event,'${row.ord}')">${pbadge(raw)}${dot}</div></td>`;}
+      if(c.k==='aprovado'){if(!rowEditable)return`<td><div class="cell">${abadge(raw)}</div></td>`;if(rowLocked)return`<td><div class="cell" style="${lkColStyle}"${lockedTitle}>${wrap(abadge(row[c.k])+dot,false)}</div></td>`;return`<td><div class="cell" style="cursor:pointer;gap:6px" onclick="openA(event,'${row.ord}')">${abadge(raw)}${dot}</div></td>`;}
+      if(c.k==='pacote'){if(!rowEditable)return`<td><div class="cell">${pbadge(raw)}</div></td>`;if(rowLocked)return`<td><div class="cell" style="${lkColStyle}"${lockedTitle}>${wrap(pbadge(row[c.k])+dot,false)}</div></td>`;return`<td><div class="cell" style="cursor:pointer;gap:6px" onclick="openP(event,'${row.ord}')">${pbadge(raw)}${dot}</div></td>`;}
       if(c.k==='tramite'){
-        if(perfil==='dirmab'){
+        const trLabel=v=>{
+          if(v==='SOLICITAR')return`<span style="font-size:12px;padding:2px 10px;border-radius:var(--r);background:rgba(251,191,36,.15);color:var(--am)">SOLICITAR</span>`;
+          if(v==='SOLICITADO')return`<span style="font-size:12px;padding:2px 10px;border-radius:var(--r);background:rgba(251,191,36,.15);color:var(--am)">SOLICITADO</span>`;
+          if(v==='ATENDER')return`<span style="color:var(--gr);font-weight:500">ATENDER</span>`;
+          if(v==='EM TRÂMITE')return`<span style="color:#60a5fa;font-weight:500">EM TRÂMITE</span>`;
+          if(v==='ATENDIDO')return`<span style="font-size:12px;padding:2px 10px;border-radius:var(--r);background:rgba(52,211,153,.15);color:#059669">ATENDIDO</span>`;
+          if(v==='CANCELADO')return`<span style="color:var(--rd)">CANCELADO</span>`;
+          return v||'—';
+        };
+        if(isDirmab()){
           const trOpts=['','SOLICITAR','SOLICITADO','ATENDER','EM TRÂMITE','ATENDIDO','CANCELADO'];
           return`<td><div style="display:flex;align-items:center;height:32px"><select class="isel" onchange="ceDirmab('${row.ord}','tramite',this.value)">${trOpts.map(s=>`<option value="${s}"${raw===s?' selected':''}>${s||'—'}</option>`).join('')}</select></div></td>`;
         }
+        if(!rowEditable)return`<td><div class="cell">${trLabel(raw)}</div></td>`;
         if(hd)return`<td><div class="cell"><span style="font-size:12px;padding:2px 10px;border-radius:var(--r);background:rgba(52,211,153,.15);color:#059669">ATENDIDO</span></div></td>`;
-        if(rowLocked)return`<td><div class="cell" style="${lkColStyle}"${lockedTitle}>${wrap((row[c.k]||'—')+dot,false)}</div></td>`;
+        if(rowLocked)return`<td><div class="cell" style="${lkColStyle}"${lockedTitle}>${wrap((raw||'—')+dot,false)}</div></td>`;
         const origTr=row.tramite||'';
-        const inPendDesc=pendSubmitted[row.ord]?.tramite==='SOLICITADO';
-        if(row.aprovado==='SIM'&&origTr===''&&!inPendDesc){
+        if(row.aprovado==='SIM'&&origTr===''){
           return`<td><select class="isel" onchange="ce('${row.ord}','tramite',this.value)">${['','SOLICITAR'].map(s=>`<option value="${s}"${raw===s?' selected':''}>${s||'—'}</option>`).join('')}</select>${dot}</td>`;
         }
-        const trVal=raw||'—';
-        let trSpan=trVal;
-        if(raw==='SOLICITAR')trSpan=`<span style="font-size:12px;padding:2px 10px;border-radius:var(--r);background:rgba(251,191,36,.15);color:var(--am)">SOLICITAR</span>`;
-        else if(raw==='SOLICITADO')trSpan=`<span style="font-size:12px;padding:2px 10px;border-radius:var(--r);background:rgba(251,191,36,.15);color:var(--am)">SOLICITADO</span>`;
-        else if(raw==='ATENDER')trSpan=`<span style="color:var(--gr);font-weight:500">ATENDER</span>`;
-        else if(raw==='EM TRÂMITE')trSpan=`<span style="color:#60a5fa;font-weight:500">EM TRÂMITE</span>`;
-        else if(raw==='CANCELADO')trSpan=`<span style="color:var(--rd)">CANCELADO</span>`;
-        return`<td><div class="cell">${wrap(trSpan+dot,false)}</div></td>`;
+        return`<td><div class="cell">${wrap(trLabel(raw)+dot,false)}</div></td>`;
       }
-      if(c.k==='moeda'){if(rowLocked)return`<td><div class="cell" style="${lkColStyle}"${lockedTitle}>${wrap((row[c.k]||'—')+dot,false)}</div></td>`;return`<td><div style="display:flex;align-items:center;height:32px"><select class="isel" onchange="ce('${row.ord}','moeda',this.value);render()">${CUR.map(cur=>`<option value="${cur}"${raw===cur?' selected':''}>${cur}</option>`).join('')}</select>${dot}</div></td>`;}
-      if(c.k==='valormoeda'){const m=cv(row,'moeda')||'BRL';const origM=row['moeda']||'BRL';if(rowLocked)return`<td><div class="cell cr" style="${lkCrStyle}"${lockedTitle}>${wrap(fmtVM(row[c.k],origM)+dot,true)}</div></td>`;return`<td><div class="cell cr" contenteditable="true" onblur="ceN('${row.ord}','valormoeda',this.textContent)">${fmtVM(raw,m)}${dot}</div></td>`;}
-      if(c.k==='valor'){if(rowLocked)return`<td><div class="cell cr" style="${lkCrStyle}"${lockedTitle}>${wrap(fmtC(row[c.k],'BRL')+dot,true)}</div></td>`;return`<td><div class="cell cr" style="color:var(--t2);cursor:default" title="Calculado automaticamente: Valor Moeda × Câmbio">${fmtC(raw,'BRL')}${dot}</div></td>`;}
-      if(c.k==='mesdesc'||c.k==='mesliq'){if(rowLocked)return`<td><div class="cell" style="${lkColStyle}"${lockedTitle}>${wrap((fmtM(row[c.k])||'—')+dot,false)}</div></td>`;return`<td><div class="cell" style="cursor:pointer;gap:6px" onclick="openMp(event,'${row.ord}','${c.k}')" title="Clique para selecionar mês/ano">${fmtM(raw)||'<span style=\"color:var(--t3);font-size:11px\">Selecionar…</span>'}${dot}</div></td>`;}
+      if(c.k==='moeda'){if(!rowEditable)return`<td><div class="cell">${raw||'—'}</div></td>`;if(rowLocked)return`<td><div class="cell" style="${lkColStyle}"${lockedTitle}>${wrap((row[c.k]||'—')+dot,false)}</div></td>`;return`<td><div style="display:flex;align-items:center;height:32px"><select class="isel" onchange="ce('${row.ord}','moeda',this.value);render()">${CUR.map(cur=>`<option value="${cur}"${raw===cur?' selected':''}>${cur}</option>`).join('')}</select>${dot}</div></td>`;}
+      if(c.k==='valormoeda'){const m=cv(row,'moeda')||'BRL';const origM=row['moeda']||'BRL';if(!rowEditable)return`<td><div class="cell cr">${fmtVM(raw,m)}</div></td>`;if(rowLocked)return`<td><div class="cell cr" style="${lkCrStyle}"${lockedTitle}>${wrap(fmtVM(row[c.k],origM)+dot,true)}</div></td>`;return`<td><div class="cell cr" contenteditable="true" onblur="ceN('${row.ord}','valormoeda',this.textContent)">${fmtVM(raw,m)}${dot}</div></td>`;}
+      if(c.k==='valor'){return`<td><div class="cell cr" style="color:var(--t2);cursor:default" title="Calculado automaticamente: Valor Moeda × Câmbio">${fmtC(raw,'BRL')}${dot}</div></td>`;}
+      if(c.k==='mesdesc'||c.k==='mesliq'){if(!rowEditable)return`<td><div class="cell">${fmtM(raw)||'—'}</div></td>`;if(rowLocked)return`<td><div class="cell" style="${lkColStyle}"${lockedTitle}>${wrap((fmtM(row[c.k])||'—')+dot,false)}</div></td>`;return`<td><div class="cell" style="cursor:pointer;gap:6px" onclick="openMp(event,'${row.ord}','${c.k}')" title="Clique para selecionar mês/ano">${fmtM(raw)||'<span style=\"color:var(--t3);font-size:11px\">Selecionar…</span>'}${dot}</div></td>`;}
       if(c.k==='datasolic')return`<td><div class="cell" style="color:var(--t3)">${raw||'—'}</div></td>`;
       if(c.k==='nropeddirmab'){
-        if(perfil==='dirmab')return`<td><div class="cell" contenteditable="true" onblur="ceDirmab('${row.ord}','nropeddirmab',this.textContent.trim())">${raw||''}</div></td>`;
-        const trEff=cv(row,'tramite')||'';if(trEff==='ATENDER')return`<td><div class="cell" contenteditable="true" onblur="ceDirmab('${row.ord}','nropeddirmab',this.textContent.trim())">${raw||''}</div></td>`;
+        if(isDirmab())return`<td><div class="cell" contenteditable="true" onblur="ceDirmab('${row.ord}','nropeddirmab',this.textContent.trim())">${raw||''}</div></td>`;
         return`<td><div class="cell" style="color:var(--t3)">${raw||'—'}</div></td>`;
       }
       if(c.k==='datapeddirmab'){
-        if(perfil==='dirmab')return`<td><div class="cell" style="cursor:pointer" onclick="openDpDirmab(event,'${row.ord}','datapeddirmab')" title="Selecionar data">${raw||'<span style="color:var(--t3);font-size:11px">Selecionar…</span>'}</div></td>`;
-        const trEff=cv(row,'tramite')||'';if(trEff==='ATENDER')return`<td><div class="cell" style="cursor:pointer" onclick="openDpDirmab(event,'${row.ord}','datapeddirmab')" title="Selecionar data">${raw||'<span style="color:var(--t3);font-size:11px">Selecionar…</span>'}</div></td>`;
+        if(isDirmab())return`<td><div class="cell" style="cursor:pointer" onclick="openDpDirmab(event,'${row.ord}','datapeddirmab')" title="Selecionar data">${raw||'<span style="color:var(--t3);font-size:11px">Selecionar…</span>'}</div></td>`;
         return`<td><div class="cell" style="color:var(--t3)">${raw||'—'}</div></td>`;
       }
       if(c.k==='digito'){
-        if(perfil==='dirmab')return`<td><div class="cell" contenteditable="true" onblur="ceDirmab('${row.ord}','digito',this.textContent.trim())">${raw||''}</div></td>`;
-        const trEff=cv(row,'tramite')||'';if(trEff==='EM TRÂMITE'||trEff==='ATENDER')return`<td><div class="cell" contenteditable="true" onblur="ceDirmab('${row.ord}','digito',this.textContent.trim())">${raw||''}</div></td>`;
+        if(isDirmab())return`<td><div class="cell" contenteditable="true" onblur="ceDirmab('${row.ord}','digito',this.textContent.trim())">${raw||''}</div></td>`;
         return`<td><div class="cell" style="color:var(--t3)">${raw||'—'}</div></td>`;
       }
+      if(!rowEditable)return`<td><div class="cell">${raw!=null&&raw!==''?raw:''}</div></td>`;
       if(rowLocked)return`<td><div class="cell" style="${lkColStyle}"${lockedTitle}>${wrap((row[c.k]!=null&&row[c.k]!==''?row[c.k]:'')+dot,false)}</div></td>`;
       return`<td><div class="cell" contenteditable="true" onblur="ce('${row.ord}','${c.k}',this.textContent.trim())">${raw!=null&&raw!==''?raw:''}${dot}</div></td>`;
     }).join('')+'</tr>';
@@ -1347,6 +1357,17 @@ function enviarParaAprovacao(){
       diffs:[{campo:'Trâmite',de:'—',para:'SOLICITADO · aguardando DIRMAB'}],
       newVals:{tramite:'SOLICITADO',datasolic:dataSOL}});
   });
+  // Aplica SOLICITADO diretamente (sem estado pendente amarelo)
+  try{
+    const appv=JSON.parse(localStorage.getItem('mta_approved_vals')||'{}');
+    Object.keys(descPend).forEach(ord=>{
+      const row=ROWS.find(r=>r.ord===ord);if(!row)return;
+      row.tramite='SOLICITADO';row.datasolic=dataSOL;
+      if(!appv[ord])appv[ord]={};
+      appv[ord].tramite='SOLICITADO';appv[ord].datasolic=dataSOL;
+    });
+    localStorage.setItem('mta_approved_vals',JSON.stringify(appv));
+  }catch(e){}
   Object.entries(descByParque).forEach(([parque,changes])=>{
     const id=`user_${ts}_d${i++}`;const nL=changes.length;
     userdata[id]={id,parque,tipo:'desc',autor,data:dataStr,
