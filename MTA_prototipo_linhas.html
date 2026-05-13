@@ -841,12 +841,14 @@ function render(){
         if(hd)return`<td><div class="cell"><span style="font-size:12px;padding:2px 10px;border-radius:var(--r);background:rgba(52,211,153,.15);color:#059669">ATENDIDO</span></div></td>`;
         if(rowLocked)return`<td><div class="cell" style="${lkColStyle}"${lockedTitle}>${wrap((row[c.k]||'—')+dot,false)}</div></td>`;
         const origTr=row.tramite||'';
-        if(row.aprovado==='SIM'&&origTr===''){
-          return`<td><select class="isel" onchange="ce('${row.ord}','tramite',this.value)">${['','SOLICITADO'].map(s=>`<option value="${s}"${raw===s?' selected':''}>${s||'—'}</option>`).join('')}</select>${dot}</td>`;
+        const inPendDesc=pendSubmitted[row.ord]?.tramite==='SOLICITADO';
+        if(row.aprovado==='SIM'&&origTr===''&&!inPendDesc){
+          return`<td><select class="isel" onchange="ce('${row.ord}','tramite',this.value)">${['','SOLICITAR'].map(s=>`<option value="${s}"${raw===s?' selected':''}>${s||'—'}</option>`).join('')}</select>${dot}</td>`;
         }
         const trVal=raw||'—';
         let trSpan=trVal;
-        if(raw==='SOLICITADO')trSpan=`<span style="font-size:12px;padding:2px 10px;border-radius:var(--r);background:rgba(251,191,36,.15);color:var(--am)">SOLICITADO</span>`;
+        if(raw==='SOLICITAR')trSpan=`<span style="font-size:12px;padding:2px 10px;border-radius:var(--r);background:rgba(251,191,36,.15);color:var(--am)">SOLICITAR</span>`;
+        else if(raw==='SOLICITADO')trSpan=`<span style="font-size:12px;padding:2px 10px;border-radius:var(--r);background:rgba(251,191,36,.15);color:var(--am)">SOLICITADO</span>`;
         else if(raw==='ATENDER')trSpan=`<span style="color:var(--gr);font-weight:500">ATENDER</span>`;
         else if(raw==='EM TRÂMITE')trSpan=`<span style="color:var(--bl);font-weight:500">EM TRÂMITE</span>`;
         else if(raw==='CANCELADO')trSpan=`<span style="color:var(--rd)">CANCELADO</span>`;
@@ -856,7 +858,10 @@ function render(){
       if(c.k==='valormoeda'){const m=cv(row,'moeda')||'BRL';const origM=row['moeda']||'BRL';if(rowLocked)return`<td><div class="cell cr" style="${lkCrStyle}"${lockedTitle}>${wrap(fmtC(row[c.k],origM)+dot,true)}</div></td>`;return`<td><div class="cell cr" contenteditable="true" onblur="ceN('${row.ord}','valormoeda',this.textContent)">${fmtC(raw,m)}${dot}</div></td>`;}
       if(c.k==='valor'){if(rowLocked)return`<td><div class="cell cr" style="${lkCrStyle}"${lockedTitle}>${wrap(fmtC(row[c.k],'BRL')+dot,true)}</div></td>`;return`<td><div class="cell cr" contenteditable="true" onblur="ceN('${row.ord}','valor',this.textContent)">${fmtC(raw,'BRL')}${dot}</div></td>`;}
       if(c.k==='mesdesc'||c.k==='mesliq'){if(rowLocked)return`<td><div class="cell" style="${lkColStyle}"${lockedTitle}>${wrap((fmtM(row[c.k])||'—')+dot,false)}</div></td>`;return`<td><div class="cell" style="cursor:pointer;gap:6px" onclick="openMp(event,'${row.ord}','${c.k}')" title="Clique para selecionar mês/ano">${fmtM(raw)||'<span style=\"color:var(--t3);font-size:11px\">Selecionar…</span>'}${dot}</div></td>`;}
-      if(c.k==='datasolic'||c.k==='datapeddirmab'||c.k==='nropeddirmab'||c.k==='digito')return`<td><div class="cell" style="color:var(--t3)">${raw||'—'}</div></td>`;
+      if(c.k==='datasolic')return`<td><div class="cell" style="color:var(--t3)">${raw||'—'}</div></td>`;
+      if(c.k==='nropeddirmab'){const trEff=cv(row,'tramite')||'';if(trEff==='ATENDER')return`<td><div class="cell" contenteditable="true" onblur="ceDirmab('${row.ord}','nropeddirmab',this.textContent.trim())">${raw||''}</div></td>`;return`<td><div class="cell" style="color:var(--t3)">${raw||'—'}</div></td>`;}
+      if(c.k==='datapeddirmab'){const trEff=cv(row,'tramite')||'';if(trEff==='ATENDER')return`<td><div class="cell" contenteditable="true" onblur="ceDirmab('${row.ord}','datapeddirmab',this.textContent.trim())">${raw||''}</div></td>`;return`<td><div class="cell" style="color:var(--t3)">${raw||'—'}</div></td>`;}
+      if(c.k==='digito'){const trEff=cv(row,'tramite')||'';if(trEff==='EM TRÂMITE'||trEff==='ATENDER')return`<td><div class="cell" contenteditable="true" onblur="ceDirmab('${row.ord}','digito',this.textContent.trim())">${raw||''}</div></td>`;return`<td><div class="cell" style="color:var(--t3)">${raw||'—'}</div></td>`;}
       if(rowLocked)return`<td><div class="cell" style="${lkColStyle}"${lockedTitle}>${wrap((row[c.k]!=null&&row[c.k]!==''?row[c.k]:'')+dot,false)}</div></td>`;
       return`<td><div class="cell" contenteditable="true" onblur="ce('${row.ord}','${c.k}',this.textContent.trim())">${raw!=null&&raw!==''?raw:''}${dot}</div></td>`;
     }).join('')+'</tr>';
@@ -1247,7 +1252,7 @@ function enviarParaAprovacao(){
   const descPend={};const altPend={};const conflitos=[];
   Object.entries(pend).forEach(([ord,ch])=>{
     if(!ch||!Object.keys(ch).length)return;
-    const hasSOL=ch.tramite==='SOLICITADO';
+    const hasSOL=ch.tramite==='SOLICITAR';
     const hasOther=Object.keys(ch).some(k=>k!=='tramite')||(hasSOL&&Object.keys(ch).length>1);
     if(hasSOL&&hasOther)conflitos.push(ord);
     else if(hasSOL)descPend[ord]=ch;
@@ -1272,7 +1277,7 @@ function enviarParaAprovacao(){
     const row=ROWS.find(r=>r.ord===ord);if(!row)return;
     if(!descByParque[row.mta])descByParque[row.mta]=[];
     descByParque[row.mta].push({ord,tipo:'desc',proj:row.proj,ativ:row.ativ,tar:row.tar,
-      diffs:[{campo:'Trâmite',de:'—',para:'SOLICITADO'}],
+      diffs:[{campo:'Trâmite',de:'—',para:'SOLICITADO · aguardando DIRMAB'}],
       newVals:{tramite:'SOLICITADO',datasolic:dataSOL}});
   });
   Object.entries(descByParque).forEach(([parque,changes])=>{
@@ -1343,6 +1348,27 @@ function saveCambioUI(){
   });
   localStorage.setItem('mta_cambio',JSON.stringify(cb));
   closeCambio();
+}
+
+// ── DIRMAB DIRECT EDIT (sem aprovação) ──
+function ceDirmab(ord,field,value){
+  const row=ROWS.find(r=>r.ord===ord);if(!row)return;
+  row[field]=value;
+  const trCur=row.tramite||'';
+  if(field==='digito'&&value){
+    row.tramite='ATENDIDO';
+  } else if(field==='nropeddirmab'||field==='datapeddirmab'){
+    const nro=row.nropeddirmab||'';const dtped=row.datapeddirmab||'';
+    if(nro&&dtped&&trCur==='ATENDER') row.tramite='EM TRÂMITE';
+  }
+  try{
+    const approved=JSON.parse(localStorage.getItem('mta_approved_vals')||'{}');
+    if(!approved[ord])approved[ord]={};
+    approved[ord][field]=value;
+    approved[ord].tramite=row.tramite;
+    localStorage.setItem('mta_approved_vals',JSON.stringify(approved));
+  }catch(e){}
+  render();
 }
 
 // ── CURRENCY MASK ──
