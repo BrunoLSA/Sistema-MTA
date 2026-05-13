@@ -860,7 +860,7 @@ function render(){
       if(c.k==='mesdesc'||c.k==='mesliq'){if(rowLocked)return`<td><div class="cell" style="${lkColStyle}"${lockedTitle}>${wrap((fmtM(row[c.k])||'—')+dot,false)}</div></td>`;return`<td><div class="cell" style="cursor:pointer;gap:6px" onclick="openMp(event,'${row.ord}','${c.k}')" title="Clique para selecionar mês/ano">${fmtM(raw)||'<span style=\"color:var(--t3);font-size:11px\">Selecionar…</span>'}${dot}</div></td>`;}
       if(c.k==='datasolic')return`<td><div class="cell" style="color:var(--t3)">${raw||'—'}</div></td>`;
       if(c.k==='nropeddirmab'){const trEff=cv(row,'tramite')||'';if(trEff==='ATENDER')return`<td><div class="cell" contenteditable="true" onblur="ceDirmab('${row.ord}','nropeddirmab',this.textContent.trim())">${raw||''}</div></td>`;return`<td><div class="cell" style="color:var(--t3)">${raw||'—'}</div></td>`;}
-      if(c.k==='datapeddirmab'){const trEff=cv(row,'tramite')||'';if(trEff==='ATENDER')return`<td><div class="cell" contenteditable="true" onblur="ceDirmab('${row.ord}','datapeddirmab',this.textContent.trim())">${raw||''}</div></td>`;return`<td><div class="cell" style="color:var(--t3)">${raw||'—'}</div></td>`;}
+      if(c.k==='datapeddirmab'){const trEff=cv(row,'tramite')||'';if(trEff==='ATENDER')return`<td><div class="cell" style="cursor:pointer" onclick="openDpDirmab(event,'${row.ord}','datapeddirmab')" title="Selecionar data">${raw||'<span style="color:var(--t3);font-size:11px">Selecionar…</span>'}</div></td>`;return`<td><div class="cell" style="color:var(--t3)">${raw||'—'}</div></td>`;}
       if(c.k==='digito'){const trEff=cv(row,'tramite')||'';if(trEff==='EM TRÂMITE'||trEff==='ATENDER')return`<td><div class="cell" contenteditable="true" onblur="ceDirmab('${row.ord}','digito',this.textContent.trim())">${raw||''}</div></td>`;return`<td><div class="cell" style="color:var(--t3)">${raw||'—'}</div></td>`;}
       if(rowLocked)return`<td><div class="cell" style="${lkColStyle}"${lockedTitle}>${wrap((row[c.k]!=null&&row[c.k]!==''?row[c.k]:'')+dot,false)}</div></td>`;
       return`<td><div class="cell" contenteditable="true" onblur="ce('${row.ord}','${c.k}',this.textContent.trim())">${raw!=null&&raw!==''?raw:''}${dot}</div></td>`;
@@ -1174,10 +1174,12 @@ document.addEventListener('click',e=>{
 
 
 // Full date picker
-let dpOrd=null,dpKey=null,dpYear=2026,dpMonth=0,dpSelDay=null,dpSelMonth=null,dpSelYear=null;
+let dpOrd=null,dpKey=null,dpYear=2026,dpMonth=0,dpSelDay=null,dpSelMonth=null,dpSelYear=null,dpDirmab=false;
 
-function openDp(e,ord,key){
+function openDpDirmab(e,ord,key){dpDirmab=true;openDp(e,ord,key);}
+function openDp(e,ord,key,dirmab){
   e.stopPropagation();closeAllPopups();
+  dpDirmab=!!dirmab;
   dpOrd=ord;dpKey=key;
   const cur=cv(ROWS.find(r=>r.ord===ord),key)||'';
   // parse DD/MM/YYYY
@@ -1202,21 +1204,30 @@ function renderDp(){
   let html='';
   // empty cells before first day
   for(let i=0;i<firstDay;i++) html+='<div class="dp-day empty"></div>';
+  const todayMidnight=new Date(today.getFullYear(),today.getMonth(),today.getDate());
   for(let d=1;d<=daysInMonth;d++){
     const isSel=dpSelDay===d&&dpSelMonth===dpMonth&&dpSelYear===dpYear;
     const isToday=today.getDate()===d&&today.getMonth()===dpMonth&&today.getFullYear()===dpYear;
-    const isFuture=new Date(dpYear,dpMonth,d)>today;
-    if(isFuture){
-      html+=`<div class="dp-day other" style="opacity:.25;cursor:not-allowed" title="Data futura não permitida">${d}</div>`;
+    const dayDate=new Date(dpYear,dpMonth,d);
+    const blocked=dpDirmab?(dayDate<todayMidnight):(dayDate>todayMidnight);
+    if(blocked){
+      const title=dpDirmab?'Data anterior à data atual não permitida':'Data futura não permitida';
+      html+=`<div class="dp-day other" style="opacity:.25;cursor:not-allowed" title="${title}">${d}</div>`;
     } else {
       html+=`<div class="dp-day${isSel?' sel':''}${isToday&&!isSel?' today':''}" onclick="dpSel(${d})">${d}</div>`;
     }
   }
   document.getElementById('dp-days').innerHTML=html;
-  // Disable forward navigation when at current month
+  // Disable nav beyond boundaries
   const atCurrent=dpYear===today.getFullYear()&&dpMonth===today.getMonth();
   const fwdBtn=document.querySelector('.dp-nav-btn:last-of-type');
-  if(fwdBtn){fwdBtn.style.opacity=atCurrent?'.25':'1';fwdBtn.style.pointerEvents=atCurrent?'none':'auto';}
+  const backBtn=document.querySelector('.dp-nav-btn:first-of-type');
+  if(dpDirmab){
+    if(backBtn){backBtn.style.opacity=atCurrent?'.25':'1';backBtn.style.pointerEvents=atCurrent?'none':'auto';}
+    if(fwdBtn){fwdBtn.style.opacity='1';fwdBtn.style.pointerEvents='auto';}
+  } else {
+    if(fwdBtn){fwdBtn.style.opacity=atCurrent?'.25':'1';fwdBtn.style.pointerEvents=atCurrent?'none':'auto';}
+  }
 }
 function dpNav(d){
   dpMonth+=d;
@@ -1233,13 +1244,16 @@ function dpSel(d){
   const mm=String(dpMonth+1).padStart(2,'0');
   const dd=String(d).padStart(2,'0');
   const val=dd+'/'+mm+'/'+dpYear;
-  if(dpOrd&&dpKey)ce(dpOrd,dpKey,val);
+  if(dpOrd&&dpKey){if(dpDirmab)ceDirmab(dpOrd,dpKey,val);else ce(dpOrd,dpKey,val);}
   document.getElementById('dpop').classList.remove('open');
 }
 function dpToday(){
   const t=new Date();dpYear=t.getFullYear();dpMonth=t.getMonth();dpSel(t.getDate());
 }
-function dpClear(){if(dpOrd&&dpKey)ce(dpOrd,dpKey,'');document.getElementById('dpop').classList.remove('open');}
+function dpClear(){
+  if(dpOrd&&dpKey){if(dpDirmab)ceDirmab(dpOrd,dpKey,'');else ce(dpOrd,dpKey,'');}
+  document.getElementById('dpop').classList.remove('open');
+}
 
 // ── SUBMIT TO APROVAÇÕES ──
 const FIELD_LBL={aprovado:'Aprovado',pacote:'Pacote',acao:'Ação',tramite:'Trâmite',valor:'Valor Total',
@@ -1354,12 +1368,13 @@ function saveCambioUI(){
 function ceDirmab(ord,field,value){
   const row=ROWS.find(r=>r.ord===ord);if(!row)return;
   row[field]=value;
-  const trCur=row.tramite||'';
-  if(field==='digito'&&value){
-    row.tramite='ATENDIDO';
-  } else if(field==='nropeddirmab'||field==='datapeddirmab'){
-    const nro=row.nropeddirmab||'';const dtped=row.datapeddirmab||'';
-    if(nro&&dtped&&trCur==='ATENDER') row.tramite='EM TRÂMITE';
+  if(['ATENDER','EM TRÂMITE','ATENDIDO'].includes(row.tramite||'')){
+    const dig=row.digito||'';
+    const nro=row.nropeddirmab||'';
+    const dtped=row.datapeddirmab||'';
+    if(dig) row.tramite='ATENDIDO';
+    else if(nro&&dtped) row.tramite='EM TRÂMITE';
+    else row.tramite='ATENDER';
   }
   try{
     const approved=JSON.parse(localStorage.getItem('mta_approved_vals')||'{}');
