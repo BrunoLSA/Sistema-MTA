@@ -860,7 +860,7 @@ function render(){
   }).join('')+'</tr>';
 
   document.getElementById('TB').innerHTML=rows.map(row=>{
-    const hp=!!(pend[row.ord]&&Object.keys(pend[row.ord]).length)||!!(pendSubmitted[row.ord]&&Object.keys(pendSubmitted[row.ord]).length);
+    const hp=!!(pend[row.ord]&&Object.keys(pend[row.ord]).length)||(!isDirmab()&&!!(pendSubmitted[row.ord]&&Object.keys(pendSubmitted[row.ord]).length));
     const apv=cv(row,'aprovado');
     const hd=!!(cv(row,'digito'));
     const st=stripe(apv,hp);
@@ -1033,6 +1033,18 @@ function clearFilt(){filt={};render();}
 
 function ce(ord,k,val){
   const row=ROWS.find(r=>r.ord===ord);if(!row)return;
+  if(isDirmab()){
+    row[k]=val;
+    if(k==='moeda'||k==='valormoeda'){
+      const moeda=row.moeda||'BRL';const vm=parseFloat(row.valormoeda)||0;
+      const rate=getCambio()[moeda]||1;row.valor=moeda==='BRL'?vm:vm*rate;
+    }
+    try{const approved=JSON.parse(localStorage.getItem('mta_approved_vals')||'{}');
+      if(!approved[ord])approved[ord]={};approved[ord][k]=val;
+      if(k==='moeda'||k==='valormoeda')approved[ord].valor=row.valor;
+      localStorage.setItem('mta_approved_vals',JSON.stringify(approved));}catch(e){}
+    render();return;
+  }
   if(String(row[k]??'')===String(val)){if(pend[ord]){delete pend[ord][k];if(!Object.keys(pend[ord]).length)delete pend[ord];}}
   else{if(!pend[ord])pend[ord]={};pend[ord][k]=val;}
   if(k==='moeda'||k==='valormoeda')recalcValorNR(ord);
