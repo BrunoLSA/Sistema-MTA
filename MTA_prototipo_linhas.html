@@ -342,7 +342,7 @@ tr:hover .split-btn{display:inline}
     <div class="bar bar-f" id="bar-f"><span style="color:var(--am)">Filtros ativos:</span><div id="fc"></div><button class="btn btn-am btn-sm" style="margin-left:auto" onclick="clearFilt()">Limpar filtros</button></div>
     <div class="bar bar-p" id="bar-p">
       <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--am)"><span style="width:7px;height:7px;border-radius:50%;background:var(--am);display:inline-block;flex-shrink:0"></span><span><span id="pc">0</span> alteração(ões) pendente(s)</span></div>
-      <div style="display:flex;gap:6px"><button class="btn btn-sm" onclick="openChg()">Ver alterações</button><button class="btn btn-d btn-sm" onclick="confDiscard()">Descartar tudo</button><button class="btn btn-am btn-sm" id="btn-enviar" onclick="enviarParaAprovacao()">Enviar para aprovação ↗</button><button class="btn btn-p btn-sm" id="btn-aplicar" style="display:none" onclick="aplicarDiretamente()">Aplicar diretamente ✓</button></div>
+      <div style="display:flex;gap:6px"><button class="btn btn-sm" onclick="openChg()">Ver alterações</button><button class="btn btn-d btn-sm" onclick="confDiscard()">Descartar tudo</button><button class="btn btn-am btn-sm" id="btn-enviar" onclick="enviarParaAprovacao()">Enviar para aprovação ↗</button></div>
     </div>
   </div>
   <div class="tw"><table><thead id="TH"></thead><tbody id="TB"></tbody></table></div>
@@ -701,13 +701,16 @@ let filt={},sorts=[],pend={},pendSubmitted={},pendNewRows=[];
 let perfil='pamagl';
 function isDirmab(){return perfil==='dirmab';}
 function myMta(){return isDirmab()?null:perfil.toUpperCase();}
-function canEditRow(row){return isDirmab()||row.mta===myMta();}
+function canEditRow(row){
+  if(isDirmab())return true;
+  if(row.mta!==myMta())return false;
+  return (row.tramite||'')==='';
+}
 function setPerfil(p){
   perfil=p;
   document.getElementById('prof-sel').value=p;
   document.getElementById('btn-novalinha').style.display=isDirmab()?'none':'';
   document.getElementById('btn-enviar').style.display=isDirmab()?'none':'';
-  document.getElementById('btn-aplicar').style.display=isDirmab()?'':'none';
   render();
 }
 
@@ -894,8 +897,10 @@ function render(){
           return v||'—';
         };
         if(isDirmab()){
-          const trOpts=['','SOLICITAR','SOLICITADO','ATENDER','EM TRÂMITE','ATENDIDO','CANCELADO'];
-          return`<td><div style="display:flex;align-items:center;height:32px"><select class="isel" onchange="ceDirmab('${row.ord}','tramite',this.value)">${trOpts.map(s=>`<option value="${s}"${raw===s?' selected':''}>${s||'—'}</option>`).join('')}</select></div></td>`;
+          if(!raw){
+            return`<td><div style="display:flex;align-items:center;height:32px"><select class="isel" onchange="ceDirmab('${row.ord}','tramite',this.value)"><option value="" selected>—</option><option value="ATENDER">ATENDER</option></select></div></td>`;
+          }
+          return`<td><div class="cell">${trLabel(raw)}</div></td>`;
         }
         if(!rowEditable)return`<td><div class="cell">${trLabel(raw)}</div></td>`;
         if(hd)return`<td><div class="cell"><span style="font-size:12px;padding:2px 10px;border-radius:var(--r);background:rgba(52,211,153,.15);color:#059669">ATENDIDO</span></div></td>`;
@@ -1399,27 +1404,6 @@ function enviarParaAprovacao(){
   if(altCount)parts.push(altCount+` alteraç${altCount===1?'ão':'ões'}`);
   document.getElementById('sub-parques').textContent='Parque(s): '+allParques.join(', ');
   document.getElementById('sub-sub').textContent=parts.join(' · ')+' · aguardando aprovação DIRMAB';
-  document.getElementById('subm').classList.add('open');
-}
-
-// ── DIRMAB: APLICAR DIRETAMENTE ──
-function aplicarDiretamente(){
-  const entries=Object.entries(pend).filter(([,ch])=>ch&&Object.keys(ch).length);
-  if(!entries.length)return;
-  try{
-    const approved=JSON.parse(localStorage.getItem('mta_approved_vals')||'{}');
-    entries.forEach(([ord,ch])=>{
-      if(!approved[ord])approved[ord]={};
-      Object.assign(approved[ord],ch);
-      const row=ROWS.find(r=>r.ord===ord);
-      if(row)Object.assign(row,ch);
-    });
-    localStorage.setItem('mta_approved_vals',JSON.stringify(approved));
-  }catch(e){}
-  pend={};
-  render();
-  document.getElementById('sub-parques').textContent='Alterações aplicadas diretamente pela DIRMAB';
-  document.getElementById('sub-sub').textContent=entries.length+` alteraç${entries.length!==1?'ões':'ão'} · sem necessidade de aprovação`;
   document.getElementById('subm').classList.add('open');
 }
 
