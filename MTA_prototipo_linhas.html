@@ -302,7 +302,7 @@ tr:hover .split-btn{display:inline}
     <div class="ns">Principal</div>
     <div class="ni" title="Painel geral" onclick="location.href='MTA_painel_geral.html'" style="cursor:pointer"><svg class="ni-ico" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="1" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/></svg><span class="ni-lbl">Painel geral</span></div>
     <div class="ni act" title="Linhas do MTA"><svg class="ni-ico" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h8M2 12h10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg><span class="ni-lbl">Linhas do MTA</span></div>
-    <div class="ni" title="Aprovações — 7 pendentes" onclick="location.href='MTA_aprovacoes.html'" style="cursor:pointer"><svg class="ni-ico" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.2"/><path d="M8 5v3l2 2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg><span class="ni-lbl">Aprovações</span><span class="ni-bdg">7</span><span class="ni-dot"></span></div>
+    <div class="ni" id="ni-aprov" title="Aprovações" onclick="location.href='MTA_aprovacoes.html'" style="cursor:pointer"><svg class="ni-ico" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.2"/><path d="M8 5v3l2 2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg><span class="ni-lbl">Aprovações</span><span class="ni-bdg" id="ni-aprov-bdg"></span><span class="ni-dot" id="ni-aprov-dot"></span></div>
     <div class="ni" title="Por Parque"><svg class="ni-ico" viewBox="0 0 16 16" fill="none"><path d="M3 12V6l5-4 5 4v6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><rect x="6" y="9" width="4" height="3" rx=".5" stroke="currentColor" stroke-width="1.2"/></svg><span class="ni-lbl">Por Parque</span></div>
     <div class="ns">Orçamento</div>
     <div class="ni" title="Ações orçamentárias"><svg class="ni-ico" viewBox="0 0 16 16" fill="none"><rect x="1" y="4" width="14" height="9" rx="1" stroke="currentColor" stroke-width="1.2"/><path d="M5 4V3a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="1.2"/></svg><span class="ni-lbl">Ações orçamentárias</span></div>
@@ -698,53 +698,51 @@ const AC=[
   {k:'obs',        l:'Observação',          fx:false,         v:false},
 ];
 let cols=JSON.parse(JSON.stringify(AC));
-let filt={},sorts=[],pend={},pendSubmitted={},pendNewRows=[];
+let filt={},sorts=[{c:'ord',d:'asc'}],pend={},pendSubmitted={},pendNewRows=[];
 let perfil='pamagl';
 function isDirmab(){return perfil==='dirmab';}
 function myMta(){return isDirmab()?null:perfil.toUpperCase();}
 function canEditRow(row){
-  if(isDirmab())return true;
-  if(row.mta!==myMta())return false;
-  return (row.tramite||'')==='';
+  if(isDirmab())return(row.tramite||'')==='';
+  return row.mta===myMta()&&(row.tramite||'')==='';
 }
 function setPerfil(p){
   perfil=p;
   document.getElementById('prof-sel').value=p;
   document.getElementById('btn-novalinha').style.display=isDirmab()?'none':'';
-  document.getElementById('btn-enviar').style.display=isDirmab()?'none':'';
   render();
 }
 
 const ROWS=[
-  {ord:'000020',aprovado:'SIM',acao:'2048',prio:1,tramite:'ATENDIDO',datasolic:'10/01/2026',nropeddirmab:'180',datapeddirmab:'10/01/2026',digito:'C26001',mta:'PAMAGL',pacote:'A',uge:'CELOG',omorigem:'PAMAGL',ombenef:'PAMAGL',pi:'CA080200KC3',matricula:'',paramotores:'NÃO',paracontrato:'PARCELA FIXA',proj:'KC-390',ativ:'CLS parcela fixa',tar:'Parcela fixa 1º sem 2026',cat:'CLS',ed:339039,moeda:'BRL',valormoeda:4800000,valor:4800000,mesdesc:'01/2026',mesliq:'01/2026',obs:'',sub:false},
+  {ord:'000020',aprovado:'SIM',acao:'2048',prio:1,tramite:'ATENDIDO',datasolic:'10/01/2026',nropeddirmab:'PD-180',datapeddirmab:'05/01/2026',digito:'C26001',mta:'PAMAGL',pacote:'A',uge:'CELOG',omorigem:'PAMAGL',ombenef:'PAMAGL',pi:'CA080200KC3',matricula:'',paramotores:'NÃO',paracontrato:'PARCELA FIXA',proj:'KC-390',ativ:'CLS parcela fixa',tar:'Parcela fixa 1º sem 2026',cat:'CLS',ed:339039,moeda:'BRL',valormoeda:4800000,valor:4800000,mesdesc:'01/2026',mesliq:'01/2026',obs:'',sub:false},
   {ord:'000040',aprovado:'SIM',acao:'2048',prio:2,tramite:'ATENDER',datasolic:'05/04/2026',nropeddirmab:'',datapeddirmab:'',digito:'',mta:'PAMAGL',pacote:'A',uge:'CELOG',omorigem:'PAMAGL',ombenef:'CELOG',pi:'CA080200KC3',proj:'KC-390',ativ:'Peças aviônica KC-390',tar:'Peças substituição 1/2',cat:'AVIÔNICA',paramotores:'NÃO',paracontrato:'SOB DEMANDA',matricula:'',ed:449052,moeda:'USD',valormoeda:620000,valor:3180000,mesdesc:'05/2026',mesliq:'07/2026',obs:'',sub:false},
   {ord:'000060',aprovado:'SIM',acao:'20XV',prio:'',tramite:'',datasolic:'',nropeddirmab:'',datapeddirmab:'',digito:'',mta:'PAMAGL',pacote:'A',uge:'CELOG',omorigem:'PAMAGL',ombenef:'CELOG',pi:'CA080200KC3',proj:'KC-390',ativ:'Motor GE CF34 overhaul',tar:'Revisão geral 1/4',cat:'MOTOR',paramotores:'NÃO',paracontrato:'SOB DEMANDA',matricula:'',ed:339039,moeda:'USD',valormoeda:1200000,valor:6150000,mesdesc:'03/2026',mesliq:'06/2026',obs:'',sub:false},
   {ord:'000080',aprovado:'NÃO',acao:'2048',prio:'',tramite:'',datasolic:'',nropeddirmab:'',datapeddirmab:'',digito:'',mta:'PAMAGL',pacote:'B',uge:'CELOG',omorigem:'PAMAGL',ombenef:'CELOG',pi:'CA080200KC3',proj:'KC-390',ativ:'Motor GE CF34 overhaul',tar:'Revisão geral 2/4',cat:'MOTOR',paramotores:'NÃO',paracontrato:'SOB DEMANDA',matricula:'',ed:339039,moeda:'USD',valormoeda:1200000,valor:6150000,mesdesc:'07/2026',mesliq:'10/2026',obs:'Aguarda suplementação',sub:false},
   {ord:'000100',aprovado:'SIM',acao:'2048',prio:3,tramite:'',datasolic:'',nropeddirmab:'',datapeddirmab:'',digito:'',mta:'PAMAGL',pacote:'A',uge:'CABW',omorigem:'PAMAGL',ombenef:'CELOG',pi:'CA0802APOIO',proj:'APOIO',ativ:'Contrato seguro CABW 2026',tar:'Seguro carga aérea',cat:'APOIO',paramotores:'NÃO',paracontrato:'SOB DEMANDA',matricula:'',ed:339039,moeda:'BRL',valormoeda:98000,valor:98000,mesdesc:'02/2026',mesliq:'03/2026',obs:'',sub:false},
-  {ord:'050020',aprovado:'SIM',acao:'2048',prio:1,tramite:'ATENDIDO',datasolic:'12/01/2026',nropeddirmab:'',datapeddirmab:'',digito:'C26003',mta:'PAMALS',pacote:'A',uge:'CELOG',omorigem:'PAMALS',ombenef:'CELOG',pi:'CA080200A29',proj:'A-29',ativ:'CNT 012/CELOG-PAMALS/2024 - PW',tar:'Reparo PT6A-68C 1/3',cat:'MOTOR',paramotores:'NÃO',paracontrato:'SOB DEMANDA',matricula:'',ed:339039,moeda:'USD',valormoeda:410000,valor:2100000,mesdesc:'01/2026',mesliq:'03/2026',obs:'',sub:false},
+  {ord:'050020',aprovado:'SIM',acao:'2048',prio:1,tramite:'ATENDIDO',datasolic:'12/01/2026',nropeddirmab:'PD-003',datapeddirmab:'08/01/2026',digito:'C26003',mta:'PAMALS',pacote:'A',uge:'CELOG',omorigem:'PAMALS',ombenef:'CELOG',pi:'CA080200A29',proj:'A-29',ativ:'CNT 012/CELOG-PAMALS/2024 - PW',tar:'Reparo PT6A-68C 1/3',cat:'MOTOR',paramotores:'NÃO',paracontrato:'SOB DEMANDA',matricula:'',ed:339039,moeda:'USD',valormoeda:410000,valor:2100000,mesdesc:'01/2026',mesliq:'03/2026',obs:'',sub:false},
   {ord:'050040',aprovado:'SIM',acao:'2048',prio:2,tramite:'',datasolic:'',nropeddirmab:'',datapeddirmab:'',digito:'',mta:'PAMALS',pacote:'A',uge:'CELOG',omorigem:'PAMALS',ombenef:'CELOG',pi:'CA080200A29',proj:'A-29',ativ:'CNT 012/CELOG-PAMALS/2024 - PW',tar:'Reparo PT6A-68C 2/3',cat:'MOTOR',paramotores:'NÃO',paracontrato:'SOB DEMANDA',matricula:'',ed:339039,moeda:'USD',valormoeda:410000,valor:2100000,mesdesc:'04/2026',mesliq:'06/2026',obs:'',sub:false},
   {ord:'050060',aprovado:'NÃO',acao:'2048',prio:'',tramite:'',datasolic:'',nropeddirmab:'',datapeddirmab:'',digito:'',mta:'PAMALS',pacote:'C',uge:'CELOG',omorigem:'PAMALS',ombenef:'CELOG',pi:'CA080200H60',proj:'H-60',ativ:'Recuperação H-60 FAB8802',tar:'Estrutura e sistemas',cat:'ESTRUTURA',paramotores:'NÃO',paracontrato:'SOB DEMANDA',matricula:'',ed:449030,moeda:'USD',valormoeda:290000,valor:1490000,mesdesc:'08/2026',mesliq:'11/2026',obs:'',sub:false},
   {ord:'050080',aprovado:'SIM',acao:'21E7',prio:3,tramite:'',datasolic:'',nropeddirmab:'',datapeddirmab:'',digito:'',mta:'PAMALS',pacote:'A',uge:'CELOG',omorigem:'PAMALS',ombenef:'CELOG',pi:'CA0802MBF39',proj:'F-39',ativ:'Armamento F-39 PAMALS',tar:'Míssil PYTHON-5 1/2',cat:'DIVERSOS',paramotores:'NÃO',paracontrato:'SOB DEMANDA',matricula:'',ed:339039,moeda:'EUR',valormoeda:2400000,valor:12520000,mesdesc:'02/2026',mesliq:'04/2026',obs:'',sub:false},
-  {ord:'050100',aprovado:'SIM',acao:'2048',prio:'',tramite:'ATENDIDO',datasolic:'10/02/2026',nropeddirmab:'',datapeddirmab:'',digito:'C26008',mta:'PAMALS',pacote:'A',uge:'CELOG',omorigem:'PAMALS',ombenef:'CELOG',pi:'CA080200T27',proj:'T-27',ativ:'CLS T-27 parcela hora voo',tar:'Hora de voo 2026',cat:'CLS',paramotores:'NÃO',paracontrato:'SOB DEMANDA',matricula:'',ed:339039,moeda:'BRL',valormoeda:920000,valor:920000,mesdesc:'02/2026',mesliq:'02/2026',obs:'',sub:false},
-  {ord:'100020',aprovado:'SIM',acao:'2048',prio:1,tramite:'ATENDIDO',datasolic:'04/03/2026',nropeddirmab:'',datapeddirmab:'',digito:'C26027',mta:'PAMASP',pacote:'A',uge:'CELOG',omorigem:'PAMASP',ombenef:'CELOG',pi:'CA080200A29',proj:'A-29',ativ:'CNT 060/CELOG-PAMASP/2023 - PW',tar:'HSI PT6A-68C 1/4',cat:'MOTOR',paramotores:'NÃO',paracontrato:'SOB DEMANDA',matricula:'',ed:339039,moeda:'USD',valormoeda:490000,valor:2500000,mesdesc:'01/2026',mesliq:'03/2026',obs:'',sub:false},
+  {ord:'050100',aprovado:'SIM',acao:'2048',prio:'',tramite:'ATENDIDO',datasolic:'10/02/2026',nropeddirmab:'PD-008',datapeddirmab:'28/01/2026',digito:'C26008',mta:'PAMALS',pacote:'A',uge:'CELOG',omorigem:'PAMALS',ombenef:'CELOG',pi:'CA080200T27',proj:'T-27',ativ:'CLS T-27 parcela hora voo',tar:'Hora de voo 2026',cat:'CLS',paramotores:'NÃO',paracontrato:'SOB DEMANDA',matricula:'',ed:339039,moeda:'BRL',valormoeda:920000,valor:920000,mesdesc:'02/2026',mesliq:'02/2026',obs:'',sub:false},
+  {ord:'100020',aprovado:'SIM',acao:'2048',prio:1,tramite:'ATENDIDO',datasolic:'04/03/2026',nropeddirmab:'PD-027',datapeddirmab:'26/02/2026',digito:'C26027',mta:'PAMASP',pacote:'A',uge:'CELOG',omorigem:'PAMASP',ombenef:'CELOG',pi:'CA080200A29',proj:'A-29',ativ:'CNT 060/CELOG-PAMASP/2023 - PW',tar:'HSI PT6A-68C 1/4',cat:'MOTOR',paramotores:'NÃO',paracontrato:'SOB DEMANDA',matricula:'',ed:339039,moeda:'USD',valormoeda:490000,valor:2500000,mesdesc:'01/2026',mesliq:'03/2026',obs:'',sub:false},
   {ord:'100021',aprovado:'NÃO',acao:'2048',prio:'',tramite:'',datasolic:'',nropeddirmab:'',datapeddirmab:'',digito:'',mta:'PAMASP',pacote:'B',uge:'CELOG',omorigem:'PAMASP',ombenef:'CELOG',pi:'CA080200A29',proj:'A-29',ativ:'CNT 060/CELOG-PAMASP/2023 - PW',tar:'HSI PT6A-68C 1/4 (complemento)',cat:'MOTOR',paramotores:'NÃO',paracontrato:'SOB DEMANDA',matricula:'',ed:339039,moeda:'USD',valormoeda:162000,valor:830000,mesdesc:'',mesliq:'',obs:'Aguarda suplementação',sub:true},
   {ord:'100040',aprovado:'SIM',acao:'2048',prio:2,tramite:'',datasolic:'',nropeddirmab:'',datapeddirmab:'',digito:'',mta:'PAMASP',pacote:'A',uge:'CELOG',omorigem:'PAMASP',ombenef:'CELOG',pi:'CA080200A29',proj:'A-29',ativ:'CTT 004/CELOG-PAMASP/2025 - PW',tar:'Material PT6A-68C 1/3',cat:'MOTOR',paramotores:'NÃO',paracontrato:'SOB DEMANDA',matricula:'',ed:339047,moeda:'USD',valormoeda:358000,valor:1830599,mesdesc:'02/2026',mesliq:'04/2026',obs:'',sub:false},
   {ord:'100060',aprovado:'SIM',acao:'21A0',prio:'',tramite:'',datasolic:'',nropeddirmab:'',datapeddirmab:'',digito:'',mta:'PAMASP',pacote:'A',uge:'CELOG',omorigem:'PAMASP',ombenef:'CELOG',pi:'CA0802CDPAD',proj:'F-39',ativ:'CAD-PAD F-39',tar:'Catálogo técnico F-39',cat:'CAD-PAD',paramotores:'NÃO',paracontrato:'SOB DEMANDA',matricula:'',ed:339030,moeda:'BRL',valormoeda:320000,valor:320000,mesdesc:'03/2026',mesliq:'05/2026',obs:'',sub:false},
   {ord:'100080',aprovado:'SIM',acao:'2048',prio:3,tramite:'ATENDER',datasolic:'02/05/2026',nropeddirmab:'',datapeddirmab:'',digito:'',mta:'PAMASP',pacote:'A',uge:'CELOG',omorigem:'PAMASP',ombenef:'CELOG',pi:'CA0802MBF39',proj:'F-39',ativ:'Contrato reparáveis F-39',tar:'Reparo sob demanda 1/4',cat:'REPARÁVEL',paramotores:'NÃO',paracontrato:'SOB DEMANDA',matricula:'',ed:339047,moeda:'BRL',valormoeda:980000,valor:980000,mesdesc:'05/2026',mesliq:'06/2026',obs:'',sub:false},
-  {ord:'100100',aprovado:'SIM',acao:'20XV',prio:'',tramite:'ATENDIDO',datasolic:'15/01/2026',nropeddirmab:'',datapeddirmab:'',digito:'C26002',mta:'PAMASP',pacote:'A',uge:'CELOG',omorigem:'PAMASP',ombenef:'CELOG',pi:'CA080200KC3',proj:'KC-390',ativ:'CLS parcela fixa PAMASP',tar:'Parcela fixa jan–jun 2026',cat:'CLS',paramotores:'NÃO',paracontrato:'SOB DEMANDA',matricula:'',ed:339039,moeda:'BRL',valormoeda:5400000,valor:5400000,mesdesc:'01/2026',mesliq:'01/2026',obs:'',sub:false},
+  {ord:'100100',aprovado:'SIM',acao:'20XV',prio:'',tramite:'ATENDIDO',datasolic:'15/01/2026',nropeddirmab:'PD-002',datapeddirmab:'08/01/2026',digito:'C26002',mta:'PAMASP',pacote:'A',uge:'CELOG',omorigem:'PAMASP',ombenef:'CELOG',pi:'CA080200KC3',proj:'KC-390',ativ:'CLS parcela fixa PAMASP',tar:'Parcela fixa jan–jun 2026',cat:'CLS',paramotores:'NÃO',paracontrato:'SOB DEMANDA',matricula:'',ed:339039,moeda:'BRL',valormoeda:5400000,valor:5400000,mesdesc:'01/2026',mesliq:'01/2026',obs:'',sub:false},
   {ord:'100120',aprovado:'SIM',acao:'2048',prio:'',tramite:'',datasolic:'',nropeddirmab:'',datapeddirmab:'',digito:'',mta:'PAMASP',pacote:'A',uge:'CELOG',omorigem:'PAMASP',ombenef:'CELOG',pi:'CA080200T27',proj:'T-27',ativ:'CTT XXX/CELOG-PAMASP/2026',tar:'Material PT6A-25C 2/4',cat:'MOTOR',paramotores:'NÃO',paracontrato:'SOB DEMANDA',matricula:'',ed:339047,moeda:'BRL',valormoeda:750000,valor:750000,mesdesc:'06/2026',mesliq:'08/2026',obs:'',sub:false},
   {ord:'100240',aprovado:'SIM',acao:'21E7',prio:5,tramite:'',datasolic:'',nropeddirmab:'',datapeddirmab:'',digito:'',mta:'PAMASP',pacote:'A',uge:'CELOG',omorigem:'PAMASP',ombenef:'CELOG',pi:'CA0802MBF39',proj:'F-39',ativ:'CNT 006/CABE-PAMBRJ/2021 - IRIS-T',tar:'Míssil IRIS-T 1/3',cat:'DIVERSOS',paramotores:'NÃO',paracontrato:'SOB DEMANDA',matricula:'',ed:339039,moeda:'EUR',valormoeda:3100000,valor:16175390,mesdesc:'02/2026',mesliq:'03/2026',obs:'',sub:false},
   {ord:'100260',aprovado:'NÃO',acao:'20XV MOD',prio:'',tramite:'',datasolic:'',nropeddirmab:'',datapeddirmab:'',digito:'',mta:'PAMASP',pacote:'D',uge:'CELOG',omorigem:'PAMASP',ombenef:'CELOG',pi:'CA080200KC3',proj:'KC-390',ativ:'Modernização aviônica KC-390',tar:'Fase 1 aviônica',cat:'AVIÔNICA',paramotores:'NÃO',paracontrato:'SOB DEMANDA',matricula:'',ed:449052,moeda:'USD',valormoeda:1745000,valor:8900000,mesdesc:'09/2026',mesliq:'11/2026',obs:'',sub:false},
-  {ord:'150020',aprovado:'SIM',acao:'2048',prio:1,tramite:'ATENDIDO',datasolic:'08/01/2026',nropeddirmab:'',datapeddirmab:'',digito:'C26004',mta:'PAMBRJ',pacote:'A',uge:'CELOG',omorigem:'PAMBRJ',ombenef:'CELOG',pi:'CA080200C97',proj:'C-97',ativ:'CLS C-97 parcela fixa',tar:'Parcela fixa jan–jun 2026',cat:'CLS',paramotores:'NÃO',paracontrato:'SOB DEMANDA',matricula:'',ed:339039,moeda:'BRL',valormoeda:2100000,valor:2100000,mesdesc:'01/2026',mesliq:'01/2026',obs:'',sub:false},
+  {ord:'150020',aprovado:'SIM',acao:'2048',prio:1,tramite:'ATENDIDO',datasolic:'08/01/2026',nropeddirmab:'PD-004',datapeddirmab:'04/01/2026',digito:'C26004',mta:'PAMBRJ',pacote:'A',uge:'CELOG',omorigem:'PAMBRJ',ombenef:'CELOG',pi:'CA080200C97',proj:'C-97',ativ:'CLS C-97 parcela fixa',tar:'Parcela fixa jan–jun 2026',cat:'CLS',paramotores:'NÃO',paracontrato:'SOB DEMANDA',matricula:'',ed:339039,moeda:'BRL',valormoeda:2100000,valor:2100000,mesdesc:'01/2026',mesliq:'01/2026',obs:'',sub:false},
   {ord:'150040',aprovado:'SIM',acao:'2048',prio:2,tramite:'',datasolic:'',nropeddirmab:'',datapeddirmab:'',digito:'',mta:'PAMBRJ',pacote:'A',uge:'CELOG',omorigem:'PAMBRJ',ombenef:'CELOG',pi:'CA080200C97',proj:'C-97',ativ:'Peças C-97 estrutura',tar:'Kit asa C-97 1/2',cat:'ESTRUTURA',paramotores:'NÃO',paracontrato:'SOB DEMANDA',matricula:'',ed:339147,moeda:'USD',valormoeda:185000,valor:950000,mesdesc:'04/2026',mesliq:'07/2026',obs:'',sub:false},
   {ord:'150060',aprovado:'NÃO',acao:'20XV MOD',prio:'',tramite:'',datasolic:'',nropeddirmab:'',datapeddirmab:'',digito:'',mta:'PAMBRJ',pacote:'C',uge:'CELOG',omorigem:'PAMBRJ',ombenef:'CELOG',pi:'CA080200C97',proj:'C-97',ativ:'Recuperação C-97 FAB2201',tar:'Revisão célula C-97',cat:'ESTRUTURA',paramotores:'NÃO',paracontrato:'SOB DEMANDA',matricula:'',ed:449030,moeda:'USD',valormoeda:410000,valor:2100000,mesdesc:'09/2026',mesliq:'12/2026',obs:'Aguarda aprovação',sub:false},
   {ord:'150080',aprovado:'SIM',acao:'21E7',prio:3,tramite:'ATENDER',datasolic:'18/04/2026',nropeddirmab:'',datapeddirmab:'',digito:'',mta:'PAMBRJ',pacote:'A',uge:'CELOG',omorigem:'PAMBRJ',ombenef:'CELOG',pi:'CA0802MBF39',proj:'F-39',ativ:'CNT 006/CABE-PAMBRJ/2021 - IRIS-T',tar:'Míssil IRIS-T 2/3',cat:'DIVERSOS',paramotores:'NÃO',paracontrato:'SOB DEMANDA',matricula:'',ed:339039,moeda:'EUR',valormoeda:3100000,valor:16175390,mesdesc:'05/2026',mesliq:'06/2026',obs:'',sub:false},
-  {ord:'200020',aprovado:'SIM',acao:'2048',prio:'',tramite:'ATENDIDO',datasolic:'03/02/2026',nropeddirmab:'',datapeddirmab:'',digito:'C26009',mta:'DIRMAB',pacote:'A',uge:'DIRMAB',omorigem:'DIRMAB',ombenef:'CELOG',pi:'CA0802ADMIN',proj:'APOIO',ativ:'Contrato administrativo DIRMAB',tar:'Serviços gerais 2026',cat:'APOIO',paramotores:'NÃO',paracontrato:'SOB DEMANDA',matricula:'',ed:339039,moeda:'BRL',valormoeda:320000,valor:320000,mesdesc:'02/2026',mesliq:'02/2026',obs:'',sub:false},
+  {ord:'200020',aprovado:'SIM',acao:'2048',prio:'',tramite:'ATENDIDO',datasolic:'03/02/2026',nropeddirmab:'PD-009',datapeddirmab:'25/01/2026',digito:'C26009',mta:'DIRMAB',pacote:'A',uge:'DIRMAB',omorigem:'DIRMAB',ombenef:'CELOG',pi:'CA0802ADMIN',proj:'APOIO',ativ:'Contrato administrativo DIRMAB',tar:'Serviços gerais 2026',cat:'APOIO',paramotores:'NÃO',paracontrato:'SOB DEMANDA',matricula:'',ed:339039,moeda:'BRL',valormoeda:320000,valor:320000,mesdesc:'02/2026',mesliq:'02/2026',obs:'',sub:false},
 ];
 
 function cv(r,k){
   if(pend[r.ord]&&pend[r.ord][k]!==undefined)return pend[r.ord][k];
-  if(!isDirmab()&&pendSubmitted[r.ord]&&pendSubmitted[r.ord][k]!==undefined)return pendSubmitted[r.ord][k];
+  if(pendSubmitted[r.ord]&&pendSubmitted[r.ord][k]!==undefined)return pendSubmitted[r.ord][k];
   return r[k];
 }
 function fmtVM(v,moeda){
@@ -861,7 +859,7 @@ function render(){
   }).join('')+'</tr>';
 
   document.getElementById('TB').innerHTML=rows.map(row=>{
-    const hp=!!(pend[row.ord]&&Object.keys(pend[row.ord]).length)||(!isDirmab()&&!!(pendSubmitted[row.ord]&&Object.keys(pendSubmitted[row.ord]).length));
+    const hp=!!(pend[row.ord]&&Object.keys(pend[row.ord]).length)||!!(pendSubmitted[row.ord]&&Object.keys(pendSubmitted[row.ord]).length);
     const apv=cv(row,'aprovado');
     const hd=!!(cv(row,'digito'));
     const st=stripe(apv,hp);
@@ -873,7 +871,7 @@ function render(){
     return`<tr class="${hp?'pd':''} ${rowLocked?'locked':''}">`+vcs.map(c=>{
       const raw=cv(row,c.k);
       const modPend=!!(pend[row.ord]&&pend[row.ord][c.k]!==undefined);
-      const modSub=!isDirmab()&&!!(pendSubmitted[row.ord]&&pendSubmitted[row.ord][c.k]!==undefined);
+      const modSub=!!(pendSubmitted[row.ord]&&pendSubmitted[row.ord][c.k]!==undefined);
       const mod=modPend||modSub;
       const dot=mod?`<span class="${modPend?'mdot-s':'mdot'}" title="${modPend?'Alteração não enviada':'Aguardando aprovação DIRMAB'}"></span>`:'';
       if(c.k==='ord'){
@@ -897,19 +895,15 @@ function render(){
           if(v==='CANCELADO')return`<span style="color:var(--rd)">CANCELADO</span>`;
           return v||'—';
         };
+        const hasPendTr=!!(pend[row.ord]&&Object.keys(pend[row.ord]).length)||!!(pendSubmitted[row.ord]&&Object.keys(pendSubmitted[row.ord]).length);
         if(isDirmab()){
-          if(!raw){
-            return`<td><div style="display:flex;align-items:center;height:32px"><select class="isel" onchange="ceDirmab('${row.ord}','tramite',this.value)"><option value="" selected>—</option><option value="ATENDER">ATENDER</option></select></div></td>`;
-          }
+          if(raw===''&&!hasPendTr)return`<td><div style="display:flex;align-items:center;height:32px"><select class="isel" onchange="ceDirmab('${row.ord}','tramite',this.value)"><option value="" selected>—</option><option value="ATENDER">ATENDER</option></select></div></td>`;
           return`<td><div class="cell">${trLabel(raw)}</div></td>`;
         }
         if(!rowEditable)return`<td><div class="cell">${trLabel(raw)}</div></td>`;
-        if(hd)return`<td><div class="cell"><span style="font-size:12px;padding:2px 10px;border-radius:var(--r);background:rgba(52,211,153,.15);color:#059669">ATENDIDO</span></div></td>`;
-        if(rowLocked)return`<td><div class="cell" style="${lkColStyle}"${lockedTitle}>${wrap((raw||'—')+dot,false)}</div></td>`;
-        const origTr=row.tramite||'';
-        if(row.aprovado==='SIM'&&origTr===''){
-          return`<td><select class="isel" onchange="ce('${row.ord}','tramite',this.value)">${['','SOLICITAR'].map(s=>`<option value="${s}"${raw===s?' selected':''}>${s||'—'}</option>`).join('')}</select>${dot}</td>`;
-        }
+        if(rowLocked)return`<td><div class="cell" style="${lkColStyle}"${lockedTitle}>${wrap(trLabel(raw||'—')+dot,false)}</div></td>`;
+        const canChangeTr=row.aprovado==='SIM'&&(row.tramite||'')==='';
+        if(canChangeTr&&!hasPendTr)return`<td><select class="isel" onchange="ce('${row.ord}','tramite',this.value)">${['','SOLICITAR'].map(s=>`<option value="${s}"${raw===s?' selected':''}>${s||'—'}</option>`).join('')}</select>${dot}</td>`;
         return`<td><div class="cell">${wrap(trLabel(raw)+dot,false)}</div></td>`;
       }
       if(c.k==='moeda'){if(!rowEditable)return`<td><div class="cell">${raw||'—'}</div></td>`;if(rowLocked)return`<td><div class="cell" style="${lkColStyle}"${lockedTitle}>${wrap((row[c.k]||'—')+dot,false)}</div></td>`;return`<td><div style="display:flex;align-items:center;height:32px"><select class="isel" onchange="ce('${row.ord}','moeda',this.value);render()">${CUR.map(cur=>`<option value="${cur}"${raw===cur?' selected':''}>${cur}</option>`).join('')}</select>${dot}</div></td>`;}
@@ -918,17 +912,21 @@ function render(){
       if(c.k==='mesdesc'||c.k==='mesliq'){if(!rowEditable)return`<td><div class="cell">${fmtM(raw)||'—'}</div></td>`;if(rowLocked)return`<td><div class="cell" style="${lkColStyle}"${lockedTitle}>${wrap((fmtM(row[c.k])||'—')+dot,false)}</div></td>`;return`<td><div class="cell" style="cursor:pointer;gap:6px" onclick="openMp(event,'${row.ord}','${c.k}')" title="Clique para selecionar mês/ano">${fmtM(raw)||'<span style=\"color:var(--t3);font-size:11px\">Selecionar…</span>'}${dot}</div></td>`;}
       if(c.k==='datasolic')return`<td><div class="cell" style="color:var(--t3)">${raw||'—'}</div></td>`;
       if(c.k==='nropeddirmab'){
-        if(isDirmab())return`<td><div class="cell" contenteditable="true" onblur="ceDirmab('${row.ord}','nropeddirmab',this.textContent.trim())">${raw||''}</div></td>`;
+        const tr0=cv(row,'tramite')||'';
+        if(isDirmab()&&tr0==='ATENDER')return`<td><div class="cell" contenteditable="true" onblur="ceDirmab('${row.ord}','nropeddirmab',this.textContent.trim())">${raw||''}</div></td>`;
         return`<td><div class="cell" style="color:var(--t3)">${raw||'—'}</div></td>`;
       }
       if(c.k==='datapeddirmab'){
-        if(isDirmab())return`<td><div class="cell" style="cursor:pointer" onclick="openDpDirmab(event,'${row.ord}','datapeddirmab')" title="Selecionar data">${raw||'<span style="color:var(--t3);font-size:11px">Selecionar…</span>'}</div></td>`;
+        const tr0=cv(row,'tramite')||'';
+        if(isDirmab()&&tr0==='ATENDER')return`<td><div class="cell" style="cursor:pointer" onclick="openDpDirmab(event,'${row.ord}','datapeddirmab')" title="Selecionar data">${raw||'<span style="color:var(--t3);font-size:11px">Selecionar…</span>'}</div></td>`;
         return`<td><div class="cell" style="color:var(--t3)">${raw||'—'}</div></td>`;
       }
       if(c.k==='digito'){
-        if(isDirmab())return`<td><div class="cell" contenteditable="true" onblur="ceDirmab('${row.ord}','digito',this.textContent.trim())">${raw||''}</div></td>`;
+        const tr0=cv(row,'tramite')||'';
+        if(isDirmab()&&['ATENDER','EM TRÂMITE','ATENDIDO'].includes(tr0))return`<td><div class="cell" contenteditable="true" onblur="ceDirmab('${row.ord}','digito',this.textContent.trim())">${raw||''}</div></td>`;
         return`<td><div class="cell" style="color:var(--t3)">${raw||'—'}</div></td>`;
       }
+      if(c.k==='prio')return`<td><div class="cell" style="color:var(--t2)">${raw!=null&&raw!==''?raw:''}</div></td>`;
       if(!rowEditable)return`<td><div class="cell">${raw!=null&&raw!==''?raw:''}</div></td>`;
       if(rowLocked)return`<td><div class="cell" style="${lkColStyle}"${lockedTitle}>${wrap((row[c.k]!=null&&row[c.k]!==''?row[c.k]:'')+dot,false)}</div></td>`;
       return`<td><div class="cell" contenteditable="true" onblur="ce('${row.ord}','${c.k}',this.textContent.trim())">${raw!=null&&raw!==''?raw:''}${dot}</div></td>`;
@@ -943,6 +941,7 @@ function render(){
   document.getElementById('sr').textContent=`${rows.length} linha${rows.length!==1?'s':''} exibida${rows.length!==1?'s':''}`;
   document.getElementById('sf').textContent=fc?`${fc} filtro${fc>1?'s':''} ativo${fc>1?'s':''}`:'Sem filtros';
   document.getElementById('psub').textContent=`Cenário A (ativo) · ${rows.length} linhas · 5 Parques`;
+  savePrefs();
 }
 
 // item 5: close all popups before opening another
@@ -1034,16 +1033,16 @@ function clearFilt(){filt={};render();}
 
 function ce(ord,k,val){
   const row=ROWS.find(r=>r.ord===ord);if(!row)return;
-  if(isDirmab()){
-    row[k]=val;
-    if(k==='moeda'||k==='valormoeda'){
-      const moeda=row.moeda||'BRL';const vm=parseFloat(row.valormoeda)||0;
-      const rate=getCambio()[moeda]||1;row.valor=moeda==='BRL'?vm:vm*rate;
+  if(k==='tramite'){
+    if(val==='SOLICITAR'){
+      const pr=prompt('Informe a prioridade deste pedido de atendimento (número inteiro, ex: 1, 2, 3):');
+      if(pr===null)return;
+      const prioNum=parseInt(pr)||1;
+      if(!pend[ord])pend[ord]={};
+      pend[ord].tramite='SOLICITAR';pend[ord].prio=prioNum;
+    }else{
+      if(pend[ord]){delete pend[ord].tramite;delete pend[ord].prio;if(!Object.keys(pend[ord]).length)delete pend[ord];}
     }
-    try{const approved=JSON.parse(localStorage.getItem('mta_approved_vals')||'{}');
-      if(!approved[ord])approved[ord]={};approved[ord][k]=val;
-      if(k==='moeda'||k==='valormoeda')approved[ord].valor=row.valor;
-      localStorage.setItem('mta_approved_vals',JSON.stringify(approved));}catch(e){}
     render();return;
   }
   if(String(row[k]??'')===String(val)){if(pend[ord]){delete pend[ord][k];if(!Object.keys(pend[ord]).length)delete pend[ord];}}
@@ -1163,6 +1162,21 @@ function resetCols(){cols=JSON.parse(JSON.stringify(AC));renderCP();render();}
 function togSB(){const sb=document.getElementById('sb');sb.classList.toggle('col');document.querySelector('.tog').title=sb.classList.contains('col')?'Expandir painel':'Recolher painel';}
 function resetDados(){if(!confirm('Apagar todos os dados de teste (linhas, aprovações, pendências) e reiniciar?\n\nEssa ação não pode ser desfeita.'))return;location.href=location.pathname+'?clear=1';}
 
+function savePrefs(){try{localStorage.setItem('mta_linhas_prefs',JSON.stringify({sorts,filt,cols}));}catch(e){}}
+function loadPrefs(){try{const s=localStorage.getItem('mta_linhas_prefs');if(!s)return;const p=JSON.parse(s);if(p.sorts)sorts=p.sorts;if(p.filt)filt=p.filt;if(p.cols)cols=p.cols;}catch(e){}}
+
+function updAprovBadge(){
+  try{
+    const ids=JSON.parse(localStorage.getItem('mta_pkgs_pending')||'[]');
+    const ud=JSON.parse(localStorage.getItem('mta_pkgs_userdata')||'{}');
+    const n=Array.isArray(ids)?ids.filter(id=>ud[id]).length:0;
+    const el=document.getElementById('ni-aprov-bdg');const dot=document.getElementById('ni-aprov-dot');
+    if(el){el.textContent=n>0?n:'';el.style.display=n>0?'':'none';}
+    if(dot)dot.style.display=n>0?'':'none';
+    const ni=document.getElementById('ni-aprov');if(ni)ni.title='Aprovações'+(n>0?' — '+n+' pendente'+(n>1?'s':''):'');
+  }catch(e){}
+}
+
 (function(){
   const p=new URLSearchParams(location.search);
   if(p.get('clear')==='1'){
@@ -1170,10 +1184,13 @@ function resetDados(){if(!confirm('Apagar todos os dados de teste (linhas, aprov
     location.replace(location.pathname);return;
   }
 })();
+loadPrefs();
 applyApprovedVals();
 loadSubmittedPend();
 render();
+updAprovBadge();
 document.addEventListener('visibilitychange',function(){if(!document.hidden){applyApprovedVals();loadSubmittedPend();render();}});
+window.addEventListener('storage',function(e){if(['mta_approved_vals','mta_pkgs_pending','mta_pkgs_userdata','mta_approved_newrows'].includes(e.key)){applyApprovedVals();loadSubmittedPend();render();updAprovBadge();}});
 
 // item 9: month/year picker
 const MP_MONTHS=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
@@ -1349,7 +1366,7 @@ function enviarParaAprovacao(){
   Object.entries(pend).forEach(([ord,ch])=>{
     if(!ch||!Object.keys(ch).length)return;
     const hasSOL=ch.tramite==='SOLICITAR';
-    const hasOther=Object.keys(ch).some(k=>k!=='tramite')||(hasSOL&&Object.keys(ch).length>1);
+    const otherKeys=Object.keys(ch).filter(k=>k!=='tramite'&&k!=='prio');const hasOther=otherKeys.length>0;
     if(hasSOL&&hasOther)conflitos.push(ord);
     else if(hasSOL)descPend[ord]=ch;
     else altPend[ord]=ch;
@@ -1374,16 +1391,16 @@ function enviarParaAprovacao(){
     if(!descByParque[row.mta])descByParque[row.mta]=[];
     descByParque[row.mta].push({ord,tipo:'desc',proj:row.proj,ativ:row.ativ,tar:row.tar,
       diffs:[{campo:'Trâmite',de:'—',para:'SOLICITADO · aguardando DIRMAB'}],
-      newVals:{tramite:'SOLICITADO',datasolic:dataSOL}});
+      newVals:{tramite:'SOLICITADO',datasolic:dataSOL,prio:descPend[ord]?.prio||''}});
   });
   // Aplica SOLICITADO diretamente (sem estado pendente amarelo)
   try{
     const appv=JSON.parse(localStorage.getItem('mta_approved_vals')||'{}');
     Object.keys(descPend).forEach(ord=>{
       const row=ROWS.find(r=>r.ord===ord);if(!row)return;
-      row.tramite='SOLICITADO';row.datasolic=dataSOL;
+      const solPrio=descPend[ord]?.prio;row.tramite='SOLICITADO';row.datasolic=dataSOL;if(solPrio!==undefined)row.prio=solPrio;
       if(!appv[ord])appv[ord]={};
-      appv[ord].tramite='SOLICITADO';appv[ord].datasolic=dataSOL;
+      appv[ord].tramite='SOLICITADO';appv[ord].datasolic=dataSOL;if(solPrio!==undefined)appv[ord].prio=solPrio;
     });
     localStorage.setItem('mta_approved_vals',JSON.stringify(appv));
   }catch(e){}
@@ -1419,6 +1436,7 @@ function enviarParaAprovacao(){
   document.getElementById('sub-parques').textContent='Parque(s): '+allParques.join(', ');
   document.getElementById('sub-sub').textContent=parts.join(' · ')+' · aguardando aprovação DIRMAB';
   document.getElementById('subm').classList.add('open');
+  updAprovBadge();
 }
 
 // ── CÂMBIO PLANEJADO ──
@@ -1536,7 +1554,9 @@ function openNL(){
     const el=document.getElementById(id);if(el){el.value='';el.classList.remove('err');}
   });
   ['nl-mta','nl-ativ','nl-tar','nl-uge','nl-omorigem','nl-ombenef','nl-mesdesc','nl-mesliq','nl-cat','nl-proj'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('err');});
-  document.getElementById('nl-mta').value='';
+  const nlMtaEl=document.getElementById('nl-mta');
+  nlMtaEl.disabled=!isDirmab();
+  if(!isDirmab()&&myMta()){nlMtaEl.value=myMta();nlMtaChange();}else{nlMtaEl.value='';}
   document.getElementById('nl-pacote').value='A';
   document.getElementById('nl-cat').value='';
   document.getElementById('nl-aprov').value='NÃO';

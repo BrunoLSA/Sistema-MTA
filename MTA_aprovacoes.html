@@ -250,6 +250,16 @@ table.mta tbody tr.ret-row td{background:rgba(248,113,113,.07)!important}
 <div class="main">
   <div class="topbar" id="main-topbar">
     <div><div class="pt">Aprovações</div><div class="ps" id="top-ps">7 pedidos pendentes · Cenário A (ativo)</div></div>
+    <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+      <span style="font-size:11px;color:var(--t3)">Perfil</span>
+      <select id="prof-sel-a" onchange="setPerfilA(this.value)" style="font-size:12px;padding:3px 8px;border-radius:4px;background:var(--n3);border:1px solid var(--b2);color:var(--tx);cursor:pointer">
+        <option value="pamagl">PAMAGL</option>
+        <option value="pamals">PAMALS</option>
+        <option value="pamasp">PAMASP</option>
+        <option value="pambrj">PAMBRJ</option>
+        <option value="dirmab" selected>DIRMAB</option>
+      </select>
+    </div>
     <div class="tbr">
       <button class="btn" onclick="openHistModal()">
         <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M8 2a6 6 0 1 1 0 12A6 6 0 0 1 8 2z" stroke="currentColor" stroke-width="1.2"/><path d="M8 5v3l2 1.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
@@ -281,7 +291,7 @@ table.mta tbody tr.ret-row td{background:rgba(248,113,113,.07)!important}
         <div class="diff-header">
           <div class="diff-hrow">
             <div><div class="diff-title" id="dh-title">—</div><div class="diff-sub" id="dh-sub">—</div></div>
-            <div class="diff-acts">
+            <div class="diff-acts" id="act-btns">
               <button class="btn btn-sm btn-gr" onclick="aprovTudo()">&#10003; Aprovar tudo</button>
               <button class="btn btn-sm btn-rd" onclick="retTudo()">&#10007; Retornar tudo</button>
             </div>
@@ -298,7 +308,7 @@ table.mta tbody tr.ret-row td{background:rgba(248,113,113,.07)!important}
         <div class="diff-foot" id="diff-foot">
           <div class="foot-sum" id="foot-sum"></div>
           <div class="ret-blocks" id="ret-blocks"></div>
-          <div class="foot-btns">
+          <div class="foot-btns" id="foot-btns">
             <button class="btn" onclick="cancelDecision()">Cancelar</button>
             <button class="btn btn-p" onclick="enviarDecisao()">Enviar decisão</button>
           </div>
@@ -555,6 +565,19 @@ let HIST = [];
 let currentId = null;
 let filtTipo = '';
 let filtSearch = '';
+let perfilA='dirmab';
+function isDirmabA(){return perfilA==='dirmab';}
+function myMtaA(){return isDirmabA()?null:perfilA.toUpperCase();}
+function setPerfilA(p){
+  perfilA=p;
+  document.getElementById('prof-sel-a').value=p;
+  currentId=null;
+  document.getElementById('diff-content').style.display='none';
+  document.getElementById('diff-empty').style.display='';
+  const ab=document.getElementById('act-btns');if(ab)ab.style.display=isDirmabA()?'':'none';
+  const fb=document.getElementById('foot-btns');if(fb)fb.style.display=isDirmabA()?'':'none';
+  renderList();updateTopPs();
+}
 
 // ──────────────────────── HELPERS ────────────────────────
 const BRL = v=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(v);
@@ -605,6 +628,7 @@ function renderPills(){
 // ──────────────────────── LIST ────────────────────────
 function renderList(){
   const shown = PKGS.filter(p=>{
+    if(!isDirmabA()&&p.parque!==myMtaA()) return false;
     if(filtTipo && p.tipo!==filtTipo) return false;
     const q=filtSearch.toLowerCase();
     if(q && !p.parque.toLowerCase().includes(q) && !p.desc.toLowerCase().includes(q)) return false;
@@ -919,6 +943,8 @@ function renderDiff(){
   }
   document.getElementById('diff-empty').style.display='none';
   document.getElementById('diff-content').classList.add('vis');
+  const ab=document.getElementById('act-btns');if(ab)ab.style.display=isDirmabA()?'':'none';
+  const fb=document.getElementById('foot-btns');if(fb)fb.style.display=isDirmabA()?'':'none';
 
   document.getElementById('dh-title').textContent=`${pkg.parque} · ${pkg.desc}`;
   document.getElementById('dh-sub').textContent=`Enviado por ${pkg.autor} · ${pkg.data} · ${pkg.changes.length} linha${pkg.changes.length>1?'s':''}`;
