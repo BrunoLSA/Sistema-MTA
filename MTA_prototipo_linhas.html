@@ -744,7 +744,7 @@ const ROWS=[
 
 function cv(r,k){
   if(pend[r.ord]&&pend[r.ord][k]!==undefined)return pend[r.ord][k];
-  if(pendSubmitted[r.ord]&&pendSubmitted[r.ord][k]!==undefined)return pendSubmitted[r.ord][k];
+  if(!isDirmab()&&pendSubmitted[r.ord]&&pendSubmitted[r.ord][k]!==undefined)return pendSubmitted[r.ord][k];
   return r[k];
 }
 function fmtVM(v,moeda){
@@ -873,7 +873,7 @@ function render(){
     return`<tr class="${hp?'pd':''} ${rowLocked?'locked':''}">`+vcs.map(c=>{
       const raw=cv(row,c.k);
       const modPend=!!(pend[row.ord]&&pend[row.ord][c.k]!==undefined);
-      const modSub=!!(pendSubmitted[row.ord]&&pendSubmitted[row.ord][c.k]!==undefined);
+      const modSub=!isDirmab()&&!!(pendSubmitted[row.ord]&&pendSubmitted[row.ord][c.k]!==undefined);
       const mod=modPend||modSub;
       const dot=mod?`<span class="${modPend?'mdot-s':'mdot'}" title="${modPend?'Alteração não enviada':'Aguardando aprovação DIRMAB'}"></span>`:'';
       if(c.k==='ord'){
