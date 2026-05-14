@@ -255,6 +255,7 @@ table.mta tbody tr.ret-row td{background:rgba(248,113,113,.07)!important}
         <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M8 2a6 6 0 1 1 0 12A6 6 0 0 1 8 2z" stroke="currentColor" stroke-width="1.2"/><path d="M8 5v3l2 1.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
         Histórico
       </button>
+      <button class="btn btn-rd btn-sm" onclick="resetDados()" title="Apagar todos os dados de teste e recarregar">⟳ Reiniciar dados</button>
     </div>
   </div>
 
@@ -1319,6 +1320,7 @@ function setFilt(el,tipo){
 function filterList(q){filtSearch=q;renderList();}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 function togSB(){document.getElementById('sb').classList.toggle('col');}
+function resetDados(){if(!confirm('Apagar todos os dados de teste (linhas, aprovações, pendências) e reiniciar?\n\nEssa ação não pode ser desfeita.'))return;location.href=location.pathname+'?clear=1';}
 
 // ──────────────────────── INIT ────────────────────────
 (function(){
