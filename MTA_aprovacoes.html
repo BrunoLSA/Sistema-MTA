@@ -1183,8 +1183,27 @@ function confirmarEnvio(){
         Object.assign(approved[c.ord],vals);
       }
     });
+    // For returned desc changes (SOLICITAR devolvido): reset tramite back to ''
+    Object.entries(pkg.decisions).forEach(([idx,dec])=>{
+      if(dec!=='ret') return;
+      const c=pkg.changes[parseInt(idx)];
+      if(!c||c.tipo!=='desc') return;
+      if(!approved[c.ord])approved[c.ord]={};
+      approved[c.ord].tramite='';approved[c.ord].datasolic='';approved[c.ord].prio='';
+    });
     localStorage.setItem('mta_approved_vals',JSON.stringify(approved));
     localStorage.setItem('mta_approved_newrows',JSON.stringify(newRows));
+    // Save returned changes to mta_devolvidos for Parque visibility
+    const devolvidos=JSON.parse(localStorage.getItem('mta_devolvidos')||'{}');
+    const dataRet=new Date().toLocaleString('pt-BR',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}).replace(',','·');
+    Object.entries(pkg.decisions).forEach(([idx,dec])=>{
+      if(dec!=='ret') return;
+      const c=pkg.changes[parseInt(idx)];if(!c)return;
+      const cleanOrd=c.ord.replace('*','');
+      devolvidos[cleanOrd]={motivo:pkg.retMotivos[idx]||'',diffs:c.diffs||[],data:dataRet,
+        parque:pkg.parque,tipo:c.tipo||'alt',proj:c.proj||'',tar:c.tar||''};
+    });
+    localStorage.setItem('mta_devolvidos',JSON.stringify(devolvidos));
   }catch(e){}
 
   if(allDecided){
