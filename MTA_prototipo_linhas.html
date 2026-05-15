@@ -357,6 +357,15 @@ tr:hover .split-btn{display:inline}
 </div>
 </div>
 
+<!-- PRIORITY MODAL -->
+<div class="mov" id="prio-m">
+  <div class="modal" style="width:500px">
+    <div class="mh"><div><h3>Revisar prioridades antes de enviar</h3><div class="mh-sub">As prioridades foram atribuídas automaticamente. Você pode alterá-las antes de enviar.</div></div><span class="mcl" onclick="closePrioModal()">×</span></div>
+    <div class="mb" id="prio-list" style="gap:0;padding:8px 16px"></div>
+    <div class="mf"><div style="font-size:11px;color:var(--t3)">Prioridades devem ser únicas por Parque</div><div style="display:flex;gap:6px"><button class="btn" onclick="closePrioModal()">Cancelar</button><button class="btn btn-am" onclick="confirmPrioAndEnviar()">Confirmar e Enviar ↗</button></div></div>
+  </div>
+</div>
+
 <!-- POPUPS -->
 <div class="pop" id="apop">
   <div class="po" onclick="setA('SIM')"><span class="ab a-s">SIM</span></div>
@@ -703,13 +712,14 @@ let perfil='pamagl';
 function isDirmab(){return perfil==='dirmab';}
 function myMta(){return isDirmab()?null:perfil.toUpperCase();}
 function canEditRow(row){
-  if(isDirmab())return(row.tramite||'')==='';
-  return row.mta===myMta()&&(row.tramite||'')==='';
+  const eff=cv(row,'tramite')||'';
+  if(isDirmab())return eff==='';
+  return row.mta===myMta()&&eff==='';
 }
 function setPerfil(p){
   perfil=p;
   document.getElementById('prof-sel').value=p;
-  document.getElementById('btn-novalinha').style.display=isDirmab()?'none':'';
+  document.getElementById('btn-novalinha').style.display='';
   render();
 }
 
@@ -1035,11 +1045,11 @@ function ce(ord,k,val){
   const row=ROWS.find(r=>r.ord===ord);if(!row)return;
   if(k==='tramite'){
     if(val==='SOLICITAR'){
-      const pr=prompt('Informe a prioridade deste pedido de atendimento (número inteiro, ex: 1, 2, 3):');
-      if(pr===null)return;
-      const prioNum=parseInt(pr)||1;
+      const usedPrios=new Set();
+      ROWS.forEach(r=>{if(r.mta!==row.mta)return;const tr=cv(r,'tramite')||'';if(tr==='SOLICITAR'||tr==='SOLICITADO'){const p=pend[r.ord]?.prio??r.prio;if(p!=null&&p!=='')usedPrios.add(Number(p));}});
+      let nextPrio=1;while(usedPrios.has(nextPrio))nextPrio++;
       if(!pend[ord])pend[ord]={};
-      pend[ord].tramite='SOLICITAR';pend[ord].prio=prioNum;
+      pend[ord].tramite='SOLICITAR';pend[ord].prio=nextPrio;
     }else{
       if(pend[ord]){delete pend[ord].tramite;delete pend[ord].prio;if(!Object.keys(pend[ord]).length)delete pend[ord];}
     }
@@ -1168,21 +1178,57 @@ function loadPrefs(){try{const s=localStorage.getItem('mta_linhas_prefs');if(!s)
 function updAprovBadge(){
   try{
     const ids=JSON.parse(localStorage.getItem('mta_pkgs_pending')||'[]');
-    const ud=JSON.parse(localStorage.getItem('mta_pkgs_userdata')||'{}');
-    const n=Array.isArray(ids)?ids.filter(id=>ud[id]).length:0;
+    const n=Array.isArray(ids)?ids.length:0;
     const el=document.getElementById('ni-aprov-bdg');const dot=document.getElementById('ni-aprov-dot');
-    if(el){el.textContent=n>0?n:'';el.style.display=n>0?'':'none';}
+    if(el){el.textContent=n>0?String(n):'';el.style.display=n>0?'inline':'none';}
     if(dot)dot.style.display=n>0?'':'none';
     const ni=document.getElementById('ni-aprov');if(ni)ni.title='Aprovações'+(n>0?' — '+n+' pendente'+(n>1?'s':''):'');
   }catch(e){}
 }
 
+let _prioCallback=null;
+function openPrioModal(ords,descPend,cb){
+  _prioCallback=cb;
+  const rows=ords.map(ord=>{
+    const row=ROWS.find(r=>r.ord===ord);
+    return{ord,proj:row?.proj||'',tar:row?.tar||'',prio:descPend[ord]?.prio||1};
+  }).sort((a,b)=>a.prio-b.prio);
+  document.getElementById('prio-list').innerHTML=rows.map(r=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--bd)">
+      <span style="font-family:var(--mo);font-size:11px;color:var(--t3);width:70px;flex-shrink:0">${r.ord}</span>
+      <span style="flex:1;font-size:12px;color:var(--t2)">${r.proj} · ${r.tar}</span>
+      <span style="font-size:11px;color:var(--t3);margin-right:4px">Prio:</span>
+      <input type="number" min="1" max="99" value="${r.prio}" data-ord="${r.ord}"
+        style="width:52px;background:var(--n3);border:1px solid var(--b2);border-radius:var(--r);padding:3px 6px;font-size:12px;color:var(--tx);text-align:center;font-family:var(--mo)"
+        onchange="updatePrioInput(this)"/>
+    </div>`).join('');
+  document.getElementById('prio-m').classList.add('open');
+}
+function updatePrioInput(el){el.value=parseInt(el.value)||1;}
+function closePrioModal(){document.getElementById('prio-m').classList.remove('open');_prioCallback=null;}
+function confirmPrioAndEnviar(){
+  const inputs=document.getElementById('prio-list').querySelectorAll('input[data-ord]');
+  const prios=[];
+  inputs.forEach(el=>{
+    const ord=el.dataset.ord;const p=parseInt(el.value)||1;
+    if(!pend[ord])pend[ord]={};
+    pend[ord].prio=p;prios.push(p);
+  });
+  const uniq=new Set(prios);
+  if(uniq.size<prios.length){
+    alert('Existem prioridades duplicadas para o mesmo Parque. Corrija antes de enviar.');return;
+  }
+  closePrioModal();
+  if(_prioCallback)_prioCallback();
+}
+
 (function(){
   const p=new URLSearchParams(location.search);
   if(p.get('clear')==='1'){
-    ['mta_pkgs_pending','mta_pkgs_userdata','mta_approved_vals','mta_approved_newrows','mta_hist'].forEach(k=>localStorage.removeItem(k));
+    ['mta_pkgs_pending','mta_pkgs_userdata','mta_approved_vals','mta_approved_newrows','mta_hist','mta_linhas_prefs'].forEach(k=>localStorage.removeItem(k));
     location.replace(location.pathname);return;
   }
+  if(!localStorage.getItem('mta_pkgs_pending'))localStorage.setItem('mta_pkgs_pending',JSON.stringify(['pkg1','pkg2','pkg3','pkg4','pkg5','pkg6','pkg7']));
 })();
 loadPrefs();
 applyApprovedVals();
@@ -1275,7 +1321,7 @@ document.addEventListener('click',e=>{
 // Full date picker
 let dpOrd=null,dpKey=null,dpYear=2026,dpMonth=0,dpSelDay=null,dpSelMonth=null,dpSelYear=null,dpDirmab=false;
 
-function openDpDirmab(e,ord,key){dpDirmab=true;openDp(e,ord,key);}
+function openDpDirmab(e,ord,key){openDp(e,ord,key,true);}
 function openDp(e,ord,key,dirmab){
   e.stopPropagation();closeAllPopups();
   dpDirmab=!!dirmab;
@@ -1308,7 +1354,7 @@ function renderDp(){
     const isSel=dpSelDay===d&&dpSelMonth===dpMonth&&dpSelYear===dpYear;
     const isToday=today.getDate()===d&&today.getMonth()===dpMonth&&today.getFullYear()===dpYear;
     const dayDate=new Date(dpYear,dpMonth,d);
-    const blocked=dpDirmab?(dayDate<todayMidnight):(dayDate>todayMidnight);
+    const blocked=dpDirmab?false:(dayDate>todayMidnight);
     if(blocked){
       const title=dpDirmab?'Data anterior à data atual não permitida':'Data futura não permitida';
       html+=`<div class="dp-day other" style="opacity:.25;cursor:not-allowed" title="${title}">${d}</div>`;
@@ -1322,7 +1368,7 @@ function renderDp(){
   const fwdBtn=document.querySelector('.dp-nav-btn:last-of-type');
   const backBtn=document.querySelector('.dp-nav-btn:first-of-type');
   if(dpDirmab){
-    if(backBtn){backBtn.style.opacity=atCurrent?'.25':'1';backBtn.style.pointerEvents=atCurrent?'none':'auto';}
+    if(backBtn){backBtn.style.opacity='1';backBtn.style.pointerEvents='auto';}
     if(fwdBtn){fwdBtn.style.opacity='1';fwdBtn.style.pointerEvents='auto';}
   } else {
     if(fwdBtn){fwdBtn.style.opacity=atCurrent?'.25':'1';fwdBtn.style.pointerEvents=atCurrent?'none':'auto';}
@@ -1376,6 +1422,14 @@ function enviarParaAprovacao(){
     return;
   }
   if(!Object.keys(descPend).length&&!Object.keys(altPend).length)return;
+  const solicOrds=Object.keys(descPend);
+  if(solicOrds.length>0){
+    openPrioModal(solicOrds,descPend,()=>_doEnviar(descPend,altPend));
+  }else{
+    _doEnviar(descPend,altPend);
+  }
+}
+function _doEnviar(descPend,altPend){
   const ts=Date.now();
   const autor='Ten Cel Silva';
   const dataStr=new Date().toLocaleString('pt-BR',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}).replace(',','·');
@@ -1484,7 +1538,7 @@ function ceDirmab(ord,field,value){
     const nro=row.nropeddirmab||'';
     const dtped=row.datapeddirmab||'';
     if(dig) row.tramite='ATENDIDO';
-    else if(nro&&dtped) row.tramite='EM TRÂMITE';
+    else if(nro&&dtped){row.tramite='EM TRÂMITE';row.prio='';}
     else row.tramite='ATENDER';
   }
   try{
@@ -1492,6 +1546,7 @@ function ceDirmab(ord,field,value){
     if(!approved[ord])approved[ord]={};
     approved[ord][field]=value;
     approved[ord].tramite=row.tramite;
+    if(row.tramite==='EM TRÂMITE')approved[ord].prio='';
     localStorage.setItem('mta_approved_vals',JSON.stringify(approved));
   }catch(e){}
   render();
