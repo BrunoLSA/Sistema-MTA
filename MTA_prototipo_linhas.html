@@ -855,7 +855,13 @@ function getRows(){
 
 function abadge(v){if(v==='SIM')return'<span class="ab a-s">SIM</span>';if(v==='NÃO')return'<span class="ab a-n">NÃO</span>';return`<span class="ab a-o">${v||'—'}</span>`;}
 function pbadge(v){const cl={A:'p-a',B:'p-b',C:'p-c',D:'p-d'}[v]||'p-o';return`<span class="pb ${cl}">${v||'—'}</span>`;}
-function stripe(v,hp){if(hp)return'background:var(--am)';if(v==='SIM')return'background:var(--gr)';if(v==='NÃO')return'background:var(--rd)';return'background:var(--b2)';}
+function stripe(v,hasPendLocal,hasSub){
+  if(hasSub)return'background:var(--am)';
+  if(hasPendLocal)return'background:transparent;box-shadow:inset 0 0 0 1.5px var(--am)';
+  if(v==='SIM')return'background:var(--gr)';
+  if(v==='NÃO')return'background:var(--rd)';
+  return'background:var(--b2)';
+}
 
 function render(){
   const vcs=vc(),rows=getRows();
@@ -869,10 +875,12 @@ function render(){
   }).join('')+'</tr>';
 
   document.getElementById('TB').innerHTML=rows.map(row=>{
-    const hp=!!(pend[row.ord]&&Object.keys(pend[row.ord]).length)||!!(pendSubmitted[row.ord]&&Object.keys(pendSubmitted[row.ord]).length);
+    const hasPendLocal=!!(pend[row.ord]&&Object.keys(pend[row.ord]).length);
+    const hasSub=!!(pendSubmitted[row.ord]&&Object.keys(pendSubmitted[row.ord]).length);
+    const hp=hasPendLocal||hasSub;
     const apv=cv(row,'aprovado');
     const hd=!!(cv(row,'digito'));
-    const st=stripe(apv,hp);
+    const st=stripe(apv,hasPendLocal,hasSub);
     // item 3: each td:first-child gets explicit background via inline style to override hover
     const firstBg=hp?'background:#2b3e14':'background:var(--n2)';
     const rowEditable=canEditRow(row);
