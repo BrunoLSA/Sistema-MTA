@@ -561,6 +561,7 @@ function loadPkgState(){
   }catch(e){}
 }
 loadPkgState();
+savePkgState(); // sync IDs to localStorage so linhas.html badge reflects pending count
 let HIST = [];
 let currentId = null;
 let filtTipo = '';
@@ -572,8 +573,8 @@ function setPerfilA(p){
   perfilA=p;
   document.getElementById('prof-sel-a').value=p;
   currentId=null;
-  document.getElementById('diff-content').style.display='none';
-  document.getElementById('diff-empty').style.display='';
+  document.getElementById('diff-content').classList.remove('vis');
+  document.getElementById('diff-empty').style.display='flex';
   const ab=document.getElementById('act-btns');if(ab)ab.style.display=isDirmabA()?'':'none';
   const fb=document.getElementById('foot-btns');if(fb)fb.style.display=isDirmabA()?'':'none';
   renderList();updateTopPs();
@@ -883,7 +884,7 @@ function renderMtaTable(){
       const d=pkg2.decisions[decIdx];
       // Split package: linha mãe (changeAlt) não tem botão — decisão vinculada à filha
       const isSplitMae=pkg2.tipo==='split'&&!r.isNew&&pkg2.changes[ci]?.tipo==='alt';
-      if(!isSplitMae){
+      if(!isSplitMae&&isDirmabA()){
         decBar=`<td>
           <div class="dec-bar" onclick="event.stopPropagation()">
             <div class="rb${d==='aprov'?' aprov':''}" onclick="setDec(${decIdx},'aprov')" title="Aprovar"></div>
