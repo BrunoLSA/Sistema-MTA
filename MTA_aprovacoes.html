@@ -394,40 +394,7 @@ table.mta tbody tr.ret-row td{background:rgba(248,113,113,.07)!important}
 
 // All MTA rows for PAMAGL, PAMALS, PAMASP, PAMBRJ, DIRMAB
 // Each pkg lists only its parque rows
-const ALL_ROWS = {
-  PAMAGL:[
-    {ord:'000020',aprovado:'SIM',acao:'2048',tramite:'ATENDIDO',digito:'C26001',pacote:'A',uge:'CELOG',proj:'KC-390',ativ:'CLS parcela fixa',tar:'Parcela fixa 1º sem',cat:'CLS',moeda:'BRL',valor:4800000,mesdesc:'Jan/2026'},
-    {ord:'000040',aprovado:'SIM',acao:'2048',tramite:'ATENDER',digito:'',pacote:'A',uge:'CELOG',proj:'KC-390',ativ:'Peças aviônica KC-390',tar:'Peças substituição 1/2',cat:'AVIÔNICA',moeda:'USD',valor:3180000,mesdesc:'Mai/2026'},
-    {ord:'000060',aprovado:'SIM',acao:'20XV',tramite:'',digito:'',pacote:'A',uge:'CELOG',proj:'KC-390',ativ:'Motor GE CF34 overhaul',tar:'Revisão geral 1/4',cat:'MOTOR',moeda:'USD',valor:6150000,mesdesc:'Mar/2026'},
-    {ord:'000080',aprovado:'NÃO',acao:'2048',tramite:'',digito:'',pacote:'B',uge:'CELOG',proj:'KC-390',ativ:'Motor GE CF34 overhaul',tar:'Revisão geral 2/4',cat:'MOTOR',moeda:'USD',valor:6150000,mesdesc:'Jul/2026'},
-    {ord:'000100',aprovado:'SIM',acao:'2048',tramite:'',digito:'',pacote:'A',uge:'CABW',proj:'APOIO',ativ:'Contrato seguro CABW',tar:'Seguro carga aérea',cat:'APOIO',moeda:'BRL',valor:98000,mesdesc:'Fev/2026'},
-  ],
-  PAMALS:[
-    {ord:'050020',aprovado:'SIM',acao:'2048',tramite:'ATENDIDO',digito:'C26003',pacote:'A',uge:'CELOG',proj:'A-29',ativ:'CNT 012/CELOG-PAMALS/2024',tar:'Reparo PT6A-68C 1/3',cat:'MOTOR',moeda:'USD',valor:2100000,mesdesc:'Jan/2026'},
-    {ord:'050040',aprovado:'SIM',acao:'2048',tramite:'',digito:'',pacote:'A',uge:'CELOG',proj:'A-29',ativ:'CNT 012/CELOG-PAMALS/2024',tar:'Reparo PT6A-68C 2/3',cat:'MOTOR',moeda:'USD',valor:2100000,mesdesc:'Abr/2026'},
-    {ord:'050060',aprovado:'NÃO',acao:'2048',tramite:'',digito:'',pacote:'C',uge:'CELOG',proj:'H-60',ativ:'Recuperação H-60 FAB8802',tar:'Estrutura e sistemas',cat:'ESTRUTURA',moeda:'USD',valor:1490000,mesdesc:'Ago/2026'},
-    {ord:'050080',aprovado:'SIM',acao:'21E7',tramite:'',digito:'',pacote:'A',uge:'CELOG',proj:'F-39',ativ:'Armamento F-39 PAMALS',tar:'Míssil PYTHON-5 1/2',cat:'DIVERSOS',moeda:'EUR',valor:12520000,mesdesc:'Fev/2026'},
-    {ord:'050100',aprovado:'SIM',acao:'2048',tramite:'ATENDIDO',digito:'C26008',pacote:'A',uge:'CELOG',proj:'T-27',ativ:'CLS T-27 parcela hora voo',tar:'Hora de voo 2026',cat:'CLS',moeda:'BRL',valor:920000,mesdesc:'Fev/2026'},
-  ],
-  PAMASP:[
-    {ord:'100020',aprovado:'SIM',acao:'2048',tramite:'ATENDIDO',digito:'C26027',pacote:'A',uge:'CELOG',proj:'A-29',ativ:'CNT 060/CELOG-PAMASP/2023',tar:'HSI PT6A-68C 1/4',cat:'MOTOR',moeda:'USD',valor:2500000,mesdesc:'Jan/2026'},
-    {ord:'100021',aprovado:'NÃO',acao:'2048',tramite:'',digito:'',pacote:'B',uge:'CELOG',proj:'A-29',ativ:'CNT 060/CELOG-PAMASP/2023 - PW',tar:'HSI PT6A-68C 1/4 (complemento)',cat:'MOTOR',moeda:'USD',valor:830000,mesdesc:''},
-    {ord:'100040',aprovado:'SIM',acao:'2048',tramite:'',digito:'',pacote:'A',uge:'CELOG',proj:'A-29',ativ:'CTT 004/CELOG-PAMASP/2025',tar:'Material PT6A-68C 1/3',cat:'MOTOR',moeda:'USD',valor:1830599,mesdesc:'Fev/2026'},
-    {ord:'100060',aprovado:'SIM',acao:'21A0',tramite:'',digito:'',pacote:'A',uge:'CELOG',proj:'F-39',ativ:'CAD-PAD F-39',tar:'Catálogo técnico F-39',cat:'CAD-PAD',moeda:'BRL',valor:320000,mesdesc:'Mar/2026'},
-    {ord:'100080',aprovado:'SIM',acao:'2048',tramite:'ATENDER',digito:'',pacote:'A',uge:'CELOG',proj:'F-39',ativ:'Contrato reparáveis F-39',tar:'Reparo sob demanda 1/4',cat:'REPARÁVEL',moeda:'BRL',valor:980000,mesdesc:'Mai/2026'},
-    {ord:'100100',aprovado:'SIM',acao:'20XV',tramite:'ATENDIDO',digito:'C26002',pacote:'A',uge:'CELOG',proj:'KC-390',ativ:'CLS parcela fixa PAMASP',tar:'Parcela fixa jan–jun',cat:'CLS',moeda:'BRL',valor:5400000,mesdesc:'Jan/2026'},
-    {ord:'100120',aprovado:'SIM',acao:'2048',tramite:'',digito:'',pacote:'A',uge:'CELOG',proj:'T-27',ativ:'CTT XXX/CELOG-PAMASP/2026',tar:'Material PT6A-25C 2/4',cat:'MOTOR',moeda:'BRL',valor:750000,mesdesc:'Jun/2026'},
-    {ord:'100240',aprovado:'SIM',acao:'21E7',tramite:'',digito:'',pacote:'A',uge:'CELOG',proj:'F-39',ativ:'CNT 006/CABE-PAMBRJ/2021 - IRIS-T',tar:'Míssil IRIS-T 1/3',cat:'DIVERSOS',moeda:'EUR',valor:16175390,mesdesc:'Fev/2026'},
-    {ord:'100260',aprovado:'NÃO',acao:'20XV MOD',tramite:'',digito:'',pacote:'D',uge:'CELOG',proj:'KC-390',ativ:'Modernização aviônica KC-390',tar:'Fase 1 aviônica',cat:'AVIÔNICA',moeda:'USD',valor:8900000,mesdesc:'Set/2026'},
-  ],
-  PAMBRJ:[
-    {ord:'150020',aprovado:'SIM',acao:'2048',tramite:'ATENDIDO',digito:'C26004',pacote:'A',uge:'CELOG',proj:'C-97',ativ:'CLS C-97 parcela fixa',tar:'Parcela fixa jan–jun',cat:'CLS',moeda:'BRL',valor:2100000,mesdesc:'Jan/2026'},
-    {ord:'150040',aprovado:'SIM',acao:'2048',tramite:'',digito:'',pacote:'A',uge:'CELOG',proj:'C-97',ativ:'Peças C-97 estrutura',tar:'Kit asa C-97 1/2',cat:'ESTRUTURA',moeda:'USD',valor:950000,mesdesc:'Abr/2026'},
-    {ord:'150060',aprovado:'NÃO',acao:'20XV MOD',tramite:'',digito:'',pacote:'C',uge:'CELOG',proj:'C-97',ativ:'Recuperação C-97 FAB2201',tar:'Revisão célula C-97',cat:'ESTRUTURA',moeda:'USD',valor:2100000,mesdesc:'Set/2026'},
-    {ord:'150080',aprovado:'SIM',acao:'21E7',tramite:'ATENDER',digito:'',pacote:'A',uge:'CELOG',proj:'F-39',ativ:'CNT 006/CABE-PAMBRJ/2021',tar:'Míssil IRIS-T 2/3',cat:'DIVERSOS',moeda:'EUR',valor:16175390,mesdesc:'Mai/2026'},
-    {ord:'200020',aprovado:'SIM',acao:'2048',tramite:'ATENDIDO',digito:'C26009',pacote:'A',uge:'DIRMAB',proj:'APOIO',ativ:'Contrato administrativo',tar:'Serviços gerais 2026',cat:'APOIO',moeda:'BRL',valor:320000,mesdesc:'Fev/2026'},
-  ]
-};
+const ALL_ROWS = {};
 
 // Packages — item 2: sort by Parque asc, then desc > alt > new
 const TIPO_ORDER = {desc:0,alt:1,new:2,split:3};
@@ -531,12 +498,11 @@ function updateCounts(){
 // ──────────────────────── PILLS ────────────────────────
 function renderPills(){
   const tot=PKGS.filter(p=>Object.keys(p.decisions).length<p.changes.length).length;
-  const nAlt=countByTipo('alt'), nNew=countByTipo('new'), nDesc=countByTipo('desc');
+  const nAlt=countByTipo('alt'), nNew=countByTipo('new');
   document.getElementById('fpills').innerHTML=`
     <button class="fpill${filtTipo===''?' on':''}" onclick="setFilt(this,'')">Todos (${tot})</button>
     <button class="fpill${filtTipo==='alt'?' on':''}" style="${filtTipo==='alt'?'border-color:var(--am);color:var(--am);background:rgba(251,191,36,.1)':''}" onclick="setFilt(this,'alt')">Alterações (${nAlt})</button>
-    <button class="fpill${filtTipo==='new'?' on':''}" style="${filtTipo==='new'?'border-color:var(--bl);color:var(--bl);background:rgba(96,165,250,.1)':''}" onclick="setFilt(this,'new')">Novas (${nNew})</button>
-    <button class="fpill${filtTipo==='desc'?' on':''}" style="${filtTipo==='desc'?'border-color:var(--gr);color:var(--gr);background:rgba(52,211,153,.1)':''}" onclick="setFilt(this,'desc')">Desc. (${nDesc})</button>`;
+    <button class="fpill${filtTipo==='new'?' on':''}" style="${filtTipo==='new'?'border-color:var(--bl);color:var(--bl);background:rgba(96,165,250,.1)':''}" onclick="setFilt(this,'new')">Novas (${nNew})</button>`;
 }
 
 // ──────────────────────── LIST ────────────────────────
@@ -1243,28 +1209,32 @@ function showScreen(name){
 
 // ──────────────────────── APPROVED STATE ────────────────────────
 function loadApprovedState(){
+  // Clear and rebuild ALL_ROWS from localStorage (mta_approved_newrows is the base)
+  Object.keys(ALL_ROWS).forEach(k=>delete ALL_ROWS[k]);
   try{
-    const approved=JSON.parse(localStorage.getItem('mta_approved_vals')||'{}');
-    Object.values(ALL_ROWS).flat().forEach(r=>{if(approved[r.ord])Object.assign(r,approved[r.ord]);});
     const newRows=JSON.parse(localStorage.getItem('mta_approved_newrows')||'{}');
     Object.values(newRows).forEach(nr=>{
-      const rowArr=ALL_ROWS[nr.mta];if(!rowArr||rowArr.find(r=>r.ord===nr.ord))return;
-      const row={ord:nr.ord,aprovado:nr.aprovado,acao:nr.acao,tramite:'',digito:'',
-        pacote:nr.pacote,uge:nr.uge,omorigem:nr.omorigem||'',ombenef:nr.ombenef||'',
-        pi:nr.pi||'',proj:nr.proj,ativ:nr.ativ,tar:nr.tar,cat:nr.cat,
+      const mta=nr.mta;if(!mta)return;
+      if(!ALL_ROWS[mta])ALL_ROWS[mta]=[];
+      if(ALL_ROWS[mta].find(r=>r.ord===nr.ord))return;
+      const row={ord:nr.ord,aprovado:nr.aprovado||'SIM',acao:nr.acao||'',tramite:nr.tramite||'',digito:nr.digito||'',
+        pacote:nr.pacote||'',uge:nr.uge||'',omorigem:nr.omorigem||'',ombenef:nr.ombenef||'',
+        pi:nr.pi||'',proj:nr.proj||'',ativ:nr.ativ||'',tar:nr.tar||'',cat:nr.cat||'',
         paramotores:nr.paramotores||'NÃO',paracontrato:nr.paracontrato||'SOB DEMANDA',
-        ed:nr.ed||'',moeda:nr.moeda,valormoeda:nr.valormoeda||nr.valor||0,
-        valor:nr.valor,mesdesc:nr.mesdesc||'—',mesliq:nr.mesliq||'',
+        ed:nr.ed||'',moeda:nr.moeda||'BRL',valormoeda:nr.valormoeda||nr.valor||0,
+        valor:nr.valor||0,mesdesc:nr.mesdesc||'—',mesliq:nr.mesliq||'',
         obs:nr.obs||'',sub:!!nr.maOrd,maOrd:nr.maOrd||null};
       if(nr.maOrd){
-        const pi=rowArr.findIndex(r=>r.ord===nr.maOrd);
-        if(pi>=0)rowArr.splice(pi+1,0,row);else rowArr.push(row);
+        const pi=ALL_ROWS[mta].findIndex(r=>r.ord===nr.maOrd);
+        if(pi>=0)ALL_ROWS[mta].splice(pi+1,0,row);else ALL_ROWS[mta].push(row);
       }else{
         const n=parseInt(nr.ord);
-        const ins=rowArr.findIndex(r=>parseInt(r.ord)>n);
-        if(ins>=0)rowArr.splice(ins,0,row);else rowArr.push(row);
+        const ins=ALL_ROWS[mta].findIndex(r=>parseInt(r.ord)>n);
+        if(ins>=0)ALL_ROWS[mta].splice(ins,0,row);else ALL_ROWS[mta].push(row);
       }
     });
+    const approved=JSON.parse(localStorage.getItem('mta_approved_vals')||'{}');
+    Object.values(ALL_ROWS).flat().forEach(r=>{if(approved[r.ord])Object.assign(r,approved[r.ord]);});
   }catch(e){}
 }
 
