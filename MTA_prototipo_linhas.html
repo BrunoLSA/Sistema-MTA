@@ -1800,8 +1800,12 @@ function openSplit(e,ord){
   document.getElementById('split-mae-tar').textContent=row.tar||row.ativ||'';
   const fmtV=v=>v!=null?new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',minimumFractionDigits:2,maximumFractionDigits:2}).format(v):'—';
   const effVal=cv(row,'valor');
-  document.getElementById('split-mae-val').textContent=fmtV(effVal);
-  document.getElementById('split-sub').textContent=`Linha mãe ${ord} · valor atual: ${fmtV(effVal)}`;
+  const effVm=cv(row,'valormoeda')||0;
+  const maMoedaO=row.moeda||'BRL';
+  const fmtVM2=(v,m)=>m==='BRL'?fmtV(v):`${m} ${Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})}`;
+  const valDisplay=maMoedaO==='BRL'?fmtV(effVal):`${fmtVM2(effVm,maMoedaO)} (${fmtV(effVal)})`;
+  document.getElementById('split-mae-val').textContent=valDisplay;
+  document.getElementById('split-sub').textContent=`Linha mãe ${ord} · valor atual: ${valDisplay}`;
   document.getElementById('sp-moeda').innerHTML=CUR.map(c=>`<option value="${c}"${(c===row.moeda||(!row.moeda&&c==='BRL'))?' selected':''}>${c}</option>`).join('');
   ['sp-uge','sp-acao','sp-omorigem','sp-ombenef','sp-pi','sp-proj','sp-ativ','sp-tar','sp-ed','sp-valor','sp-mesdesc','sp-mesliq','sp-obs'].forEach(id=>{
     const el=document.getElementById(id);if(!el)return;
@@ -1827,12 +1831,21 @@ function closeSplit(){document.getElementById('splitm').classList.remove('open')
 function splitCalc(){
   if(!splitMaOrd)return;
   const row=ROWS.find(r=>r.ord===splitMaOrd);if(!row)return;
+  const cb=getCambio();
   const childVal=parseMasked(document.getElementById('sp-valor').value);
+  const childVm=parseMasked(document.getElementById('sp-valormoeda').value);
+  const childMoeda=document.getElementById('sp-moeda').value||'BRL';
+  const maMoeda=row.moeda||'BRL';
+  const mRate=cb[maMoeda]||1;
+  const effectiveMaVm=cv(row,'valormoeda')||0;
+  const childVmInMaMoeda=childMoeda===maMoeda?childVm:childVal/mRate;
   const remain=(cv(row,'valor')||0)-childVal;
-  const fmtV=v=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',minimumFractionDigits:2,maximumFractionDigits:2}).format(v);
+  const remainVm=effectiveMaVm-childVmInMaMoeda;
+  const fmtBRL=v=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',minimumFractionDigits:2,maximumFractionDigits:2}).format(v);
+  const fmtVM=(v,m)=>m==='BRL'?fmtBRL(v):`${m} ${Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})}`;
   const el=document.getElementById('split-remain');
-  el.textContent=fmtV(remain);
-  el.style.color=remain<0?'var(--rd)':'var(--ac)';
+  el.textContent=maMoeda==='BRL'?fmtBRL(remain):`${fmtVM(remainVm,maMoeda)} (${fmtBRL(remain)})`;
+  el.style.color=remain<0||remainVm<0?'var(--rd)':'var(--ac)';
 }
 function submitSplit(){
   const spErr=document.getElementById('sp-err-msg');
@@ -1871,7 +1884,12 @@ function submitSplit(){
       return;
     }
     const effectiveMaVal=cv(maRow,'valor')||0;
+    const maMoeda=maRow.moeda||'BRL';
+    const mRate=cb[maMoeda]||1;
+    const effectiveMaVm=cv(maRow,'valormoeda')||0;
+    const childVmInMaMoeda=moeda===maMoeda?valormoeda:valor/mRate;
     const remain=effectiveMaVal-valor;
+    const remainVm=effectiveMaVm-childVmInMaMoeda;
     if(remain<0){
       document.getElementById('sp-valormoeda').classList.add('err');
       if(spErr){spErr.textContent='Valor excede o saldo disponível na linha mãe ('+new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(effectiveMaVal)+').';spErr.style.display='block';}
@@ -1891,9 +1909,12 @@ function submitSplit(){
     const autor='Ten Cel Silva';
     const dataStr=new Date().toLocaleString('pt-BR',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}).replace(',','·');
     const fmtV=v=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',minimumFractionDigits:2,maximumFractionDigits:2}).format(v);
+    const fmtVM=(v,m)=>m==='BRL'?fmtV(v):`${m} ${Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})}`;
+    const altDiffs=[{campo:'Valor Total',de:fmtV(effectiveMaVal),para:fmtV(remain)}];
+    if(maMoeda!=='BRL')altDiffs.push({campo:'Valor Moeda',de:fmtVM(effectiveMaVm,maMoeda),para:fmtVM(remainVm,maMoeda)});
     const changeAlt={ord:maOrdSnap,tipo:'alt',
-      diffs:[{campo:'Valor Total',de:fmtV(effectiveMaVal),para:fmtV(remain)}],
-      newVals:{valor:remain}};
+      diffs:altDiffs,
+      newVals:{valor:remain,valormoeda:remainVm}};
     const changeNew={ord:childOrd,tipo:'new',proj:proj||maRow.proj,ativ,tar,
       isMae:false,maOrd:maOrdSnap,
       diffs:[{campo:'NOVA LINHA FILHA',de:'—',para:`Quebra de ${maOrdSnap}`}],
