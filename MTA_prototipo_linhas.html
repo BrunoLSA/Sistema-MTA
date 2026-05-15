@@ -351,7 +351,8 @@ tr:hover .split-btn{display:inline}
       <div style="display:flex;gap:6px"><button class="btn btn-sm" onclick="openChg()">Ver alterações</button><button class="btn btn-d btn-sm" onclick="confDiscard()">Descartar tudo</button><button class="btn btn-am btn-sm" id="btn-enviar" onclick="enviarParaAprovacao()">Enviar para aprovação ↗</button></div>
     </div>
     <div class="bar bar-d" id="bar-d">
-      <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--rd)"><span style="width:7px;height:7px;border-radius:50%;background:var(--rd);display:inline-block;flex-shrink:0"></span><span><span id="dc">0</span> linha(s) com alteração devolvida pela DIRMAB — clique em ⚠ na linha para ver o motivo</span></div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--rd)"><span style="width:7px;height:7px;border-radius:50%;background:var(--rd);display:inline-block;flex-shrink:0"></span><span><span id="dc">0</span> linha(s) com alteração devolvida pela DIRMAB</span></div>
+      <button class="btn btn-sm" style="color:var(--rd);border-color:rgba(239,68,68,.4);background:rgba(239,68,68,.1)" onclick="openDevListModal()">Ver devoluções</button>
     </div>
   </div>
   <div class="tw"><table><thead id="TH"></thead><tbody id="TB"></tbody></table></div>
@@ -370,7 +371,16 @@ tr:hover .split-btn{display:inline}
   <div class="modal" style="width:520px">
     <div class="mh"><div><h3 style="color:var(--rd)">Alteração devolvida pela DIRMAB</h3><div class="mh-sub" id="dev-m-sub"></div></div><span class="mcl" onclick="closeDevModal()">×</span></div>
     <div class="mb" id="dev-m-body" style="gap:0;padding:12px 16px;max-height:400px;overflow-y:auto"></div>
-    <div class="mf"><div style="font-size:11px;color:var(--t3)">O valor foi restaurado ao estado anterior à solicitação.</div><div style="display:flex;gap:6px"><button class="btn" onclick="closeDevModal()">Fechar</button><button class="btn" style="background:rgba(239,68,68,.12);color:var(--rd);border-color:rgba(239,68,68,.35)" onclick="ackDev()">Entendido — Corrigir →</button></div></div>
+    <div class="mf"><div style="font-size:11px;color:var(--t3)">O valor foi restaurado ao estado anterior à solicitação.</div><div style="display:flex;gap:6px"><button class="btn" onclick="closeDevModal()">Fechar</button><button class="btn" style="background:rgba(239,68,68,.12);color:var(--rd);border-color:rgba(239,68,68,.35)" onclick="ackDev()">Entendido</button></div></div>
+  </div>
+</div>
+
+<!-- DEVOLUÇÃO LIST MODAL -->
+<div class="mov" id="devlist-m">
+  <div class="modal" style="width:580px">
+    <div class="mh"><div><h3 style="color:var(--rd)">Devoluções da DIRMAB</h3><div class="mh-sub">Dê ciência para liberar a linha para edição</div></div><span class="mcl" onclick="closeDevListModal()">×</span></div>
+    <div class="mb" id="devlist-body" style="gap:0;padding:8px 16px;max-height:420px;overflow-y:auto"></div>
+    <div class="mf"><div></div><div style="display:flex;gap:6px"><button class="btn" onclick="closeDevListModal()">Fechar</button><button class="btn" style="background:rgba(239,68,68,.12);color:var(--rd);border-color:rgba(239,68,68,.35)" onclick="ackAllDev()">Dar ciência a todas</button></div></div>
   </div>
 </div>
 
@@ -731,7 +741,10 @@ function myMta(){return isDirmab()?null:perfil.toUpperCase();}
 function canEditRow(row){
   const eff=cv(row,'tramite')||'';
   if(isDirmab())return eff==='';
-  return row.mta===myMta()&&eff==='';
+  const mta=myMta();
+  if(row.mta!==mta||eff!=='')return false;
+  if(devolvidos[row.ord]&&devolvidos[row.ord].parque===mta)return false;
+  return true;
 }
 function setPerfil(p){
   perfil=p;
@@ -872,12 +885,54 @@ function openDevModal(ord){
   document.getElementById('dev-m').classList.add('open');
 }
 function closeDevModal(){document.getElementById('dev-m').classList.remove('open');_devOrd=null;}
+function _ackDevOrd(ord){
+  try{const d=JSON.parse(localStorage.getItem('mta_devolvidos')||'{}');delete d[ord];localStorage.setItem('mta_devolvidos',JSON.stringify(d));}catch(e){}
+  delete devolvidos[ord];
+}
 function ackDev(){
   if(!_devOrd)return;
-  try{const d=JSON.parse(localStorage.getItem('mta_devolvidos')||'{}');delete d[_devOrd];localStorage.setItem('mta_devolvidos',JSON.stringify(d));}catch(e){}
-  delete devolvidos[_devOrd];
-  closeDevModal();
-  updDevBar();render();
+  _ackDevOrd(_devOrd);
+  closeDevModal();updDevBar();render();
+}
+function ackOneDev(ord){
+  _ackDevOrd(ord);
+  renderDevListModal();updDevBar();render();
+}
+function ackAllDev(){
+  const mta=myMta();
+  Object.keys(devolvidos).filter(ord=>devolvidos[ord]?.parque===mta).forEach(_ackDevOrd);
+  closeDevListModal();updDevBar();render();
+}
+function openDevListModal(){renderDevListModal();document.getElementById('devlist-m').classList.add('open');}
+function closeDevListModal(){document.getElementById('devlist-m').classList.remove('open');}
+function renderDevListModal(){
+  const mta=myMta();
+  const ords=Object.keys(devolvidos).filter(ord=>devolvidos[ord]?.parque===mta);
+  const fmtDevItem=(ord)=>{
+    const d=devolvidos[ord];const row=ROWS.find(r=>r.ord===ord);
+    let html=`<div style="padding:10px 0;border-bottom:1px solid var(--bd)">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
+        <div>
+          <span style="font-family:var(--mo);font-size:11px;color:var(--t3);margin-right:8px">${ord}</span>
+          <span style="font-size:12px;color:var(--t2)">${row?.proj||''} · ${row?.tar||''}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+          <span style="font-size:11px;color:var(--t3)">${d.data||''}</span>
+          <button class="btn btn-sm" style="color:var(--rd);border-color:rgba(239,68,68,.4);background:rgba(239,68,68,.1)" onclick="ackOneDev('${ord}')">Dar ciência</button>
+        </div>
+      </div>`;
+    if(d.motivo)html+=`<div style="font-size:12px;color:var(--rd);background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:var(--r);padding:6px 10px;margin-bottom:6px">"${d.motivo}"</div>`;
+    (d.diffs||[]).forEach(df=>{
+      html+=`<div style="display:flex;gap:10px;font-size:11px;color:var(--t3);padding:2px 0">
+        <span style="min-width:90px;flex-shrink:0">${df.campo}</span>
+        <span style="color:var(--t2)">${df.de}</span>
+        <span style="opacity:.4">→</span>
+        <span style="color:var(--rd);text-decoration:line-through;opacity:.8">${df.para}</span>
+      </div>`;
+    });
+    html+='</div>';return html;
+  };
+  document.getElementById('devlist-body').innerHTML=ords.length?ords.map(fmtDevItem).join(''):'<div style="color:var(--t3);font-size:13px;padding:16px 0">Nenhuma devolução pendente.</div>';
 }
 function vc(){return cols.filter(c=>c.v);}
 
@@ -931,7 +986,7 @@ function render(){
     const hasPendLocal=!!(pend[row.ord]&&Object.keys(pend[row.ord]).length);
     const hasSub=!!(pendSubmitted[row.ord]&&Object.keys(pendSubmitted[row.ord]).length);
     const hp=hasPendLocal||hasSub;
-    const isDev=!!(devolvidos[row.ord]);
+    const isDev=!isDirmab()&&!!(devolvidos[row.ord])&&devolvidos[row.ord].parque===myMta();
     const apv=cv(row,'aprovado');
     const hd=!!(cv(row,'digito'));
     const st=stripe(apv,hasPendLocal,hasSub,isDev);
