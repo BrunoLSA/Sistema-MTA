@@ -431,103 +431,7 @@ const ALL_ROWS = {
 
 // Packages — item 2: sort by Parque asc, then desc > alt > new
 const TIPO_ORDER = {desc:0,alt:1,new:2,split:3};
-const PKGS_RAW = [
-  { id:'pkg1', parque:'PAMBRJ', tipo:'alt', autor:'Maj Lima', data:'01 mai 2026 · 09h15',
-    desc:'Alteração de pacote e trâmite em 2 linhas do C-97',
-    changes:[
-      { ord:'150040', tipo:'alt', proj:'C-97', ativ:'Peças C-97 estrutura', tar:'Kit asa C-97 1/2',
-        diffs:[{campo:'Pacote',de:'A',para:'B'},{campo:'Observação',de:'',para:'Aguarda suplementação'}],
-        newVals:{pacote:'B'} },
-      { ord:'150060', tipo:'alt', proj:'C-97', ativ:'Recuperação C-97 FAB2201', tar:'Revisão célula C-97',
-        diffs:[{campo:'Trâmite',de:'',para:'ATENDER'},{campo:'Mês Desc.',de:'',para:'Set/2026'},{campo:'Mês Liq.',de:'',para:'Dez/2026'}],
-        newVals:{tramite:'ATENDER',mesdesc:'Set/2026'} }
-    ]},
-  { id:'pkg2', parque:'PAMBRJ', tipo:'desc', autor:'Maj Lima', data:'01 mai 2026 · 14h32',
-    desc:'Descentralização C-97 · Prior.1 · parcela R$ 270k',
-    changes:[
-      { ord:'150020', tipo:'desc', proj:'C-97', ativ:'CLS C-97 parcela fixa', tar:'Parcela fixa jan–jun',
-        diffs:[{campo:'Trâmite',de:'',para:'ATENDER'},{campo:'Valor Total',de:'R$ 2.100.000',para:'R$ 270.000 (parcela 1/4)'}],
-        newVals:{tramite:'ATENDER',valor:270000} }
-    ]},
-  { id:'pkg3', parque:'PAMALS', tipo:'desc', autor:'Cap Souza', data:'02 mai 2026 · 08h47',
-    desc:'Descentralização A-29 · 4 linhas · Prior.1–4 · R$ 1,83 M',
-    changes:[
-      { ord:'050020', tipo:'desc', proj:'A-29', ativ:'CNT 012/CELOG-PAMALS/2024', tar:'Reparo PT6A-68C 1/3',
-        diffs:[{campo:'Trâmite',de:'',para:'ATENDER'},{campo:'Prioridade',de:'2',para:'1'}],
-        newVals:{tramite:'ATENDER'} },
-      { ord:'050040', tipo:'desc', proj:'A-29', ativ:'CNT 012/CELOG-PAMALS/2024', tar:'Reparo PT6A-68C 2/3',
-        diffs:[{campo:'Trâmite',de:'',para:'ATENDER'},{campo:'Prioridade',de:'3',para:'2'}],
-        newVals:{tramite:'ATENDER'} },
-      { ord:'050100', tipo:'desc', proj:'T-27', ativ:'CLS T-27 parcela hora voo', tar:'Hora de voo 2026',
-        diffs:[{campo:'Trâmite',de:'ATENDIDO',para:'ATENDER'}],
-        newVals:{tramite:'ATENDER'} },
-      { ord:'050080', tipo:'desc', proj:'F-39', ativ:'Armamento F-39 PAMALS', tar:'Míssil PYTHON-5 1/2',
-        diffs:[{campo:'Trâmite',de:'',para:'ATENDER'}],
-        newVals:{tramite:'ATENDER'} }
-    ]},
-  { id:'pkg4', parque:'PAMAGL', tipo:'new', autor:'Sgt Ferreira', data:'03 mai 2026 · 11h20',
-    desc:'2 novas linhas KC-390 — aviônica e overhaul motor',
-    changes:[
-      { ord:'000041*', tipo:'new', proj:'KC-390', ativ:'Peças aviônica KC-390', tar:'Substituição sensor radar 1/2',
-        isMae:false, maOrd:'000040',
-        diffs:[{campo:'NOVA LINHA',de:'—',para:'Inserção solicitada pelo PAMAGL'}],
-        newVals:{valor:890000,pacote:'A',acao:'2048'} },
-      { ord:'000061*', tipo:'new', proj:'KC-390', ativ:'Motor GE CF34 overhaul', tar:'Revisão geral 3/4',
-        isMae:false, maOrd:'000060',
-        diffs:[{campo:'NOVA LINHA',de:'—',para:'Inserção solicitada pelo PAMAGL'}],
-        newVals:{valor:6150000,pacote:'B',acao:'2048'} }
-    ]},
-  { id:'pkg5', parque:'PAMALS', tipo:'alt', autor:'Ten Carvalho', data:'03 mai 2026 · 16h05',
-    desc:'Alteração de valores em 2 linhas H-60/F-39 — revisão cambial',
-    changes:[
-      { ord:'050060', tipo:'alt', proj:'H-60', ativ:'Recuperação H-60 FAB8802', tar:'Estrutura e sistemas',
-        diffs:[{campo:'Valor Moeda',de:'USD 290.000',para:'USD 342.500'},{campo:'Valor Total',de:'R$ 1.490.000',para:'R$ 1.760.000'}],
-        newVals:{valor:1760000} },
-      { ord:'050080', tipo:'alt', proj:'F-39', ativ:'Armamento F-39 PAMALS', tar:'Míssil PYTHON-5 1/2',
-        diffs:[{campo:'Valor Moeda',de:'EUR 2.400.000',para:'EUR 2.560.000'},{campo:'Valor Total',de:'R$ 12.520.000',para:'R$ 13.350.000'}],
-        newVals:{valor:13350000} }
-    ]},
-  { id:'pkg6', parque:'PAMASP', tipo:'new', autor:'Cap Mendes', data:'04 mai 2026 · 10h38',
-    desc:'1 nova linha T-27 — manutenção motor PT6A-25C',
-    changes:[
-      { ord:'100121*', tipo:'new', proj:'T-27', ativ:'CTT XXX/CELOG-PAMASP/2026', tar:'Motor PT6A-25C 3/4',
-        isMae:false, maOrd:'100120',
-        diffs:[{campo:'NOVA LINHA',de:'—',para:'Inserção solicitada pelo PAMASP'}],
-        newVals:{valor:620000,pacote:'A',acao:'2048'} }
-    ]},
-  { id:'pkg7', parque:'PAMASP', tipo:'alt', autor:'Ten Rodrigues', data:'04 mai 2026 · 15h52',
-    desc:'Alterações complexas F-39 — Aprovado, Pacote e AO simultâneos',
-    changes:[
-      {
-        // Cenário 1: Aprovado SIM→NÃO — deve DIMINUIR Pacote A e AO 2048 do total aprovado
-        ord:'100080', tipo:'alt', proj:'F-39', ativ:'Contrato reparáveis F-39', tar:'Reparo sob demanda 1/4',
-        diffs:[
-          {campo:'Aprovado', de:'SIM', para:'NÃO'},
-          {campo:'Observação', de:'', para:'Linha suspensa — aguarda suplementação'}
-        ],
-        newVals:{aprovado:'NÃO'}
-      },
-      {
-        // Cenário 2: Pacote A→B e AO 2048→21E7 — deve mover valor: sai do Pacote A/2048, entra no Pacote B/21E7
-        ord:'100060', tipo:'alt', proj:'F-39', ativ:'CAD-PAD F-39', tar:'Catálogo técnico F-39',
-        diffs:[
-          {campo:'Pacote', de:'A', para:'B'},
-          {campo:'Ação', de:'2048', para:'21E7'},
-          {campo:'Observação', de:'', para:'Realocação para AO de armamento por orientação DIRMAB'}
-        ],
-        newVals:{pacote:'B', acao:'21E7'}
-      },
-      {
-        // Cenário 3: Valor total alterado em linha já APROVADA SIM — impacta Pacote A e AO 21E7
-        ord:'100240', tipo:'alt', proj:'F-39', ativ:'CNT 006/CABE-PAMBRJ/2021 - IRIS-T', tar:'Míssil IRIS-T 1/3',
-        diffs:[
-          {campo:'Valor Total', de:'R$ 16.175.390', para:'R$ 17.250.000'},
-          {campo:'Observação', de:'', para:'Reajuste cambial EUR/BRL — aditivo contratual 03/2026'}
-        ],
-        newVals:{valor:17250000}
-      }
-    ]}
-];
+const PKGS_RAW = [];
 
 // sort: Parque asc, then tipo
 PKGS_RAW.sort((a,b)=>{
@@ -560,6 +464,13 @@ function loadPkgState(){
     });
   }catch(e){}
 }
+(function(){
+  const MTA_DATA_VER='3';
+  if(localStorage.getItem('mta_data_ver')!==MTA_DATA_VER){
+    ['mta_pkgs_pending','mta_pkgs_userdata','mta_approved_vals','mta_approved_newrows','mta_hist','mta_linhas_prefs','mta_devolvidos','mta_cambio'].forEach(k=>localStorage.removeItem(k));
+    localStorage.setItem('mta_data_ver',MTA_DATA_VER);
+  }
+})();
 loadPkgState();
 savePkgState(); // sync IDs to localStorage so linhas.html badge reflects pending count
 let HIST = [];
