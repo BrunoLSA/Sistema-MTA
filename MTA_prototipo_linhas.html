@@ -1025,7 +1025,7 @@ function render(){
         };
         const hasPendTr=!!(pend[row.ord]&&Object.keys(pend[row.ord]).length)||!!(pendSubmitted[row.ord]&&Object.keys(pendSubmitted[row.ord]).length);
         if(isDirmab()){
-          if((raw===''||raw==='ATENDER'||raw==='SOLICITADO')&&!hasPendTr)return`<td><div style="display:flex;align-items:center;height:32px"><select class="isel" onchange="ceDirmab('${row.ord}','tramite',this.value)"><option value=""${raw===''?' selected':''}>—</option>${raw==='SOLICITADO'?`<option value="SOLICITADO" selected>SOLICITADO</option>`:''}<option value="ATENDER"${raw==='ATENDER'?' selected':''}>ATENDER</option></select></div></td>`;
+          if((raw===''||raw==='ATENDER'||raw==='SOLICITADO')&&!hasPendTr){const sc=raw==='SOLICITADO'?'var(--am)':raw==='ATENDER'?'var(--gr)':'var(--t2)';const sw=raw==='ATENDER'?'500':'400';return`<td><div style="display:flex;align-items:center;height:32px"><select class="isel" style="color:${sc};font-weight:${sw}" onchange="this.style.color=this.value==='SOLICITADO'?'var(--am)':this.value==='ATENDER'?'var(--gr)':'var(--t2)';this.style.fontWeight=this.value==='ATENDER'?'500':'400';ceDirmab('${row.ord}','tramite',this.value)"><option value=""${raw===''?' selected':''}>—</option><option value="SOLICITADO"${raw==='SOLICITADO'?' selected':''}>SOLICITADO</option><option value="ATENDER"${raw==='ATENDER'?' selected':''}>ATENDER</option></select></div></td>`;}
           return`<td><div class="cell">${trLabel(raw)}</div></td>`;
         }
         if(!rowEditable)return`<td><div class="cell">${trLabel(raw)}</div></td>`;
