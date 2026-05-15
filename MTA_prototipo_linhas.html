@@ -360,8 +360,8 @@ tr:hover .split-btn{display:inline}
 <!-- PRIORITY MODAL -->
 <div class="mov" id="prio-m">
   <div class="modal" style="width:500px">
-    <div class="mh"><div><h3>Revisar prioridades antes de enviar</h3><div class="mh-sub">As prioridades foram atribuídas automaticamente. Você pode alterá-las antes de enviar.</div></div><span class="mcl" onclick="closePrioModal()">×</span></div>
-    <div class="mb" id="prio-list" style="gap:0;padding:8px 16px"></div>
+    <div class="mh"><div><h3>Revisar e enviar para aprovação</h3><div class="mh-sub">Confirme todas as alterações abaixo. Prioridades de descentralização podem ser ajustadas.</div></div><span class="mcl" onclick="closePrioModal()">×</span></div>
+    <div class="mb" id="prio-list" style="gap:0;padding:8px 16px;max-height:420px;overflow-y:auto"></div>
     <div class="mf"><div style="font-size:11px;color:var(--t3)">Prioridades devem ser únicas por Parque</div><div style="display:flex;gap:6px"><button class="btn" onclick="closePrioModal()">Cancelar</button><button class="btn btn-am" onclick="confirmPrioAndEnviar()">Confirmar e Enviar ↗</button></div></div>
   </div>
 </div>
@@ -923,12 +923,12 @@ function render(){
       if(c.k==='datasolic')return`<td><div class="cell" style="color:var(--t3)">${raw||'—'}</div></td>`;
       if(c.k==='nropeddirmab'){
         const tr0=cv(row,'tramite')||'';
-        if(isDirmab()&&tr0==='ATENDER')return`<td><div class="cell" contenteditable="true" onblur="ceDirmab('${row.ord}','nropeddirmab',this.textContent.trim())">${raw||''}</div></td>`;
+        if(isDirmab()&&(tr0==='ATENDER'||tr0==='EM TRÂMITE'))return`<td><div class="cell" contenteditable="true" onblur="ceDirmab('${row.ord}','nropeddirmab',this.textContent.trim())">${raw||''}</div></td>`;
         return`<td><div class="cell" style="color:var(--t3)">${raw||'—'}</div></td>`;
       }
       if(c.k==='datapeddirmab'){
         const tr0=cv(row,'tramite')||'';
-        if(isDirmab()&&tr0==='ATENDER')return`<td><div class="cell" style="cursor:pointer" onclick="openDpDirmab(event,'${row.ord}','datapeddirmab')" title="Selecionar data">${raw||'<span style="color:var(--t3);font-size:11px">Selecionar…</span>'}</div></td>`;
+        if(isDirmab()&&(tr0==='ATENDER'||tr0==='EM TRÂMITE'))return`<td><div class="cell" style="cursor:pointer" onclick="openDpDirmab(event,'${row.ord}','datapeddirmab')" title="Selecionar data">${raw||'<span style="color:var(--t3);font-size:11px">Selecionar…</span>'}</div></td>`;
         return`<td><div class="cell" style="color:var(--t3)">${raw||'—'}</div></td>`;
       }
       if(c.k==='digito'){
@@ -1112,38 +1112,79 @@ function doDiscard(){pend={};document.getElementById('cm').classList.remove('ope
 // item 8: changes modal shows context fields
 function openChg(){
   const cm=Object.fromEntries(cols.map(c=>[c.k,c.l]));
-  // item 8: context fields to always display alongside the changed field
   const CTX=['aprovado','acao','mta','pacote','uge','proj','ativ','ed','moeda','valor'];
   let html='';
   Object.entries(pend).forEach(([ord,ch])=>{
     const row=ROWS.find(r=>r.ord===ord);if(!row)return;
-    Object.entries(ch).forEach(([k,nv])=>{
-      const ov=row[k];
-      // build context tags (exclude the changed field itself)
-      const ctxTags=CTX.filter(ck=>ck!==k).map(ck=>{
-        const val=cv(row,ck);
-        if(val==null||val==='')return'';
-        const lbl=cm[ck]||ck;
-        let display=val;
-        if(ck==='valor')display=fmtC(val,'BRL');
-        else if(ck==='moeda')display=val;
-        return`<span title="${lbl}"><strong style="color:var(--t3)">${lbl}:</strong> ${display}</span>`;
-      }).filter(Boolean).join('');
+    const isSOL=ch.tramite==='SOLICITAR';
+    // context tags (exclude tramite and prio as they appear together)
+    const ctxTags=CTX.map(ck=>{
+      const val=cv(row,ck);if(val==null||val==='')return'';
+      const lbl=cm[ck]||ck;let display=ck==='valor'?fmtC(val,'BRL'):val;
+      return`<span title="${lbl}"><strong style="color:var(--t3)">${lbl}:</strong> ${display}</span>`;
+    }).filter(Boolean).join('');
+    if(isSOL){
+      const prioVal=ch.prio!=null&&ch.prio!==''?ch.prio:'';
+      const ovTramite=row.tramite&&row.tramite!==''?row.tramite:'(vazio)';
+      const ovPrio=row.prio!=null&&row.prio!==''?String(row.prio):'(vazio)';
       html+=`<div class="ci">
         <span class="ci-ord">${ord}</span>
-        <span class="ci-fld">${cm[k]||k}</span>
-        <span class="ci-from">${ov!=null&&ov!==''?ov:'(vazio)'}</span>
+        <span class="ci-fld">Trâmite · Prioridade</span>
+        <span class="ci-from">${ovTramite} · ${ovPrio}</span>
         <span class="ci-arr">→</span>
-        <span class="ci-to">${nv!=null&&nv!==''?nv:'(vazio)'}</span>
-        <button class="rv" onclick="revert('${ord}','${k}')">Reverter</button>
+        <span class="ci-to">SOLICITAR · Prio ${prioVal}</span>
+        <button class="rv" onclick="revert('${ord}','__solicitar__')">Reverter</button>
         ${ctxTags?`<div class="ci-ctx">${ctxTags}</div>`:''}
       </div>`;
-    });
+    } else {
+      Object.entries(ch).forEach(([k,nv])=>{
+        if(k==='prio')return; // prio only shown combined with SOLICITAR
+        const ov=row[k];
+        const ctxTagsK=CTX.filter(ck=>ck!==k).map(ck=>{
+          const val=cv(row,ck);if(val==null||val==='')return'';
+          const lbl=cm[ck]||ck;let display=ck==='valor'?fmtC(val,'BRL'):val;
+          return`<span title="${lbl}"><strong style="color:var(--t3)">${lbl}:</strong> ${display}</span>`;
+        }).filter(Boolean).join('');
+        html+=`<div class="ci">
+          <span class="ci-ord">${ord}</span>
+          <span class="ci-fld">${cm[k]||k}</span>
+          <span class="ci-from">${ov!=null&&ov!==''?ov:'(vazio)'}</span>
+          <span class="ci-arr">→</span>
+          <span class="ci-to">${nv!=null&&nv!==''?nv:'(vazio)'}</span>
+          <button class="rv" onclick="revert('${ord}','${k}')">Reverter</button>
+          ${ctxTagsK?`<div class="ci-ctx">${ctxTagsK}</div>`:''}
+        </div>`;
+      });
+    }
   });
   document.getElementById('chgl').innerHTML=html||`<p style="font-size:12px;color:var(--t3)">Nenhuma alteração pendente.</p>`;
   document.getElementById('chgm').classList.add('open');
 }
-function revert(ord,k){if(pend[ord]){delete pend[ord][k];if(!Object.keys(pend[ord]).length)delete pend[ord];}openChg();render();}
+function reorderSolicPrios(){
+  const byMta={};
+  Object.entries(pend).forEach(([ord,ch])=>{
+    if(ch.tramite!=='SOLICITAR'||ch.prio==null)return;
+    const row=ROWS.find(r=>r.ord===ord);if(!row)return;
+    if(!byMta[row.mta])byMta[row.mta]=[];
+    byMta[row.mta].push({ord,prio:Number(ch.prio)});
+  });
+  Object.values(byMta).forEach(rows=>{
+    rows.sort((a,b)=>a.prio-b.prio);
+    rows.forEach((r,i)=>{if(pend[r.ord])pend[r.ord].prio=i+1;});
+  });
+}
+function revert(ord,k){
+  if(!pend[ord])return;
+  if(k==='__solicitar__'){
+    delete pend[ord].tramite;
+    delete pend[ord].prio;
+  }else{
+    delete pend[ord][k];
+  }
+  if(!Object.keys(pend[ord]).length)delete pend[ord];
+  if(k==='__solicitar__')reorderSolicPrios();
+  openChg();render();
+}
 
 // COL PANEL
 let dSrc=null;
@@ -1187,14 +1228,30 @@ function updAprovBadge(){
 }
 
 let _prioCallback=null;
-function openPrioModal(ords,descPend,cb){
+function openPrioModal(descPend,altPend,cb){
   _prioCallback=cb;
-  const rows=ords.map(ord=>{
-    const row=ROWS.find(r=>r.ord===ord);
-    return{ord,proj:row?.proj||'',tar:row?.tar||'',prio:descPend[ord]?.prio||1};
-  }).sort((a,b)=>a.prio-b.prio);
-  document.getElementById('prio-list').innerHTML=rows.map(r=>`
-    <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--bd)">
+  let html='';
+  const hasAlt=Object.keys(altPend).length>0;
+  const hasSolic=Object.keys(descPend).length>0;
+  if(hasAlt){
+    html+=`<div style="font-size:10px;font-weight:600;color:var(--t2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.8px;padding-bottom:4px;border-bottom:1px solid var(--bd)">Alterações (${Object.keys(altPend).length})</div>`;
+    Object.entries(altPend).forEach(([ord,ch])=>{
+      const row=ROWS.find(r=>r.ord===ord);if(!row)return;
+      const flds=Object.keys(ch).filter(k=>k!=='prio').map(k=>FIELD_LBL[k]||k).join(', ');
+      html+=`<div style="display:flex;gap:10px;padding:5px 0;border-bottom:1px solid rgba(42,68,96,.5);font-size:12px;align-items:baseline">
+        <span style="font-family:var(--mo);color:var(--t3);min-width:70px;flex-shrink:0;font-size:11px">${ord}</span>
+        <span style="color:var(--t2);flex:1">${row.proj||''} · ${row.tar||''}</span>
+        <span style="color:var(--t3);font-size:11px;flex-shrink:0">${flds}</span>
+      </div>`;
+    });
+  }
+  if(hasSolic){
+    html+=`<div style="font-size:10px;font-weight:600;color:var(--t2);margin:${hasAlt?'14px':'0'}px 0 4px;text-transform:uppercase;letter-spacing:.8px;padding-bottom:4px;border-bottom:1px solid var(--bd)">Descentralizações — revise a prioridade</div>`;
+    const rows=Object.keys(descPend).map(ord=>{
+      const row=ROWS.find(r=>r.ord===ord);
+      return{ord,proj:row?.proj||'',tar:row?.tar||'',prio:descPend[ord]?.prio||1};
+    }).sort((a,b)=>a.prio-b.prio);
+    html+=rows.map(r=>`<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--bd)">
       <span style="font-family:var(--mo);font-size:11px;color:var(--t3);width:70px;flex-shrink:0">${r.ord}</span>
       <span style="flex:1;font-size:12px;color:var(--t2)">${r.proj} · ${r.tar}</span>
       <span style="font-size:11px;color:var(--t3);margin-right:4px">Prio:</span>
@@ -1202,21 +1259,29 @@ function openPrioModal(ords,descPend,cb){
         style="width:52px;background:var(--n3);border:1px solid var(--b2);border-radius:var(--r);padding:3px 6px;font-size:12px;color:var(--tx);text-align:center;font-family:var(--mo)"
         onchange="updatePrioInput(this)"/>
     </div>`).join('');
+  }
+  document.getElementById('prio-list').innerHTML=html;
   document.getElementById('prio-m').classList.add('open');
 }
 function updatePrioInput(el){el.value=parseInt(el.value)||1;}
 function closePrioModal(){document.getElementById('prio-m').classList.remove('open');_prioCallback=null;}
 function confirmPrioAndEnviar(){
   const inputs=document.getElementById('prio-list').querySelectorAll('input[data-ord]');
-  const prios=[];
+  const priosByMta={};
   inputs.forEach(el=>{
     const ord=el.dataset.ord;const p=parseInt(el.value)||1;
     if(!pend[ord])pend[ord]={};
-    pend[ord].prio=p;prios.push(p);
+    pend[ord].prio=p;
+    const row=ROWS.find(r=>r.ord===ord);
+    const mta=row?.mta||'_';
+    if(!priosByMta[mta])priosByMta[mta]=[];
+    priosByMta[mta].push(p);
   });
-  const uniq=new Set(prios);
-  if(uniq.size<prios.length){
-    alert('Existem prioridades duplicadas para o mesmo Parque. Corrija antes de enviar.');return;
+  for(const [mta,prios] of Object.entries(priosByMta)){
+    const uniq=new Set(prios);
+    if(uniq.size<prios.length){
+      alert(`Parque ${mta}: prioridades duplicadas. Corrija antes de enviar.`);return;
+    }
   }
   closePrioModal();
   if(_prioCallback)_prioCallback();
@@ -1354,9 +1419,9 @@ function renderDp(){
     const isSel=dpSelDay===d&&dpSelMonth===dpMonth&&dpSelYear===dpYear;
     const isToday=today.getDate()===d&&today.getMonth()===dpMonth&&today.getFullYear()===dpYear;
     const dayDate=new Date(dpYear,dpMonth,d);
-    const blocked=dpDirmab?false:(dayDate>todayMidnight);
+    const blocked=dayDate>todayMidnight;
     if(blocked){
-      const title=dpDirmab?'Data anterior à data atual não permitida':'Data futura não permitida';
+      const title='Data futura não permitida';
       html+=`<div class="dp-day other" style="opacity:.25;cursor:not-allowed" title="${title}">${d}</div>`;
     } else {
       html+=`<div class="dp-day${isSel?' sel':''}${isToday&&!isSel?' today':''}" onclick="dpSel(${d})">${d}</div>`;
@@ -1367,12 +1432,7 @@ function renderDp(){
   const atCurrent=dpYear===today.getFullYear()&&dpMonth===today.getMonth();
   const fwdBtn=document.querySelector('.dp-nav-btn:last-of-type');
   const backBtn=document.querySelector('.dp-nav-btn:first-of-type');
-  if(dpDirmab){
-    if(backBtn){backBtn.style.opacity='1';backBtn.style.pointerEvents='auto';}
-    if(fwdBtn){fwdBtn.style.opacity='1';fwdBtn.style.pointerEvents='auto';}
-  } else {
-    if(fwdBtn){fwdBtn.style.opacity=atCurrent?'.25':'1';fwdBtn.style.pointerEvents=atCurrent?'none':'auto';}
-  }
+  if(fwdBtn){fwdBtn.style.opacity=atCurrent?'.25':'1';fwdBtn.style.pointerEvents=atCurrent?'none':'auto';}
 }
 function dpNav(d){
   dpMonth+=d;
@@ -1422,12 +1482,7 @@ function enviarParaAprovacao(){
     return;
   }
   if(!Object.keys(descPend).length&&!Object.keys(altPend).length)return;
-  const solicOrds=Object.keys(descPend);
-  if(solicOrds.length>0){
-    openPrioModal(solicOrds,descPend,()=>_doEnviar(descPend,altPend));
-  }else{
-    _doEnviar(descPend,altPend);
-  }
+  openPrioModal(descPend,altPend,()=>_doEnviar(descPend,altPend));
 }
 function _doEnviar(descPend,altPend){
   const ts=Date.now();
@@ -1675,7 +1730,7 @@ function submitNL(){
   localStorage.setItem('mta_pkgs_userdata',JSON.stringify(userdata));
   localStorage.setItem('mta_pkgs_pending',JSON.stringify(pendIds));
   closeNL();
-  loadSubmittedPend();render();
+  loadSubmittedPend();render();updAprovBadge();
   document.getElementById('sub-parques').textContent=`Parque: ${mta} · Nova linha: ${newOrd}`;
   document.getElementById('sub-sub').textContent='1 linha mãe solicitada · aguardando aprovação DIRMAB';
   document.getElementById('subm').classList.add('open');
@@ -1806,7 +1861,7 @@ function submitSplit(){
     const dataStr=new Date().toLocaleString('pt-BR',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}).replace(',','·');
     const fmtV=v=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',minimumFractionDigits:2,maximumFractionDigits:2}).format(v);
     const changeAlt={ord:maOrdSnap,tipo:'alt',
-      diffs:[{campo:'valor',de:fmtV(maRow.valor),para:fmtV(remain)}],
+      diffs:[{campo:'Valor Total',de:fmtV(maRow.valor),para:fmtV(remain)}],
       newVals:{valor:remain}};
     const changeNew={ord:childOrd,tipo:'new',proj:proj||maRow.proj,ativ,tar,
       isMae:false,maOrd:maOrdSnap,
@@ -1823,7 +1878,7 @@ function submitSplit(){
     localStorage.setItem('mta_pkgs_userdata',JSON.stringify(userdata));
     localStorage.setItem('mta_pkgs_pending',JSON.stringify(pendIds));
     closeSplit();
-    loadSubmittedPend();render();
+    loadSubmittedPend();render();updAprovBadge();
     document.getElementById('sub-parques').textContent=`Parque: ${maRow.mta} · Quebra: ${maOrdSnap} → ${childOrd}`;
     document.getElementById('sub-sub').textContent='1 linha filha solicitada · aguardando aprovação DIRMAB';
     document.getElementById('subm').classList.add('open');
