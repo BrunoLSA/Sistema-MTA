@@ -359,7 +359,7 @@ tr:hover .split-btn{display:inline}
 
 <!-- PRIORITY MODAL -->
 <div class="mov" id="prio-m">
-  <div class="modal" style="width:500px">
+  <div class="modal" style="width:620px">
     <div class="mh"><div><h3>Revisar e enviar para aprovação</h3><div class="mh-sub">Confirme todas as alterações abaixo. Prioridades de descentralização podem ser ajustadas.</div></div><span class="mcl" onclick="closePrioModal()">×</span></div>
     <div class="mb" id="prio-list" style="gap:0;padding:8px 16px;max-height:420px;overflow-y:auto"></div>
     <div class="mf"><div style="font-size:11px;color:var(--t3)">Use ↑ ↓ para reordenar as descentralizações</div><div style="display:flex;gap:6px"><button class="btn" onclick="closePrioModal()">Cancelar</button><button class="btn btn-am" onclick="confirmPrioAndEnviar()">Confirmar e Enviar ↗</button></div></div>
@@ -1247,11 +1247,30 @@ function renderPrioModal(){
     html+=`<div style="font-size:10px;font-weight:600;color:var(--t2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.8px;padding-bottom:4px;border-bottom:1px solid var(--bd)">Alterações (${Object.keys(_prioAltPend).length})</div>`;
     Object.entries(_prioAltPend).forEach(([ord,ch])=>{
       const row=ROWS.find(r=>r.ord===ord);if(!row)return;
-      const flds=Object.keys(ch).filter(k=>k!=='prio').map(k=>FIELD_LBL[k]||k).join(', ');
-      html+=`<div style="display:flex;gap:10px;padding:5px 0;border-bottom:1px solid rgba(42,68,96,.5);font-size:12px;align-items:baseline">
-        <span style="font-family:var(--mo);color:var(--t3);min-width:70px;flex-shrink:0;font-size:11px">${ord}</span>
-        <span style="color:var(--t2);flex:1">${row.proj||''} · ${row.tar||''}</span>
-        <span style="color:var(--t3);font-size:11px;flex-shrink:0">${flds}</span>
+      const moedaRow=row.moeda||'BRL';
+      const vmRow=row.valormoeda||0;
+      const fmtVM2=(v,m)=>m==='BRL'?new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',minimumFractionDigits:2}).format(v):`${m} ${Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})}`;
+      const fmtDiff=(k,v,moeda)=>{
+        if(k==='valormoeda'){const m=moeda||'BRL';return m==='BRL'?new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',minimumFractionDigits:2}).format(Number(v)||0):`${m} ${Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})}`;}
+        return fmtV(k,v)||'—';
+      };
+      const paraMoeda=ch.moeda||moedaRow;
+      const diffKeys=Object.keys(ch).filter(k=>k!=='prio');
+      const diffHtml=diffKeys.map(k=>{
+        const lbl=FIELD_LBL[k]||k;
+        const de=fmtDiff(k,row[k],moedaRow)||'—';
+        const para=fmtDiff(k,ch[k],paraMoeda)||'—';
+        return`<div style="font-size:11px;padding-left:2px;color:var(--t3)">${lbl}: <span style="color:var(--t2)">${de}</span> <span style="opacity:.5">→</span> <span style="color:var(--ac)">${para}</span></div>`;
+      }).join('');
+      html+=`<div style="padding:6px 0;border-bottom:1px solid rgba(42,68,96,.5)">
+        <div style="display:flex;gap:10px;align-items:baseline;font-size:12px;margin-bottom:3px">
+          <span style="font-family:var(--mo);color:var(--t3);min-width:70px;flex-shrink:0;font-size:11px">${ord}</span>
+          <div style="flex:1;display:flex;flex-direction:column;gap:1px;overflow:hidden">
+            <span style="color:var(--t2)">${row.proj||''} · ${row.tar||''}</span>
+            <span style="font-size:11px;color:var(--t3)">Pacote ${row.pacote||'—'} · ${fmtVM2(vmRow,moedaRow)}</span>
+          </div>
+        </div>
+        ${diffHtml}
       </div>`;
     });
   }
