@@ -1025,7 +1025,7 @@ function render(){
         };
         const hasPendTr=!!(pend[row.ord]&&Object.keys(pend[row.ord]).length)||!!(pendSubmitted[row.ord]&&Object.keys(pendSubmitted[row.ord]).length);
         if(isDirmab()){
-          if((raw===''||raw==='ATENDER')&&!hasPendTr)return`<td><div style="display:flex;align-items:center;height:32px"><select class="isel" onchange="ceDirmab('${row.ord}','tramite',this.value)"><option value=""${raw===''?' selected':''}>—</option><option value="ATENDER"${raw==='ATENDER'?' selected':''}>ATENDER</option></select></div></td>`;
+          if((raw===''||raw==='ATENDER'||raw==='SOLICITADO')&&!hasPendTr)return`<td><div style="display:flex;align-items:center;height:32px"><select class="isel" onchange="ceDirmab('${row.ord}','tramite',this.value)"><option value=""${raw===''?' selected':''}>—</option>${raw==='SOLICITADO'?`<option value="SOLICITADO" selected>SOLICITADO</option>`:''}<option value="ATENDER"${raw==='ATENDER'?' selected':''}>ATENDER</option></select></div></td>`;
           return`<td><div class="cell">${trLabel(raw)}</div></td>`;
         }
         if(!rowEditable)return`<td><div class="cell">${trLabel(raw)}</div></td>`;
@@ -1645,16 +1645,7 @@ function _doEnviar(descPend,altPend){
   let pendIds=null;try{const s=localStorage.getItem('mta_pkgs_pending');if(s)pendIds=JSON.parse(s);}catch(e){}
   if(!pendIds)pendIds=['pkg1','pkg2','pkg3','pkg4','pkg5','pkg6','pkg7'];
   const newIds=[];let i=0;
-  // Pacotes de descentralização (tramite → SOLICITADO)
-  const descByParque={};
-  Object.entries(descPend).forEach(([ord])=>{
-    const row=ROWS.find(r=>r.ord===ord);if(!row)return;
-    if(!descByParque[row.mta])descByParque[row.mta]=[];
-    descByParque[row.mta].push({ord,tipo:'desc',proj:row.proj,ativ:row.ativ,tar:row.tar,
-      diffs:[{campo:'Trâmite',de:'—',para:'SOLICITADO · aguardando DIRMAB'}],
-      newVals:{tramite:'SOLICITADO',datasolic:dataSOL,prio:descPend[ord]?.prio||''}});
-  });
-  // Aplica SOLICITADO diretamente (sem estado pendente amarelo)
+  // Aplica SOLICITADO diretamente (sem enviar para aprovações)
   try{
     const appv=JSON.parse(localStorage.getItem('mta_approved_vals')||'{}');
     Object.keys(descPend).forEach(ord=>{
@@ -1665,12 +1656,6 @@ function _doEnviar(descPend,altPend){
     });
     localStorage.setItem('mta_approved_vals',JSON.stringify(appv));
   }catch(e){}
-  Object.entries(descByParque).forEach(([parque,changes])=>{
-    const id=`user_${ts}_d${i++}`;const nL=changes.length;
-    userdata[id]={id,parque,tipo:'desc',autor,data:dataStr,
-      desc:`${nL} linha${nL!==1?'s':''} · Solicitação de descentralização`,changes};
-    newIds.push(id);
-  });
   // Pacotes de alteração (demais mudanças)
   const altByParque={};
   Object.entries(altPend).forEach(([ord,ch])=>{
@@ -1689,13 +1674,15 @@ function _doEnviar(descPend,altPend){
   localStorage.setItem('mta_pkgs_userdata',JSON.stringify(userdata));
   localStorage.setItem('mta_pkgs_pending',JSON.stringify(pendIds));
   pend={};loadSubmittedPend();render();
-  const allParques=[...new Set([...Object.keys(descByParque),...Object.keys(altByParque)])];
+  const allParques=[...new Set([...Object.keys(altByParque)])];
   const descCount=Object.keys(descPend).length;const altCount=Object.keys(altPend).length;
   const parts=[];
-  if(descCount)parts.push(descCount+` linha${descCount!==1?'s':''} · descentralização`);
+  if(descCount)parts.push(descCount+` linha${descCount!==1?'s':''} marcada${descCount!==1?'s':''} como SOLICITADO`);
   if(altCount)parts.push(altCount+` alteraç${altCount===1?'ão':'ões'}`);
-  document.getElementById('sub-parques').textContent='Parque(s): '+allParques.join(', ');
-  document.getElementById('sub-sub').textContent=parts.join(' · ')+' · aguardando aprovação DIRMAB';
+  const parquesLabel=allParques.length?'Parque(s): '+allParques.join(', '):'';
+  document.getElementById('sub-parques').textContent=parquesLabel;
+  const subMsg=parts.join(' · ')+(altCount?' · aguardando aprovação DIRMAB':'');
+  document.getElementById('sub-sub').textContent=subMsg;
   document.getElementById('subm').classList.add('open');
   updAprovBadge();
 }
