@@ -690,7 +690,7 @@ tr:hover .split-btn{display:inline}
 
 <!-- IMPORT MODAL -->
 <div class="mov" id="imp-m">
-  <div class="md" style="max-width:500px">
+  <div class="modal" style="max-width:500px;width:500px">
     <div class="mh"><div><h3>Importar planilha MTA</h3><div class="mh-sub">Formato padrão DIRMAB (.xlsx)</div></div><span class="mcl" onclick="closeImportModal()">×</span></div>
     <div class="mb">
       <div id="imp-step1">
@@ -1720,15 +1720,12 @@ function xlSerial(n,mode){
   return mode==='month'?`${mm}/${yyyy}`:`${dd}/${mm}/${yyyy}`;
 }
 function xlRowToObj(raw){
-  const ordRaw=(raw['A']||'').toString().trim();if(!ordRaw)return null;
-  const ordNum=parseInt(ordRaw);if(isNaN(ordNum)||ordNum<=0)return null;
-  const ord=String(ordNum).padStart(6,'0');
-  const isSub=ordNum%10!==0;
-  const maOrd=isSub?String(Math.floor(ordNum/10)*10).padStart(6,'0'):null;
+  const ordRaw=(raw['A']||'').toString().trim();
   const str=k=>(raw[k]||'').toString().trim();
   const moedaRaw=str('AA').toUpperCase();
   return{
-    ord,aprovado:str('B')||'SIM',acao:str('D'),prio:str('E'),
+    _ordRaw:ordRaw,  // kept for auto-numbering pass
+    aprovado:str('B')||'SIM',acao:str('D'),prio:str('E'),
     tramite:str('F'),datasolic:xlSerial(raw['G'],'date'),
     nropeddirmab:str('H'),datapeddirmab:xlSerial(raw['I'],'date'),
     digito:str('J'),mta:str('K'),pacote:str('L'),uge:str('M'),
@@ -1738,8 +1735,68 @@ function xlRowToObj(raw){
     ed:str('Z'),moeda:MOEDA_IMPORT[moedaRaw]||'BRL',
     valormoeda:parseFloat(str('AB'))||0,valor:parseFloat(str('AC'))||0,
     mesdesc:xlSerial(raw['AD'],'month'),mesliq:xlSerial(raw['AE'],'month'),
-    obs:str('AF'),sub:isSub,maOrd
+    obs:str('AF')
   };
+}
+function assignOrds(rows){
+  // For rows that already have an ord, keep it; otherwise auto-assign per MTA.
+  // Track the last "main" ord per MTA (for sub-row detection and parent linking).
+  const maxOrdPerMta={};  // max ord already in system per MTA
+  try{
+    const existing=JSON.parse(localStorage.getItem('mta_approved_newrows')||'{}');
+    Object.values(existing).forEach(r=>{
+      const n=parseInt(r.ord);if(!r.mta||isNaN(n))return;
+      if(!maxOrdPerMta[r.mta]||n>maxOrdPerMta[r.mta])maxOrdPerMta[r.mta]=n;
+    });
+  }catch(e){}
+  const nextMainPerMta={};  // next available main ord per MTA during import
+  const lastMainOrdPerMta={};  // last main ord seen in this import pass (for sub detection)
+  const childCountPerParent={};  // how many children assigned per parent ord
+
+  return rows.filter(r=>r.mta).map(r=>{
+    const mta=r.mta;
+    const ordNum=parseInt(r._ordRaw);
+    const hasOrd=!isNaN(ordNum)&&ordNum>0;
+    delete r._ordRaw;
+
+    if(hasOrd){
+      const ord=String(ordNum).padStart(6,'0');
+      const isSub=ordNum%10!==0;
+      const maOrd=isSub?String(Math.floor(ordNum/10)*10).padStart(6,'0'):null;
+      if(!isSub){
+        lastMainOrdPerMta[mta]=ordNum;
+        if(!maxOrdPerMta[mta]||ordNum>maxOrdPerMta[mta])maxOrdPerMta[mta]=ordNum;
+      }
+      return{...r,ord,sub:isSub,maOrd};
+    }
+
+    // No ord — auto-assign
+    // Check if this row looks like a sub-row: has no key identifiers of its own,
+    // or follows a main row that had an ord. Use heuristic: if mta matches last main
+    // and proj/ativ is empty but tar is filled → sub; otherwise treat as main.
+    // Simple rule: if the row has ativ filled, it's a main row; else sub of last main.
+    const isSubHeuristic=!r.ativ&&!!lastMainOrdPerMta[mta];
+
+    if(isSubHeuristic){
+      const parentOrdNum=lastMainOrdPerMta[mta];
+      const parentOrd=String(parentOrdNum).padStart(6,'0');
+      if(!childCountPerParent[parentOrd])childCountPerParent[parentOrd]=0;
+      childCountPerParent[parentOrd]++;
+      const childNum=parentOrdNum+childCountPerParent[parentOrd];
+      const ord=String(childNum).padStart(6,'0');
+      return{...r,ord,sub:true,maOrd:parentOrd};
+    }
+
+    // Main row auto-numbering
+    const base=maxOrdPerMta[mta]||0;
+    if(!nextMainPerMta[mta])nextMainPerMta[mta]=Math.ceil((base+10)/10)*10;
+    const newNum=nextMainPerMta[mta];
+    nextMainPerMta[mta]+=10;
+    maxOrdPerMta[mta]=newNum;
+    lastMainOrdPerMta[mta]=newNum;
+    const ord=String(newNum).padStart(6,'0');
+    return{...r,ord,sub:false,maOrd:null};
+  });
 }
 let _importRows=null;
 function openImport(){
@@ -1761,7 +1818,8 @@ function handleImportFile(file){
       const wb=XLSX.read(new Uint8Array(e.target.result),{type:'array',raw:true});
       const ws=wb.Sheets[wb.SheetNames[0]];
       const json=XLSX.utils.sheet_to_json(ws,{header:'A',raw:true,defval:''});
-      _importRows=json.slice(1).map(xlRowToObj).filter(r=>r&&r.ord&&r.mta);
+      const parsed=json.slice(1).map(xlRowToObj).filter(r=>r&&r.mta);
+      _importRows=assignOrds(parsed);
       showImportPreview(file.name);
     }catch(err){alert('Erro ao ler a planilha: '+err.message);}
   };
