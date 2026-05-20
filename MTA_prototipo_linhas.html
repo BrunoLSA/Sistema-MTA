@@ -294,6 +294,7 @@ tr:hover .split-btn{display:inline}
 .prof-sel{background:var(--n3);border:1px solid var(--b2);border-radius:var(--r);padding:5px 28px 5px 10px;font-size:12px;font-weight:600;color:var(--tx);font-family:var(--fn);outline:none;cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236b8aaa' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center}
 .prof-sel:focus{border-color:var(--ac);color:var(--tx)}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body>
 <div class="shell">
@@ -339,6 +340,7 @@ tr:hover .split-btn{display:inline}
       <button class="btn" onclick="openCP()"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><rect x="1" y="2" width="14" height="2.5" rx="1" fill="currentColor"/><rect x="1" y="6.75" width="10" height="2.5" rx="1" fill="currentColor"/><rect x="1" y="11.5" width="12" height="2.5" rx="1" fill="currentColor"/></svg> Configurar colunas</button>
       <button class="btn"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M4 12h8M8 3v7M5 7l3 3 3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg> Exportar</button>
       <button class="btn" onclick="openCambio()" title="Configurar taxas de câmbio planejado">⇄ Câmbio</button>
+      <button class="btn" onclick="openImport()" title="Importar planilha MTA (.xlsx)"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M8 10V3M5 7l3 3 3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 12h10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg> Importar</button>
       <button class="btn btn-p" id="btn-novalinha" onclick="openNL()"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg> Nova linha</button>
       <button class="btn btn-d btn-sm" onclick="resetDados()" title="Apagar todos os dados de teste e recarregar">⟳ Reiniciar dados</button>
     </div>
@@ -686,6 +688,33 @@ tr:hover .split-btn{display:inline}
   </div>
 </div>
 
+<!-- IMPORT MODAL -->
+<div class="mov" id="imp-m">
+  <div class="md" style="max-width:500px">
+    <div class="mh"><div><h3>Importar planilha MTA</h3><div class="mh-sub">Formato padrão DIRMAB (.xlsx)</div></div><span class="mcl" onclick="closeImportModal()">×</span></div>
+    <div class="mb">
+      <div id="imp-step1">
+        <label for="imp-file" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;border:2px dashed var(--bd);border-radius:8px;padding:36px 24px;cursor:pointer;transition:border-color .15s" onmouseenter="this.style.borderColor='var(--ac)'" onmouseleave="this.style.borderColor='var(--bd)'">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <div style="text-align:center"><div style="font-weight:500">Clique para selecionar o arquivo</div><div style="font-size:11px;color:var(--t3);margin-top:3px">Planilha .xlsx no formato padrão MTA</div></div>
+        </label>
+        <input type="file" id="imp-file" accept=".xlsx,.xls" style="display:none" onchange="handleImportFile(this.files[0])">
+        <div id="imp-lib-warn" style="display:none;margin-top:10px;padding:8px 12px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:6px;font-size:11px;color:var(--rd)">Biblioteca XLSX não carregada. Verifique a conexão com a internet e recarregue a página.</div>
+      </div>
+      <div id="imp-step2" style="display:none">
+        <div id="imp-summary"></div>
+        <div class="mf" style="margin-top:0">
+          <button class="btn" onclick="closeImportModal()">Cancelar</button>
+          <div style="display:flex;gap:6px;margin-left:auto">
+            <button class="btn" onclick="confirmImport(false)" title="Mantém dados existentes e adiciona as linhas importadas">Adicionar</button>
+            <button class="btn btn-p" onclick="confirmImport(true)" title="Apaga todos os dados atuais e substitui pelo conteúdo da planilha">Substituir tudo</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- COL PANEL -->
 <div class="cov" id="cov" onclick="if(event.target===this)closeCP()">
   <div class="cp">
@@ -795,17 +824,26 @@ function applyApprovedVals(){
     const approved=JSON.parse(localStorage.getItem('mta_approved_vals')||'{}');
     ROWS.forEach(r=>{if(approved[r.ord])Object.assign(r,approved[r.ord]);});
     const newRows=JSON.parse(localStorage.getItem('mta_approved_newrows')||'{}');
-    Object.values(newRows).forEach(nr=>{
-      if(ROWS.find(r=>r.ord===nr.ord))return;
-      if(nr.maOrd){
-        const pi=ROWS.findIndex(r=>r.ord===nr.maOrd);
-        if(pi>=0)ROWS.splice(pi+1,0,nr);else ROWS.push(nr);
-      }else{
-        // main line: insert in numeric ord order
-        const n=parseInt(nr.ord);
-        const ins=ROWS.findIndex(r=>parseInt(r.ord)>n);
-        if(ins>=0)ROWS.splice(ins,0,nr);else ROWS.push(nr);
-      }
+    const allNew=Object.values(newRows).filter(nr=>!ROWS.find(r=>r.ord===nr.ord));
+    // Insert main rows first (sorted), then sub-rows so parents exist when children are inserted
+    const mainRows=allNew.filter(nr=>!nr.maOrd).sort((a,b)=>parseInt(a.ord)-parseInt(b.ord));
+    const subRows=allNew.filter(nr=>!!nr.maOrd).sort((a,b)=>{
+      if(a.maOrd!==b.maOrd)return parseInt(a.maOrd)-parseInt(b.maOrd);
+      return parseInt(a.ord)-parseInt(b.ord);
+    });
+    mainRows.forEach(nr=>{
+      const n=parseInt(nr.ord);
+      const ins=ROWS.findIndex(r=>parseInt(r.ord)>n);
+      if(ins>=0)ROWS.splice(ins,0,nr);else ROWS.push(nr);
+    });
+    subRows.forEach(nr=>{
+      const pi=ROWS.findIndex(r=>r.ord===nr.maOrd);
+      if(pi>=0){
+        // insert after parent and after any existing siblings with lower ord
+        let at=pi+1;
+        while(at<ROWS.length&&ROWS[at].maOrd===nr.maOrd&&parseInt(ROWS[at].ord)<parseInt(nr.ord))at++;
+        ROWS.splice(at,0,nr);
+      }else ROWS.push(nr);
     });
   }catch(e){}
 }
@@ -1667,6 +1705,105 @@ function _doEnviar(descPend,altPend){
   document.getElementById('sub-sub').textContent=subMsg;
   document.getElementById('subm').classList.add('open');
   updAprovBadge();
+}
+
+// ── IMPORTAÇÃO XLSX ──
+const MOEDA_IMPORT={'REAL':'BRL','DÓLAR':'USD','DOLAR':'USD','EURO':'EUR','LIBRA':'GBP','COROA SUECA':'SEK'};
+function xlSerial(n,mode){
+  if(!n)return'';
+  const num=parseInt(n);if(!num)return'';
+  const d=new Date((num-25569)*86400000);
+  if(isNaN(d.getTime()))return'';
+  const mm=String(d.getUTCMonth()+1).padStart(2,'0');
+  const dd=String(d.getUTCDate()).padStart(2,'0');
+  const yyyy=d.getUTCFullYear();
+  return mode==='month'?`${mm}/${yyyy}`:`${dd}/${mm}/${yyyy}`;
+}
+function xlRowToObj(raw){
+  const ordRaw=(raw['A']||'').toString().trim();if(!ordRaw)return null;
+  const ordNum=parseInt(ordRaw);if(isNaN(ordNum)||ordNum<=0)return null;
+  const ord=String(ordNum).padStart(6,'0');
+  const isSub=ordNum%10!==0;
+  const maOrd=isSub?String(Math.floor(ordNum/10)*10).padStart(6,'0'):null;
+  const str=k=>(raw[k]||'').toString().trim();
+  const moedaRaw=str('AA').toUpperCase();
+  return{
+    ord,aprovado:str('B')||'SIM',acao:str('D'),prio:str('E'),
+    tramite:str('F'),datasolic:xlSerial(raw['G'],'date'),
+    nropeddirmab:str('H'),datapeddirmab:xlSerial(raw['I'],'date'),
+    digito:str('J'),mta:str('K'),pacote:str('L'),uge:str('M'),
+    omorigem:str('N'),ombenef:str('O'),pi:str('P'),
+    proj:str('R'),ativ:str('S'),tar:str('T'),matricula:str('U'),
+    cat:str('V'),paramotores:str('W')||'NÃO',paracontrato:str('X')||'SOB DEMANDA',
+    ed:str('Z'),moeda:MOEDA_IMPORT[moedaRaw]||'BRL',
+    valormoeda:parseFloat(str('AB'))||0,valor:parseFloat(str('AC'))||0,
+    mesdesc:xlSerial(raw['AD'],'month'),mesliq:xlSerial(raw['AE'],'month'),
+    obs:str('AF'),sub:isSub,maOrd
+  };
+}
+let _importRows=null;
+function openImport(){
+  const warn=document.getElementById('imp-lib-warn');
+  if(warn)warn.style.display=typeof XLSX==='undefined'?'':'none';
+  document.getElementById('imp-m').classList.add('open');
+  document.getElementById('imp-step1').style.display='';
+  document.getElementById('imp-step2').style.display='none';
+  document.getElementById('imp-file').value='';
+  _importRows=null;
+}
+function closeImportModal(){document.getElementById('imp-m').classList.remove('open');}
+function handleImportFile(file){
+  if(!file)return;
+  if(typeof XLSX==='undefined'){alert('Biblioteca XLSX não carregada. Verifique a conexão com a internet.');return;}
+  const reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      const wb=XLSX.read(new Uint8Array(e.target.result),{type:'array',raw:true});
+      const ws=wb.Sheets[wb.SheetNames[0]];
+      const json=XLSX.utils.sheet_to_json(ws,{header:'A',raw:true,defval:''});
+      _importRows=json.slice(1).map(xlRowToObj).filter(r=>r&&r.ord&&r.mta);
+      showImportPreview(file.name);
+    }catch(err){alert('Erro ao ler a planilha: '+err.message);}
+  };
+  reader.readAsArrayBuffer(file);
+}
+function showImportPreview(fname){
+  const byMta={};
+  _importRows.forEach(r=>{
+    if(!byMta[r.mta])byMta[r.mta]={total:0,sub:0};
+    byMta[r.mta].total++;if(r.sub)byMta[r.mta].sub++;
+  });
+  const existingCount=ROWS.length;
+  const warnHtml=existingCount>0
+    ?`<div style="background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.3);border-radius:6px;padding:8px 12px;font-size:11px;color:var(--am);margin-bottom:12px">⚠ Existem ${existingCount} linha(s) carregadas. <b>Substituir tudo</b> apaga os dados atuais; <b>Adicionar</b> mantém e acrescenta.</div>`
+    :'';
+  document.getElementById('imp-step1').style.display='none';
+  document.getElementById('imp-step2').style.display='';
+  document.getElementById('imp-summary').innerHTML=`
+    <div style="font-size:11px;color:var(--t3);margin-bottom:10px">Arquivo: <b style="color:var(--tx)">${fname}</b></div>
+    ${warnHtml}
+    <div style="font-weight:600;margin-bottom:10px">${_importRows.length} linha(s) encontrada(s)</div>
+    <div style="border:1px solid var(--bd);border-radius:6px;overflow:hidden;margin-bottom:16px">
+      ${Object.entries(byMta).map(([mta,c],i)=>`
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 14px;font-size:12px;${i>0?'border-top:1px solid var(--bd)':''}">
+          <span style="font-weight:500">${mta}</span>
+          <span style="color:var(--t2)">${c.total} linha${c.total!==1?'s':''}${c.sub?` · ${c.sub} filha${c.sub!==1?'s':''}`:''}
+          </span>
+        </div>`).join('')}
+    </div>`;
+}
+function confirmImport(replace){
+  if(!_importRows||!_importRows.length)return;
+  if(replace){
+    ['mta_pkgs_pending','mta_pkgs_userdata','mta_approved_vals','mta_approved_newrows','mta_devolvidos'].forEach(k=>localStorage.removeItem(k));
+  }
+  let newRows={};
+  if(!replace){try{newRows=JSON.parse(localStorage.getItem('mta_approved_newrows')||'{}');}catch(e){}}
+  _importRows.forEach(r=>{newRows[r.ord]=r;});
+  localStorage.setItem('mta_approved_newrows',JSON.stringify(newRows));
+  closeImportModal();
+  ROWS.length=0;pend={};
+  applyApprovedVals();loadSubmittedPend();loadDevolvidos();render();
 }
 
 // ── CÂMBIO PLANEJADO ──
