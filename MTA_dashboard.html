@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
+<title>Sistema MTA — Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --n:#132337;--n2:#1c3048;--n3:#243d5c;--n4:#2d4d72;
+  --ac:#2dd4bf;--am:#fbbf24;--gr:#34d399;--rd:#f87171;--bl:#60a5fa;--pu:#a78bfa;
+  --tx:#eef2f7;--t2:#a8bcd4;--t3:#6b8aaa;
+  --bd:#2a4460;--b2:#3d6080;
+  --fn:'IBM Plex Sans',sans-serif;--mo:'IBM Plex Mono',monospace;
+  --r:6px;--rl:10px;
+}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--fn);background:var(--n);color:var(--tx);font-size:13px;display:flex;flex-direction:column}
+.shell{display:flex;flex:1;min-height:0;overflow:hidden}
+
+/* ── SIDEBAR ── */
+.sb{background:var(--n2);border-right:1px solid var(--bd);display:flex;flex-direction:column;width:220px;flex-shrink:0;transition:width .22s;overflow:visible;position:relative;z-index:50}
+.sb.col{width:52px}
+.sb-logo{padding:14px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:10px;min-height:62px}
+.sb-icon{width:28px;height:28px;border-radius:6px;background:rgba(45,212,191,.15);border:1px solid rgba(45,212,191,.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--ac)}
+.sb-txt{overflow:hidden;white-space:nowrap;transition:opacity .15s}
+.col .sb-txt{opacity:0;width:0;pointer-events:none}
+.sb-mark{font-family:var(--mo);font-size:9px;color:var(--ac);letter-spacing:2px;text-transform:uppercase}
+.sb-title{font-size:14px;font-weight:600;color:var(--tx)}
+.sb-sub{font-size:10px;color:var(--t3)}
+.tog{position:absolute;top:16px;right:-15px;width:28px;height:28px;border-radius:50%;background:var(--n3);border:2px solid var(--b2);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:200;color:var(--t3);box-shadow:0 2px 8px rgba(0,0,0,.6);transition:all .15s}
+.tog:hover{background:var(--n4);color:var(--tx)}
+.tog svg{transition:transform .22s}
+.col .tog svg{transform:rotate(180deg)}
+.nav{padding:8px 0;flex:1;overflow:hidden}
+.ns{padding:0 14px 3px;font-size:9px;font-weight:600;letter-spacing:1.5px;color:var(--t3);text-transform:uppercase;margin-top:10px;white-space:nowrap;transition:opacity .15s}
+.col .ns{opacity:0}
+.ni{display:flex;align-items:center;padding:7px 14px;font-size:13px;color:var(--t2);cursor:pointer;border-left:2px solid transparent;gap:10px;white-space:nowrap;transition:all .15s;position:relative}
+.ni:hover{color:var(--tx);background:rgba(255,255,255,.05)}
+.ni.act{color:var(--ac);border-left-color:var(--ac);background:rgba(45,212,191,.07)}
+.ni-ico{width:16px;height:16px;flex-shrink:0}
+.ni-lbl{flex:1;overflow:hidden;min-width:0;transition:opacity .15s}
+.col .ni-lbl{opacity:0;width:0;flex:0}
+.col .ni{padding:7px 0;justify-content:center;border-left:none;gap:0}
+.col .ni.act{background:rgba(45,212,191,.1)}
+.sb-foot{padding:10px 14px;border-top:1px solid var(--bd);overflow:hidden}
+.ua{display:flex;align-items:center;gap:10px}
+.uav{width:30px;height:30px;border-radius:50%;background:var(--n4);border:1px solid var(--b2);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:var(--ac);flex-shrink:0}
+.ui{overflow:hidden;white-space:nowrap;transition:opacity .15s}
+.col .ui{opacity:0;width:0}
+
+/* ── MAIN ── */
+.main{display:flex;flex-direction:column;flex:1;min-width:0;overflow:hidden}
+.topbar{padding:11px 18px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;background:var(--n2);flex-shrink:0;gap:12px}
+.pt{font-size:15px;font-weight:600}
+.ps{font-size:11px;color:var(--t3);margin-top:1px}
+.tbr{display:flex;gap:6px;flex-shrink:0;align-items:center}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:var(--r);font-size:12px;font-weight:500;cursor:pointer;border:1px solid #4a7aaa;background:#375f8a;color:#cce0f5;font-family:var(--fn);transition:all .15s;white-space:nowrap}
+.btn:hover{background:#4a78b5;color:#fff;border-color:#5a90ca}
+.btn-p{background:rgba(45,212,191,.22);color:var(--ac);border-color:rgba(45,212,191,.55)}
+.btn-p:hover{background:var(--ac);color:#0a1a2a}
+
+/* ── DASHBOARD CONTENT ── */
+.dash-scroll{flex:1;overflow-y:auto;padding:20px}
+.dash-scroll::-webkit-scrollbar{width:7px}
+.dash-scroll::-webkit-scrollbar-track{background:var(--n)}
+.dash-scroll::-webkit-scrollbar-thumb{background:var(--n4);border-radius:4px}
+
+/* KPI cards */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.kpi-card{background:var(--n2);border:1px solid var(--bd);border-radius:10px;padding:16px 20px}
+.kpi-lbl{font-size:11px;color:var(--t3);margin-bottom:4px}
+.kpi-val{font-family:var(--mo);font-size:22px;font-weight:600;color:var(--ac);line-height:1.2}
+.kpi-count{font-size:10px;color:var(--t3);margin-top:4px}
+
+/* Chart section */
+.charts-row{display:grid;grid-template-columns:55% 45%;gap:12px;margin-bottom:16px}
+.chart-card{background:var(--n2);border:1px solid var(--bd);border-radius:10px;padding:16px}
+.card-title{font-size:11px;font-weight:600;letter-spacing:.6px;color:var(--t3);text-transform:uppercase;margin-bottom:12px}
+
+/* Tables section */
+.tables-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.tbl-card{background:var(--n2);border:1px solid var(--bd);border-radius:10px;padding:16px}
+.dash-table{width:100%;border-collapse:collapse;font-size:12px}
+.dash-table th{text-align:left;font-size:10px;font-weight:600;letter-spacing:.5px;color:var(--t3);text-transform:uppercase;padding:5px 8px;border-bottom:1px solid var(--bd)}
+.dash-table td{padding:6px 8px;border-bottom:1px solid rgba(42,68,96,.3);color:var(--t2);vertical-align:middle}
+.dash-table tr:last-child td{border-bottom:none}
+.dash-table tr:hover td{background:rgba(255,255,255,.02)}
+
+/* Mini bar inside table */
+.mini-bar-wrap{display:flex;align-items:center;gap:6px}
+.mini-bar-bg{flex:1;height:4px;background:var(--n3);border-radius:2px;overflow:hidden;min-width:40px}
+.mini-bar-fill{height:100%;border-radius:2px}
+
+/* Projects chart */
+.proj-card{background:var(--n2);border:1px solid var(--bd);border-radius:10px;padding:16px;margin-bottom:16px}
+
+/* Doughnut legend */
+.doughnut-wrap{display:flex;flex-direction:column;gap:0}
+.doughnut-chart-area{position:relative;height:180px;display:flex;align-items:center;justify-content:center}
+.doughnut-legend{margin-top:10px;display:flex;flex-direction:column;gap:4px}
+.dleg-row{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--t2)}
+.dleg-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.dleg-val{margin-left:auto;font-family:var(--mo);font-size:11px;color:var(--t3)}
+
+/* Empty state */
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:var(--t3);padding:60px 20px;text-align:center}
+.empty-state svg{opacity:.2}
+.empty-state p{font-size:13px;max-width:360px;line-height:1.6}
+
+/* selects */
+select.dash-sel{font-size:12px;padding:5px 10px;border-radius:var(--r);background:var(--n3);border:1px solid var(--b2);color:var(--tx);cursor:pointer;font-family:var(--fn);outline:none}
+select.dash-sel:focus{border-color:var(--ac)}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- SIDEBAR -->
+<div class="sb" id="sb">
+  <div class="sb-logo">
+    <div class="sb-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="9" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="1" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/></svg></div>
+    <div class="sb-txt"><div class="sb-mark">DIRMAB</div><div class="sb-title">Sistema MTA</div><div class="sb-sub">Módulo de Trabalho Anual</div></div>
+  </div>
+  <div class="tog" onclick="togSB()"><svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M7.5 2L3.5 6l4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+  <nav class="nav">
+    <div class="ns">Principal</div>
+    <div class="ni" onclick="location.href='MTA_painel_geral.html'">
+      <svg class="ni-ico" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="1" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/></svg>
+      <span class="ni-lbl">Painel geral</span>
+    </div>
+    <div class="ni" onclick="location.href='MTA_prototipo_linhas.html'">
+      <svg class="ni-ico" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h8M2 12h10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      <span class="ni-lbl">Linhas do MTA</span>
+    </div>
+    <div class="ni" onclick="location.href='MTA_aprovacoes.html'">
+      <svg class="ni-ico" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.2"/><path d="M8 5v3l2 2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      <span class="ni-lbl">Aprovações</span>
+    </div>
+    <div class="ni act">
+      <svg class="ni-ico" viewBox="0 0 16 16" fill="none"><rect x="2" y="10" width="3" height="4" rx=".5" stroke="currentColor" stroke-width="1.2"/><rect x="6.5" y="6" width="3" height="8" rx=".5" stroke="currentColor" stroke-width="1.2"/><rect x="11" y="2" width="3" height="12" rx=".5" stroke="currentColor" stroke-width="1.2"/></svg>
+      <span class="ni-lbl">Dashboard</span>
+    </div>
+    <div class="ns">Histórico</div>
+    <div class="ni">
+      <svg class="ni-ico" viewBox="0 0 16 16" fill="none"><path d="M8 2a6 6 0 1 1 0 12A6 6 0 0 1 8 2z" stroke="currentColor" stroke-width="1.2"/><path d="M8 5v3l2 1.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      <span class="ni-lbl">Histórico de aprovações</span>
+    </div>
+    <div class="ns">Configuração</div>
+    <div class="ni">
+      <svg class="ni-ico" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      <span class="ni-lbl">Parâmetros e colunas</span>
+    </div>
+    <div class="ni">
+      <svg class="ni-ico" viewBox="0 0 16 16" fill="none"><ellipse cx="8" cy="5" rx="6" ry="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M2 5v6c0 1.38 2.69 2.5 6 2.5s6-1.12 6-2.5V5" stroke="currentColor" stroke-width="1.2"/><path d="M2 8c0 1.38 2.69 2.5 6 2.5s6-1.12 6-2.5" stroke="currentColor" stroke-width="1.2"/></svg>
+      <span class="ni-lbl">Cenários</span>
+    </div>
+  </nav>
+  <div class="sb-foot">
+    <div class="ua">
+      <div class="uav">DB</div>
+      <div class="ui">
+        <div style="font-size:12px;font-weight:500;color:var(--tx)">Ten Cel Silva</div>
+        <div style="font-size:10px;color:var(--t3)">DIRMAB · Administrador</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div>
+      <div class="pt">Dashboard Financeiro</div>
+      <div class="ps">MTA 2026 — Cenário A</div>
+    </div>
+    <div class="tbr">
+      <span style="font-size:11px;color:var(--t3)">Aprovado</span>
+      <select id="sel-aprovado" class="dash-sel">
+        <option value="">Todos</option>
+        <option value="SIM" selected>SIM</option>
+        <option value="NÃO">NÃO</option>
+      </select>
+      <span style="font-size:11px;color:var(--t3);margin-left:4px">Parque</span>
+      <select id="sel-parque" class="dash-sel">
+        <option value="" selected>Todos</option>
+        <option value="PAMAGL">PAMAGL</option>
+        <option value="PAMALS">PAMALS</option>
+        <option value="PAMASP">PAMASP</option>
+        <option value="PAMBRJ">PAMBRJ</option>
+        <option value="DIRMAB">DIRMAB</option>
+        <option value="CELOG">CELOG</option>
+        <option value="DTI">DTI</option>
+      </select>
+      <button class="btn btn-p" onclick="render()">
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M13.5 2.5A6.5 6.5 0 1 0 14 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M14 3V2h1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Atualizar
+      </button>
+    </div>
+  </div>
+
+  <div class="dash-scroll" id="dash-content">
+    <!-- filled by render() -->
+  </div>
+</div>
+
+</div><!-- .shell -->
+
+<script>
+Chart.defaults.color='#a8bcd4';
+Chart.defaults.borderColor='#2a4460';
+
+const CAMBIO_DEFAULT={BRL:1,USD:5.85,EUR:6.40,GBP:7.45,SEK:0.54,CAD:4.30,JPY:0.039,CHF:6.80};
+function getCambio(){try{return{...CAMBIO_DEFAULT,...JSON.parse(localStorage.getItem('mta_cambio')||'{}')};}catch(e){return{...CAMBIO_DEFAULT};}}
+
+function loadRows(){
+  const rows=[];
+  try{
+    const newRows=JSON.parse(localStorage.getItem('mta_approved_newrows')||'{}');
+    const approved=JSON.parse(localStorage.getItem('mta_approved_vals')||'{}');
+    const allNew=Object.values(newRows);
+    const mainRows=allNew.filter(r=>!r.maOrd).sort((a,b)=>parseInt(a.ord)-parseInt(b.ord));
+    const subRows=allNew.filter(r=>!!r.maOrd).sort((a,b)=>parseInt(a.maOrd)-parseInt(b.maOrd)||parseInt(a.ord)-parseInt(b.ord));
+    mainRows.forEach(r=>rows.push({...r,...(approved[r.ord]||{})}));
+    subRows.forEach(r=>rows.push({...r,...(approved[r.ord]||{})}));
+  }catch(e){}
+  return rows;
+}
+
+function fmtBRL(v){
+  return new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',minimumFractionDigits:0,maximumFractionDigits:0}).format(v||0);
+}
+function fmtK(v){
+  if(v>=1e9)return'R$ '+(v/1e9).toFixed(1)+'B';
+  if(v>=1e6)return'R$ '+(v/1e6).toFixed(1)+'M';
+  if(v>=1e3)return'R$ '+(v/1e3).toFixed(0)+'K';
+  return fmtBRL(v);
+}
+function pct(a,b){return b?((a/b)*100).toFixed(1)+'%':'—';}
+
+function sum(arr,field){return arr.reduce((s,r)=>s+(parseFloat(r[field])||0),0);}
+function groupSum(arr,key,field){
+  const m={};
+  arr.forEach(r=>{const k=r[key]||'—';m[k]=(m[k]||0)+(parseFloat(r[field])||0);});
+  return Object.entries(m).sort((a,b)=>b[1]-a[1]);
+}
+
+const TRAMITE_COLOR={
+  '':'var(--t3)',
+  'SOLICITAR':'var(--am)','SOLICITADO':'var(--am)',
+  'ATENDER':'var(--gr)','ATENDER COM 20XV EXTRA':'var(--gr)',
+  'EM TRÂMITE':'var(--bl)',
+  'ATENDIDO':'var(--ac)',
+  'CANCELADO':'var(--rd)',
+  'ANÁLISE':'var(--pu)','OFERTA':'var(--pu)'
+};
+function tramiteColor(t){return TRAMITE_COLOR[t]||TRAMITE_COLOR[''];}
+
+const PACOTE_COLOR={A:'#2dd4bf',B:'#fbbf24',C:'#60a5fa',D:'#a78bfa'};
+function pacoteColor(p){return PACOTE_COLOR[p]||'#6b8aaa';}
+
+let chartParque=null,chartPacote=null,chartProj=null;
+
+function destroyCharts(){
+  if(chartParque){chartParque.destroy();chartParque=null;}
+  if(chartPacote){chartPacote.destroy();chartPacote=null;}
+  if(chartProj){chartProj.destroy();chartProj=null;}
+}
+
+function render(){
+  destroyCharts();
+  const allRows=loadRows();
+  const selAprovado=document.getElementById('sel-aprovado').value;
+  const selParque=document.getElementById('sel-parque').value;
+
+  const container=document.getElementById('dash-content');
+
+  if(allRows.length===0){
+    container.innerHTML=`<div class="empty-state">
+      <svg width="48" height="48" viewBox="0 0 48 48" fill="none"><rect x="4" y="8" width="40" height="32" rx="4" stroke="#2a4460" stroke-width="2"/><path d="M4 16h40" stroke="#2a4460" stroke-width="2"/><path d="M14 24h20M14 31h12" stroke="#2a4460" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <p>Nenhum dado carregado. Importe uma planilha na tela <a href="MTA_prototipo_linhas.html" style="color:var(--ac);text-decoration:underline;text-underline-offset:3px">Linhas do MTA</a>.</p>
+    </div>`;
+    return;
+  }
+
+  // Apply parque filter to all rows (for tramite table)
+  const rowsByParque=selParque?allRows.filter(r=>(r.mta||r.omorigem||'')===selParque):allRows;
+
+  // Apply both filters for main stats
+  const filtered=rowsByParque.filter(r=>!selAprovado||(r.aprovado||'')===(selAprovado));
+
+  // KPIs
+  const totalVal=sum(filtered,'valor');
+  const totalCount=filtered.length;
+  const pacoteA=filtered.filter(r=>r.pacote==='A');
+  const pacoteAVal=sum(pacoteA,'valor');
+  const atendido=filtered.filter(r=>r.tramite==='ATENDIDO');
+  const atendidoVal=sum(atendido,'valor');
+  const aSolicitar=filtered.filter(r=>r.aprovado==='SIM'&&!r.tramite);
+  const aSolicitarVal=sum(aSolicitar,'valor');
+
+  // Por parque (filtered)
+  const byParque=groupSum(filtered,'mta','valor');
+
+  // Por pacote (filtered)
+  const byPacote=groupSum(filtered,'pacote','valor');
+
+  // Por trâmite — rowsByParque (all aprovado values)
+  const byTramite=groupSum(rowsByParque,'tramite','valor');
+  const tramiteTotal=sum(rowsByParque,'valor');
+  const tramiteCountMap={};
+  rowsByParque.forEach(r=>{const k=r.tramite||'';tramiteCountMap[k]=(tramiteCountMap[k]||0)+1;});
+
+  // Por AO
+  const byAO=groupSum(filtered,'acao','valor').slice(0,10);
+
+  // Por projeto — top 15
+  const byProj=groupSum(filtered,'proj','valor').slice(0,15);
+
+  container.innerHTML=`
+    <!-- KPI CARDS -->
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-lbl">Total MTA</div>
+        <div class="kpi-val">${fmtK(totalVal)}</div>
+        <div class="kpi-count">${totalCount} linha${totalCount!==1?'s':''}</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-lbl">Pacote A</div>
+        <div class="kpi-val">${fmtK(pacoteAVal)}</div>
+        <div class="kpi-count">${pacoteA.length} linha${pacoteA.length!==1?'s':''}</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-lbl">Atendido</div>
+        <div class="kpi-val" style="color:var(--gr)">${fmtK(atendidoVal)}</div>
+        <div class="kpi-count">${atendido.length} linha${atendido.length!==1?'s':''}</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-lbl" style="color:var(--am)">A Solicitar</div>
+        <div class="kpi-val" style="color:var(--am)">${fmtK(aSolicitarVal)}</div>
+        <div class="kpi-count">${aSolicitar.length} linha${aSolicitar.length!==1?'s':''}</div>
+      </div>
+    </div>
+
+    <!-- CHARTS ROW -->
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="card-title">Por Parque</div>
+        <canvas id="chart-parque" height="220"></canvas>
+      </div>
+      <div class="chart-card">
+        <div class="card-title">Por Pacote</div>
+        <div class="doughnut-wrap">
+          <div class="doughnut-chart-area"><canvas id="chart-pacote" style="max-height:180px;max-width:180px"></canvas></div>
+          <div class="doughnut-legend" id="pacote-legend"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TABLES ROW -->
+    <div class="tables-row">
+      <div class="tbl-card">
+        <div class="card-title">Por Trâmite</div>
+        <table class="dash-table" id="tbl-tramite">
+          <thead><tr><th>Trâmite</th><th>Linhas</th><th>Valor BRL</th><th>% do total</th></tr></thead>
+          <tbody id="tbody-tramite"></tbody>
+        </table>
+      </div>
+      <div class="tbl-card">
+        <div class="card-title">Por Ação Orçamentária</div>
+        <table class="dash-table" id="tbl-ao">
+          <thead><tr><th>AO</th><th>Linhas</th><th>Valor BRL</th></tr></thead>
+          <tbody id="tbody-ao"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PROJECTS CHART -->
+    <div class="proj-card">
+      <div class="card-title">Por Projeto — Top 15</div>
+      <canvas id="chart-proj" height="300"></canvas>
+    </div>
+  `;
+
+  // ── PARQUE CHART ──
+  if(byParque.length){
+    const ctxP=document.getElementById('chart-parque').getContext('2d');
+    chartParque=new Chart(ctxP,{
+      type:'bar',
+      data:{
+        labels:byParque.map(([k])=>k||'—'),
+        datasets:[{
+          label:'Valor BRL',
+          data:byParque.map(([,v])=>v),
+          backgroundColor:'rgba(45,212,191,0.7)',
+          borderColor:'rgba(45,212,191,1)',
+          borderWidth:1,
+          borderRadius:3
+        }]
+      },
+      options:{
+        indexAxis:'y',
+        animation:false,
+        responsive:true,
+        maintainAspectRatio:false,
+        plugins:{
+          legend:{display:false},
+          tooltip:{callbacks:{label:ctx=>' '+fmtBRL(ctx.raw)}},
+          datalabels:{display:false}
+        },
+        scales:{
+          x:{
+            ticks:{callback:v=>fmtK(v),font:{size:10}},
+            grid:{color:'rgba(42,68,96,.4)'}
+          },
+          y:{
+            ticks:{font:{size:11}},
+            grid:{display:false}
+          }
+        }
+      }
+    });
+  } else {
+    document.getElementById('chart-parque').parentElement.innerHTML+='<p style="font-size:12px;color:var(--t3);text-align:center;padding:20px 0">Sem dados</p>';
+  }
+
+  // ── PACOTE CHART ──
+  if(byPacote.length){
+    const ctxD=document.getElementById('chart-pacote').getContext('2d');
+    chartPacote=new Chart(ctxD,{
+      type:'doughnut',
+      data:{
+        labels:byPacote.map(([k])=>k||'—'),
+        datasets:[{
+          data:byPacote.map(([,v])=>v),
+          backgroundColor:byPacote.map(([k])=>pacoteColor(k)),
+          borderColor:'#1c3048',
+          borderWidth:2
+        }]
+      },
+      options:{
+        animation:false,
+        cutout:'62%',
+        plugins:{
+          legend:{display:false},
+          tooltip:{callbacks:{label:ctx=>' '+fmtBRL(ctx.raw)}}
+        }
+      }
+    });
+    const leg=document.getElementById('pacote-legend');
+    leg.innerHTML=byPacote.map(([k,v])=>`
+      <div class="dleg-row">
+        <div class="dleg-dot" style="background:${pacoteColor(k)}"></div>
+        <span>Pacote ${k||'—'}</span>
+        <span class="dleg-val">${fmtK(v)}</span>
+      </div>`).join('');
+  }
+
+  // ── TRAMITE TABLE ──
+  const tbodyT=document.getElementById('tbody-tramite');
+  if(byTramite.length){
+    const maxTram=byTramite[0][1];
+    tbodyT.innerHTML=byTramite.map(([k,v])=>{
+      const col=tramiteColor(k);
+      const cnt=tramiteCountMap[k]||0;
+      const barW=maxTram?Math.round((v/maxTram)*100):0;
+      return `<tr>
+        <td><span style="display:inline-flex;align-items:center;gap:6px">
+          <span style="width:8px;height:8px;border-radius:50%;background:${col};display:inline-block;flex-shrink:0"></span>
+          <span style="color:var(--tx)">${k||'(sem trâmite)'}</span>
+        </span></td>
+        <td style="font-family:var(--mo);font-size:11px">${cnt}</td>
+        <td>
+          <div class="mini-bar-wrap">
+            <div class="mini-bar-bg"><div class="mini-bar-fill" style="width:${barW}%;background:${col}"></div></div>
+            <span style="font-family:var(--mo);font-size:11px;white-space:nowrap">${fmtK(v)}</span>
+          </div>
+        </td>
+        <td style="font-family:var(--mo);font-size:11px;color:var(--t3)">${pct(v,tramiteTotal)}</td>
+      </tr>`;
+    }).join('');
+  } else {
+    tbodyT.innerHTML='<tr><td colspan="4" style="text-align:center;color:var(--t3);padding:16px 0">Sem dados</td></tr>';
+  }
+
+  // ── AO TABLE ──
+  const tbodyAO=document.getElementById('tbody-ao');
+  if(byAO.length){
+    const aoCountMap={};
+    filtered.forEach(r=>{const k=r.acao||'—';aoCountMap[k]=(aoCountMap[k]||0)+1;});
+    const maxAO=byAO[0][1];
+    tbodyAO.innerHTML=byAO.map(([k,v])=>{
+      const cnt=aoCountMap[k]||0;
+      const barW=maxAO?Math.round((v/maxAO)*100):0;
+      return `<tr>
+        <td style="color:var(--tx);font-family:var(--mo);font-size:11px">${k}</td>
+        <td style="font-family:var(--mo);font-size:11px">${cnt}</td>
+        <td>
+          <div class="mini-bar-wrap">
+            <div class="mini-bar-bg"><div class="mini-bar-fill" style="width:${barW}%;background:var(--bl)"></div></div>
+            <span style="font-family:var(--mo);font-size:11px;white-space:nowrap">${fmtK(v)}</span>
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+  } else {
+    tbodyAO.innerHTML='<tr><td colspan="3" style="text-align:center;color:var(--t3);padding:16px 0">Sem dados</td></tr>';
+  }
+
+  // ── PROJECTS CHART ──
+  if(byProj.length){
+    const ctxJ=document.getElementById('chart-proj').getContext('2d');
+    const n=byProj.length;
+    const bgColors=byProj.map((_,i)=>{
+      const t=n>1?i/(n-1):0;
+      const r=Math.round(45+(96-45)*t);
+      const g=Math.round(212+(165-212)*t);
+      const b=Math.round(191+(250-191)*t);
+      return `rgba(${r},${g},${b},0.75)`;
+    });
+    chartProj=new Chart(ctxJ,{
+      type:'bar',
+      data:{
+        labels:byProj.map(([k])=>k||'—'),
+        datasets:[{
+          label:'Valor BRL',
+          data:byProj.map(([,v])=>v),
+          backgroundColor:bgColors,
+          borderColor:bgColors.map(c=>c.replace('0.75','1')),
+          borderWidth:1,
+          borderRadius:3
+        }]
+      },
+      options:{
+        indexAxis:'y',
+        animation:false,
+        responsive:true,
+        maintainAspectRatio:false,
+        plugins:{
+          legend:{display:false},
+          tooltip:{callbacks:{label:ctx=>' '+fmtBRL(ctx.raw)}}
+        },
+        scales:{
+          x:{
+            ticks:{callback:v=>fmtK(v),font:{size:10}},
+            grid:{color:'rgba(42,68,96,.4)'}
+          },
+          y:{
+            ticks:{font:{size:11}},
+            grid:{display:false}
+          }
+        }
+      }
+    });
+  } else {
+    const el=document.getElementById('chart-proj');
+    if(el) el.parentElement.innerHTML+='<p style="font-size:12px;color:var(--t3);text-align:center;padding:20px 0">Sem dados</p>';
+  }
+}
+
+function togSB(){document.getElementById('sb').classList.toggle('col');}
+
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)render();});
+window.addEventListener('storage',e=>{
+  if(['mta_approved_newrows','mta_approved_vals','mta_cambio'].includes(e.key))render();
+});
+
+render();
+</script>
+</body>
+</html>
