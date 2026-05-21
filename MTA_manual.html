@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistema MTA 2026 — Manual do Usuário</title>
+<style>
+  :root {
+    --ink: #1a2332;
+    --ink2: #3d5166;
+    --ink3: #6b7f93;
+    --bg: #ffffff;
+    --bg2: #f4f7fa;
+    --bg3: #e8edf3;
+    --border: #d0dae4;
+    --ac: #0e7fa8;
+    --ac2: #e6f4f9;
+    --green: #14805c;
+    --green-bg: #e6f5ef;
+    --amber: #b45309;
+    --amber-bg: #fef3c7;
+    --red: #b91c1c;
+    --red-bg: #fef2f2;
+    --blue: #1d4ed8;
+    --blue-bg: #eff6ff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--ink);
+    background: var(--bg);
+  }
+
+  /* LAYOUT */
+  .page-wrap { display: flex; min-height: 100vh; }
+
+  /* SIDEBAR TOC */
+  .toc {
+    width: 260px;
+    min-width: 260px;
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    padding: 32px 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    flex-shrink: 0;
+  }
+  .toc-logo {
+    padding: 0 20px 24px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 16px;
+  }
+  .toc-logo .sys { font-size: 11px; font-weight: 700; letter-spacing: .08em; color: var(--ink3); text-transform: uppercase; }
+  .toc-logo .title { font-size: 15px; font-weight: 700; color: var(--ink); line-height: 1.3; margin-top: 2px; }
+  .toc-logo .sub { font-size: 11px; color: var(--ink3); margin-top: 2px; }
+  .toc-section { padding: 6px 20px 2px; font-size: 10px; font-weight: 700; letter-spacing: .1em; color: var(--ink3); text-transform: uppercase; margin-top: 8px; }
+  .toc a {
+    display: block;
+    padding: 5px 20px 5px 24px;
+    font-size: 13px;
+    color: var(--ink2);
+    text-decoration: none;
+    border-left: 2px solid transparent;
+    transition: all .15s;
+  }
+  .toc a:hover { color: var(--ac); border-left-color: var(--ac); background: var(--ac2); }
+  .toc a.l2 { padding-left: 36px; font-size: 12px; color: var(--ink3); }
+  .toc a.l2:hover { color: var(--ac); }
+
+  /* MAIN CONTENT */
+  .content {
+    flex: 1;
+    max-width: 820px;
+    padding: 48px 56px 80px;
+    min-width: 0;
+  }
+
+  /* TYPOGRAPHY */
+  h1 { font-size: 28px; font-weight: 800; color: var(--ink); line-height: 1.2; margin-bottom: 8px; }
+  h2 { font-size: 20px; font-weight: 700; color: var(--ink); margin-top: 52px; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid var(--border); }
+  h3 { font-size: 16px; font-weight: 700; color: var(--ink); margin-top: 32px; margin-bottom: 10px; }
+  h4 { font-size: 13px; font-weight: 700; color: var(--ink2); margin-top: 20px; margin-bottom: 6px; text-transform: uppercase; letter-spacing: .04em; }
+  p { margin-bottom: 12px; color: var(--ink2); }
+  ul, ol { padding-left: 20px; margin-bottom: 12px; color: var(--ink2); }
+  li { margin-bottom: 4px; }
+  strong { color: var(--ink); font-weight: 600; }
+  code {
+    font-family: 'Consolas', 'SF Mono', monospace;
+    font-size: 12px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    padding: 1px 5px;
+    border-radius: 3px;
+    color: var(--ink);
+  }
+
+  /* COVER */
+  .cover {
+    background: linear-gradient(135deg, #0f2236 0%, #1a3a55 60%, #0e6e94 100%);
+    color: white;
+    padding: 52px 0 48px;
+    margin: -48px -56px 0;
+    padding-left: 56px;
+    padding-right: 56px;
+    margin-bottom: 40px;
+  }
+  .cover .badge { display: inline-block; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.25); padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; margin-bottom: 16px; }
+  .cover h1 { color: white; font-size: 32px; }
+  .cover .sub { font-size: 15px; color: rgba(255,255,255,.75); margin-top: 8px; margin-bottom: 0; }
+  .cover .meta { margin-top: 24px; display: flex; gap: 24px; flex-wrap: wrap; }
+  .cover .meta-item { font-size: 12px; color: rgba(255,255,255,.6); }
+  .cover .meta-item strong { color: rgba(255,255,255,.9); display: block; font-size: 13px; }
+
+  /* ROLE BADGES */
+  .role-tag {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .05em; vertical-align: middle;
+  }
+  .role-dirmab { background: #dbeafe; color: #1d4ed8; }
+  .role-parque { background: #fef3c7; color: #b45309; }
+  .role-ambos  { background: #f0fdf4; color: #15803d; }
+
+  /* CALLOUT BOXES */
+  .callout {
+    border-radius: 8px; padding: 14px 16px; margin: 16px 0;
+    display: flex; gap: 12px; align-items: flex-start;
+  }
+  .callout-icon { font-size: 16px; line-height: 1.6; flex-shrink: 0; }
+  .callout-body { flex: 1; }
+  .callout-body p { margin-bottom: 4px; }
+  .callout-body p:last-child { margin-bottom: 0; }
+  .callout.info   { background: var(--blue-bg); border: 1px solid #bfdbfe; }
+  .callout.warn   { background: var(--amber-bg); border: 1px solid #fde68a; }
+  .callout.tip    { background: var(--green-bg); border: 1px solid #a7f3d0; }
+  .callout.danger { background: var(--red-bg); border: 1px solid #fecaca; }
+
+  /* STATUS BADGES */
+  .sb {
+    display: inline-block; padding: 2px 8px; border-radius: 4px;
+    font-size: 11px; font-weight: 700; letter-spacing: .04em;
+  }
+  .sb-solicit { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+  .sb-atender { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
+  .sb-tramite { background: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; }
+  .sb-atendido{ background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; font-style: normal; }
+  .sb-new     { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+  .sb-alt     { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+  .sb-aprov   { background: #f0fdf4; color: #15803d; border: 1px solid #86efac; }
+  .sb-ret     { background: #fef2f2; color: #b91c1c; border: 1px solid #fca5a5; }
+
+  /* STEP LIST */
+  .steps { counter-reset: step; list-style: none; padding: 0; margin: 12px 0 20px; }
+  .steps li {
+    counter-increment: step;
+    display: flex; gap: 14px; align-items: flex-start;
+    margin-bottom: 14px;
+  }
+  .steps li::before {
+    content: counter(step);
+    min-width: 26px; height: 26px;
+    background: var(--ac); color: white;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; flex-shrink: 0; margin-top: 1px;
+  }
+  .steps li p { margin-bottom: 0; }
+
+  /* FLOW DIAGRAM */
+  .flow {
+    display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 14px 16px; margin: 12px 0;
+  }
+  .flow-arrow { color: var(--ink3); font-size: 16px; }
+
+  /* TABLE */
+  .def-table { width: 100%; border-collapse: collapse; margin: 12px 0 20px; font-size: 13px; }
+  .def-table th { background: var(--bg2); padding: 8px 12px; text-align: left; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--ink3); border-bottom: 2px solid var(--border); }
+  .def-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); color: var(--ink2); vertical-align: top; }
+  .def-table tr:last-child td { border-bottom: none; }
+
+  /* SECTION ANCHOR SPACING */
+  [id] { scroll-margin-top: 24px; }
+
+  /* PRINT */
+  @media print {
+    .toc { display: none; }
+    .content { max-width: 100%; padding: 24px 32px; }
+    .cover { margin: -24px -32px 24px; padding: 36px 32px; }
+    h2 { page-break-before: always; margin-top: 0; }
+    .callout, .flow { break-inside: avoid; }
+  }
+
+  @media (max-width: 768px) {
+    .toc { display: none; }
+    .content { padding: 24px 20px 60px; }
+    .cover { margin: -24px -20px 24px; padding: 32px 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="page-wrap">
+
+<!-- SIDEBAR TOC -->
+<nav class="toc">
+  <div class="toc-logo">
+    <div class="sys">Força Aérea Brasileira</div>
+    <div class="title">Sistema MTA 2026</div>
+    <div class="sub">Manual do Usuário — v1.0</div>
+  </div>
+
+  <div class="toc-section">Introdução</div>
+  <a href="#visao-geral">Visão geral do sistema</a>
+  <a href="#perfis">Perfis de acesso</a>
+  <a href="#navegacao">Navegação</a>
+
+  <div class="toc-section">Linhas do MTA</div>
+  <a href="#linhas-intro">Apresentação da tela</a>
+  <a href="#linhas-parque">Perfil: Parque</a>
+  <a class="l2" href="#lp-visualizar">Visualizar e filtrar</a>
+  <a class="l2" href="#lp-editar">Editar uma linha</a>
+  <a class="l2" href="#lp-nova">Criar nova linha</a>
+  <a class="l2" href="#lp-quebrar">Quebrar uma linha</a>
+  <a class="l2" href="#lp-solicitar">Solicitar descentralização</a>
+  <a class="l2" href="#lp-enviar">Enviar para aprovação</a>
+  <a class="l2" href="#lp-devolucao">Receber devoluções</a>
+  <a href="#linhas-dirmab">Perfil: DIRMAB</a>
+  <a class="l2" href="#ld-tramite">Gerenciar trâmite</a>
+  <a class="l2" href="#ld-campos">Preencher campos DIRMAB</a>
+  <a class="l2" href="#ld-importar">Importar planilha Excel</a>
+  <a class="l2" href="#ld-cambio">Configurar câmbio</a>
+  <a href="#linhas-colunas">Colunas e ordenação</a>
+
+  <div class="toc-section">Aprovações</div>
+  <a href="#aprov-intro">Apresentação da tela</a>
+  <a href="#aprov-dirmab">Perfil: DIRMAB</a>
+  <a class="l2" href="#ad-revisar">Revisar um pedido</a>
+  <a class="l2" href="#ad-decidir">Aprovar ou retornar</a>
+  <a class="l2" href="#ad-motivo">Informar motivo</a>
+  <a class="l2" href="#ad-confirmar">Confirmar a decisão</a>
+  <a href="#aprov-parque">Perfil: Parque</a>
+  <a class="l2" href="#ap-acompanhar">Acompanhar pedidos</a>
+  <a href="#aprov-historico">Histórico de aprovações</a>
+
+  <div class="toc-section">Referência</div>
+  <a href="#tramite-ref">Ciclo de trâmite</a>
+  <a href="#colunas-ref">Glossário de colunas</a>
+</nav>
+
+<!-- MAIN CONTENT -->
+<main class="content">
+
+<!-- COVER -->
+<div class="cover">
+  <div class="badge">Protótipo funcional</div>
+  <h1>Sistema MTA 2026<br>Manual do Usuário</h1>
+  <p class="sub">Módulo de Trabalho Anual — Linhas do MTA e Aprovações</p>
+  <div class="meta">
+    <div class="meta-item"><strong>Versão</strong>1.0 — Mai/2026</div>
+    <div class="meta-item"><strong>Público-alvo</strong>DIRMAB e Parques (PAMAGL, PAMALS, PAMASP, PAMBRJ)</div>
+    <div class="meta-item"><strong>Páginas cobertas</strong>Linhas do MTA · Aprovações</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ INTRODUÇÃO -->
+<h2 id="visao-geral">Visão geral do sistema</h2>
+<p>O Sistema MTA 2026 é uma ferramenta para planejamento e gestão do Módulo de Trabalho Anual dos Parques de Material Aeronáutico. Ele centraliza o cadastro de linhas orçamentárias, o fluxo de solicitações de descentralização e o processo de aprovação pela DIRMAB.</p>
+<p>Este manual cobre as duas telas funcionais disponíveis nesta fase do protótipo:</p>
+<ul>
+  <li><strong>Linhas do MTA</strong> — cadastro e edição das linhas orçamentárias, envio de pedidos e gestão do trâmite.</li>
+  <li><strong>Aprovações</strong> — revisão e decisão sobre os pedidos enviados pelos Parques.</li>
+</ul>
+
+<div class="callout info">
+  <span class="callout-icon">ℹ️</span>
+  <div class="callout-body">
+    <p>Esta é uma versão de protótipo. Todos os dados são salvos localmente no navegador (não há servidor). Ao limpar o cache do navegador, os dados serão perdidos.</p>
+  </div>
+</div>
+
+<h2 id="perfis">Perfis de acesso</h2>
+<p>O sistema possui dois perfis distintos, selecionáveis pelo seletor no canto superior direito de cada tela:</p>
+
+<table class="def-table">
+  <thead><tr><th>Perfil</th><th>Identificação</th><th>Acesso</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="role-tag role-dirmab">DIRMAB</span></td>
+      <td>Ten Cel Silva · DIRMAB · Administrador</td>
+      <td>Visualiza e interage com linhas de todos os Parques. Aprova ou retorna pedidos na tela de Aprovações. Gerencia o trâmite das linhas.</td>
+    </tr>
+    <tr>
+      <td><span class="role-tag role-parque">Parque</span></td>
+      <td>PAMAGL, PAMALS, PAMASP ou PAMBRJ</td>
+      <td>Visualiza apenas as linhas do próprio Parque. Cria e edita linhas, solicita descentralização e acompanha pedidos enviados.</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="callout warn">
+  <span class="callout-icon">⚠️</span>
+  <div class="callout-body">
+    <p>Para simular o uso real, troque o perfil antes de executar cada ação. O perfil ativo é exibido no seletor do topo e na rodapé da barra lateral.</p>
+  </div>
+</div>
+
+<h2 id="navegacao">Navegação</h2>
+<p>Todas as telas compartilham a mesma barra lateral de navegação, à esquerda. Os itens disponíveis são:</p>
+<ul>
+  <li><strong>Painel geral</strong> — visão consolidada (em desenvolvimento).</li>
+  <li><strong>Linhas do MTA</strong> — cadastro de linhas orçamentárias.</li>
+  <li><strong>Aprovações</strong> — pedidos pendentes de decisão (exibe contador de pendências).</li>
+  <li>Demais itens (<em>Por Parque, Ações orçamentárias</em> etc.) — em desenvolvimento.</li>
+</ul>
+<p>A barra lateral pode ser recolhida clicando no botão circular à direita do cabeçalho lateral, exibindo apenas os ícones.</p>
+
+
+<!-- ═══════════════════════════════════════════════ LINHAS DO MTA -->
+<h2 id="linhas-intro">Linhas do MTA — Apresentação da tela</h2>
+<p>A tela <strong>Linhas do MTA</strong> exibe todas as linhas orçamentárias em uma tabela configurável. Cada linha representa uma demanda de descentralização de recursos.</p>
+
+<h3>Elementos principais</h3>
+<ul>
+  <li><strong>Barra superior</strong> — perfil ativo, cenário, contagem de linhas e botões de ação.</li>
+  <li><strong>Barra de filtros/ordenação</strong> — exibida quando há filtros ou ordenações ativas, com chips removíveis.</li>
+  <li><strong>Tabela</strong> — linhas mãe e linhas filhas (identadas), com colunas configuráveis.</li>
+  <li><strong>Barra de pendências (âmbar)</strong> — aparece quando há alterações não enviadas.</li>
+  <li><strong>Barra de devoluções (vermelha)</strong> — aparece quando a DIRMAB retornou alguma alteração.</li>
+  <li><strong>Rodapé da tabela</strong> — valor total em BRL, contagem de linhas exibidas e indicadores de filtro/ordenação.</li>
+</ul>
+
+<h3>Indicador colorido (barra à esquerda do N° de Ordem)</h3>
+<table class="def-table">
+  <thead><tr><th>Cor</th><th>Significado</th></tr></thead>
+  <tbody>
+    <tr><td><span style="display:inline-block;width:10px;height:14px;background:#34d399;border-radius:2px;vertical-align:middle"></span> Verde</td><td>Linha aprovada (Aprovado = SIM)</td></tr>
+    <tr><td><span style="display:inline-block;width:10px;height:14px;background:#f87171;border-radius:2px;vertical-align:middle"></span> Vermelho</td><td>Linha não aprovada (Aprovado = NÃO)</td></tr>
+    <tr><td><span style="display:inline-block;width:10px;height:14px;background:#fbbf24;border-radius:2px;vertical-align:middle"></span> Âmbar sólido</td><td>Alteração enviada aguardando aprovação da DIRMAB</td></tr>
+    <tr><td><span style="display:inline-block;width:10px;height:14px;background:#f87171;border-radius:2px;vertical-align:middle"></span> Vermelho (contorno)</td><td>Devolução recebida da DIRMAB</td></tr>
+  </tbody>
+</table>
+
+
+<!-- ─────────────────────── LINHAS — PARQUE -->
+<h2 id="linhas-parque">Linhas do MTA <span class="role-tag role-parque">Parque</span></h2>
+
+<h3 id="lp-visualizar">Visualizar e filtrar linhas</h3>
+<p>Ao acessar a tela com o perfil de Parque, apenas as linhas daquele Parque são exibidas.</p>
+
+<h4>Filtrar por coluna</h4>
+<ol class="steps">
+  <li><p>Clique no <strong>rótulo de qualquer coluna</strong> na linha de cabeçalho da tabela.</p></li>
+  <li><p>Um painel de filtro abrirá com uma caixa de busca e checkboxes com os valores disponíveis.</p></li>
+  <li><p>Selecione os valores desejados e clique em <strong>Aplicar filtro</strong>.</p></li>
+  <li><p>O filtro ativo aparecerá como chip na barra de filtros. Clique no <strong>×</strong> do chip para removê-lo, ou em <strong>Limpar filtros</strong> para remover todos.</p></li>
+</ol>
+
+<h4>Ordenar a tabela</h4>
+<p>Clique em <strong>Ordenar</strong> (botão superior) para abrir o painel de ordenação. Adicione critérios, defina direção (A→Z ou Z→A) e reordene-os arrastando. Clique em <strong>Aplicar</strong>.</p>
+
+<h3 id="lp-editar">Editar uma linha existente</h3>
+<p>As células editáveis ficam em destaque ao passar o mouse. Clique na célula para editar.</p>
+
+<div class="callout warn">
+  <span class="callout-icon">⚠️</span>
+  <div class="callout-body">
+    <p>Linhas com o ícone ⏳ (ampulheta) estão <strong>bloqueadas para edição</strong>, pois há um pedido de aprovação em andamento para aquela linha.</p>
+  </div>
+</div>
+
+<h4>Tipos de campos editáveis</h4>
+<table class="def-table">
+  <thead><tr><th>Campo</th><th>Como editar</th></tr></thead>
+  <tbody>
+    <tr><td>Texto livre (Projeto, UGE, Observação etc.)</td><td>Clique na célula e digite diretamente.</td></tr>
+    <tr><td>Aprovado</td><td>Clique no badge SIM/NÃO. Escolha a opção ou informe um valor personalizado.</td></tr>
+    <tr><td>Pacote</td><td>Clique no badge do pacote (A/B/C/D). Escolha a opção ou informe um valor personalizado.</td></tr>
+    <tr><td>CAT, Para Motor, Para Contrato, Moeda</td><td>Clique para abrir o seletor com as opções disponíveis.</td></tr>
+    <tr><td>Valor Moeda</td><td>Clique na célula e informe o valor com vírgula como separador decimal (ex.: <code>1.500,00</code>).</td></tr>
+    <tr><td>Mês Desc. / Mês Liq.</td><td>Clique para abrir o seletor de mês/ano. Use as setas &lt; &gt; para navegar entre meses.</td></tr>
+  </tbody>
+</table>
+
+<p>Todas as alterações ficam salvas localmente como <strong>pendências</strong> e são marcadas com um fundo âmbar na célula. Elas <strong>não são enviadas automaticamente</strong> — é preciso enviar para aprovação (ver seção abaixo).</p>
+
+<h3 id="lp-nova">Criar nova linha</h3>
+<ol class="steps">
+  <li><p>Clique no botão <strong>+ Nova linha</strong> no canto superior direito.</p></li>
+  <li><p>Preencha o formulário. Os campos marcados com <strong>*</strong> são obrigatórios.</p></li>
+  <li><p>O campo <strong>N° de Ordem</strong> é preenchido automaticamente pelo sistema, conforme o slot do Parque selecionado.</p></li>
+  <li><p>O <strong>Valor Total BRL</strong> é calculado automaticamente com base no Valor Moeda e nas taxas de câmbio configuradas.</p></li>
+  <li><p>Clique em <strong>Enviar para aprovação ↗</strong>. A nova linha ficará pendente de aprovação na tela de Aprovações.</p></li>
+</ol>
+
+<div class="callout info">
+  <span class="callout-icon">ℹ️</span>
+  <div class="callout-body">
+    <p><strong>Numeração por Parque:</strong> cada Parque possui um bloco reservado de números de ordem. Linhas mãe recebem múltiplos de 20 dentro do bloco; linhas filhas recebem o número da mãe acrescido de 1, 2, 3…</p>
+  </div>
+</div>
+
+<h3 id="lp-quebrar">Quebrar uma linha (criar linha filha)</h3>
+<p>Uma linha pode ser dividida em duas ou mais partes, por exemplo, quando o atendimento ocorre em parcelas ou para distinção de contratos.</p>
+<ol class="steps">
+  <li><p>Passe o mouse sobre a linha desejada. O ícone <strong>✂</strong> aparecerá à esquerda do N° de Ordem.</p></li>
+  <li><p>Clique no ícone para abrir o formulário de <em>Quebra de linha</em>.</p></li>
+  <li><p>O formulário exibe o valor restante disponível na linha mãe após a divisão.</p></li>
+  <li><p>Preencha os dados da linha filha e clique em <strong>Enviar para aprovação ↗</strong>.</p></li>
+</ol>
+
+<h3 id="lp-solicitar">Solicitar descentralização (Trâmite)</h3>
+<p>Para que a DIRMAB providencie a descentralização de recursos de uma linha, o Parque deve alterar o trâmite para <strong>SOLICITAR</strong>.</p>
+<ol class="steps">
+  <li><p>Na coluna <strong>Trâmite</strong>, clique na célula da linha desejada.</p></li>
+  <li><p>Selecione <strong>SOLICITAR</strong> no seletor. O campo exibirá um número de prioridade atribuído automaticamente.</p></li>
+  <li><p>Para cancelar a solicitação antes de enviar, selecione <strong>—</strong> no mesmo seletor.</p></li>
+</ol>
+
+<div class="callout tip">
+  <span class="callout-icon">✅</span>
+  <div class="callout-body">
+    <p>A solicitação de descentralização não precisa aguardar aprovação prévia — ao enviar as pendências, o trâmite muda diretamente para <span class="sb sb-solicit">SOLICITADO</span> na tela da DIRMAB.</p>
+  </div>
+</div>
+
+<h3 id="lp-enviar">Enviar alterações para aprovação</h3>
+<p>Quando há alterações pendentes, a <strong>barra âmbar</strong> aparece no topo da tabela informando a quantidade de mudanças.</p>
+
+<h4>Visualizar as alterações antes de enviar</h4>
+<p>Clique em <strong>Ver alterações</strong> para abrir um painel listando cada campo alterado com os valores anterior e novo.</p>
+
+<h4>Enviar as alterações</h4>
+<ol class="steps">
+  <li><p>Clique em <strong>Enviar para aprovação ↗</strong> na barra âmbar.</p></li>
+  <li><p>Se houver solicitações de descentralização, uma tela de revisão será exibida permitindo reordenar as prioridades com os botões ↑ ↓.</p></li>
+  <li><p>Clique em <strong>Confirmar e Enviar ↗</strong>. Uma mensagem de confirmação será exibida com os Parques afetados.</p></li>
+</ol>
+
+<h4>Descartar alterações</h4>
+<p>Clique em <strong>Descartar tudo</strong> na barra âmbar para desfazer todas as alterações pendentes. Uma confirmação será solicitada.</p>
+
+<h3 id="lp-devolucao">Receber e tratar devoluções</h3>
+<p>Quando a DIRMAB retorna um pedido, a <strong>barra vermelha</strong> aparece no topo, informando quantas linhas foram devolvidas.</p>
+<ol class="steps">
+  <li><p>Clique em <strong>Ver devoluções</strong> para ver a lista de linhas devolvidas com os respectivos motivos informados pela DIRMAB.</p></li>
+  <li><p>Leia o motivo, corrija os campos indicados e clique em <strong>Dar ciência</strong> para confirmar que a devolução foi lida.</p></li>
+  <li><p>Use <strong>Dar ciência a todas</strong> para confirmar todas de uma vez.</p></li>
+  <li><p>Após dar ciência, os campos voltam a ser editáveis para correção e reenvio.</p></li>
+</ol>
+<p>As linhas com devolução pendente de ciência exibem o ícone <strong>⚠</strong> ao lado do N° de Ordem.</p>
+
+
+<!-- ─────────────────────── LINHAS — DIRMAB -->
+<h2 id="linhas-dirmab">Linhas do MTA <span class="role-tag role-dirmab">DIRMAB</span></h2>
+<p>Com o perfil DIRMAB, todas as linhas de todos os Parques ficam visíveis. A DIRMAB não edita os campos de conteúdo das linhas, mas gerencia o trâmite e preenche campos exclusivos.</p>
+
+<h3 id="ld-tramite">Gerenciar o trâmite das linhas</h3>
+<p>A coluna <strong>Trâmite</strong> é o principal campo de ação da DIRMAB. O ciclo completo é:</p>
+
+<div class="flow">
+  <span class="sb" style="background:#f1f5f9;border:1px solid #cbd5e1;color:#475569">—</span>
+  <span class="flow-arrow">→</span>
+  <span class="sb sb-solicit">SOLICITADO</span>
+  <span class="flow-arrow">→</span>
+  <span class="sb sb-atender">ATENDER</span>
+  <span class="flow-arrow">→</span>
+  <span class="sb sb-tramite">EM TRÂMITE</span>
+  <span class="flow-arrow">→</span>
+  <span class="sb sb-atendido">ATENDIDO</span>
+</div>
+
+<h4>Alterar o trâmite</h4>
+<ol class="steps">
+  <li><p>Na coluna <strong>Trâmite</strong>, clique no seletor da linha desejada.</p></li>
+  <li><p>Selecione o novo valor. As opções disponíveis variam conforme o estado atual:</p>
+    <ul>
+      <li>Linha com <span class="sb sb-solicit">SOLICITADO</span> → pode ser alterada para <span class="sb sb-atender">ATENDER</span> ou <span class="sb" style="background:#f1f5f9;border:1px solid #cbd5e1;color:#475569">—</span>.</li>
+      <li>Linha com <span class="sb sb-atender">ATENDER</span> → pode ser retornada para <span class="sb sb-solicit">SOLICITADO</span> ou <span class="sb" style="background:#f1f5f9;border:1px solid #cbd5e1;color:#475569">—</span>.</li>
+      <li>Linhas sem trâmite → podem receber <span class="sb sb-solicit">SOLICITADO</span> ou <span class="sb sb-atender">ATENDER</span> diretamente.</li>
+    </ul>
+  </li>
+</ol>
+
+<div class="callout info">
+  <span class="callout-icon">ℹ️</span>
+  <div class="callout-body">
+    <p>A alteração de trâmite feita pela DIRMAB é <strong>imediata</strong> — não precisa ser enviada para aprovação. As mudanças são aplicadas diretamente ao salvar.</p>
+  </div>
+</div>
+
+<h3 id="ld-campos">Preencher campos exclusivos da DIRMAB</h3>
+<p>Quando uma linha está em <span class="sb sb-atender">ATENDER</span> ou <span class="sb sb-tramite">EM TRÂMITE</span>, a DIRMAB pode preencher:</p>
+<table class="def-table">
+  <thead><tr><th>Campo</th><th>Descrição</th><th>Disponível em</th></tr></thead>
+  <tbody>
+    <tr><td>Nro Ped DIRMAB</td><td>Número do pedido gerado pela DIRMAB</td><td>ATENDER / EM TRÂMITE</td></tr>
+    <tr><td>Data Ped DIRMAB</td><td>Data do pedido DIRMAB</td><td>ATENDER / EM TRÂMITE</td></tr>
+    <tr><td>Dígito</td><td>Dígito de controle</td><td>ATENDER / EM TRÂMITE / ATENDIDO</td></tr>
+  </tbody>
+</table>
+<p>Clique na célula correspondente para editar. Estes campos ficam bloqueados para o perfil Parque.</p>
+
+<h3 id="ld-importar">Importar planilha Excel (.xlsx)</h3>
+<p>A DIRMAB pode popular o sistema importando uma planilha Excel com as linhas do MTA.</p>
+<ol class="steps">
+  <li><p>Clique no botão <strong>Importar</strong> na barra superior.</p></li>
+  <li><p>Na janela que abrir, arraste o arquivo <code>.xlsx</code> para a área indicada ou clique para selecionar.</p></li>
+  <li><p>O sistema lerá a planilha e exibirá um resumo com a quantidade de linhas identificadas.</p></li>
+  <li><p>Escolha entre duas opções:
+    <ul>
+      <li><strong>Adicionar</strong> — acrescenta as linhas da planilha às linhas já existentes no sistema.</li>
+      <li><strong>Substituir tudo</strong> — remove todas as linhas existentes e importa apenas as da planilha.</li>
+    </ul>
+  </p></li>
+</ol>
+
+<div class="callout info">
+  <span class="callout-icon">ℹ️</span>
+  <div class="callout-body">
+    <p><strong>Numeração automática na importação:</strong> se a planilha já contiver números de ordem na coluna A, eles serão preservados. Se a célula estiver vazia, o sistema atribuirá automaticamente o próximo número disponível para o Parque indicado na coluna K (MTA).</p>
+  </div>
+</div>
+
+<h4>Formato esperado da planilha</h4>
+<p>A planilha deve seguir o modelo padrão do MTA, com as colunas na seguinte ordem:</p>
+<table class="def-table">
+  <thead><tr><th>Coluna</th><th>Campo no sistema</th></tr></thead>
+  <tbody>
+    <tr><td>A</td><td>N° de Ordem (opcional — gerado automaticamente se vazio)</td></tr>
+    <tr><td>B</td><td>Aprovado (SIM/NÃO)</td></tr>
+    <tr><td>D</td><td>Ação Orçamentária</td></tr>
+    <tr><td>E</td><td>Prioridade Parque</td></tr>
+    <tr><td>F</td><td>Trâmite</td></tr>
+    <tr><td>G</td><td>Data Solic. (data serial Excel)</td></tr>
+    <tr><td>H</td><td>Nro Ped DIRMAB</td></tr>
+    <tr><td>I</td><td>Data Ped DIRMAB (data serial Excel)</td></tr>
+    <tr><td>J</td><td>Dígito</td></tr>
+    <tr><td>K</td><td>MTA (identificador do Parque)</td></tr>
+    <tr><td>L</td><td>Pacote</td></tr>
+    <tr><td>M</td><td>UGE</td></tr>
+    <tr><td>N</td><td>OM Origem</td></tr>
+    <tr><td>O</td><td>OM Beneficiada</td></tr>
+    <tr><td>P</td><td>PI</td></tr>
+    <tr><td>R</td><td>Projeto</td></tr>
+    <tr><td>S</td><td>Atividade</td></tr>
+    <tr><td>T</td><td>Tarefa</td></tr>
+    <tr><td>U</td><td>Matrícula</td></tr>
+    <tr><td>V</td><td>CAT</td></tr>
+    <tr><td>W</td><td>Para Motores (SIM/NÃO)</td></tr>
+    <tr><td>X</td><td>Para Contrato</td></tr>
+    <tr><td>Z</td><td>ED</td></tr>
+    <tr><td>AA</td><td>Moeda (REAL, DÓLAR, EURO, LIBRA, COROA SUECA)</td></tr>
+    <tr><td>AB</td><td>Valor Moeda</td></tr>
+    <tr><td>AC</td><td>Valor BRL</td></tr>
+    <tr><td>AD</td><td>Mês Desc. (data serial Excel)</td></tr>
+    <tr><td>AE</td><td>Mês Liq. (data serial Excel)</td></tr>
+    <tr><td>AF</td><td>Observação</td></tr>
+  </tbody>
+</table>
+
+<h3 id="ld-cambio">Configurar taxas de câmbio</h3>
+<ol class="steps">
+  <li><p>Clique no botão <strong>⇄ Câmbio</strong> na barra superior.</p></li>
+  <li><p>Informe a cotação de cada moeda em relação ao Real (R$ por unidade).</p></li>
+  <li><p>Clique em <strong>Salvar taxas</strong>. Os valores totais em BRL serão recalculados automaticamente.</p></li>
+</ol>
+<p>As moedas suportadas são: USD, EUR, GBP, SEK, CAD, JPY e CHF.</p>
+
+
+<!-- ─────────────────────── LINHAS — COLUNAS -->
+<h2 id="linhas-colunas">Configurar colunas e ordenação <span class="role-tag role-ambos">Ambos os perfis</span></h2>
+
+<h3>Mostrar/ocultar e reordenar colunas</h3>
+<ol class="steps">
+  <li><p>Clique no botão <strong>Configurar colunas</strong> na barra superior. Um painel abrirá à direita.</p></li>
+  <li><p>Use os <strong>checkboxes</strong> para mostrar ou ocultar colunas.</p></li>
+  <li><p>Arraste as linhas pelo ícone <strong>⠿</strong> para reordenar as colunas. As colunas fixas (N° de Ordem, MTA, Valor Total) não podem ser movidas.</p></li>
+  <li><p>Use <strong>Marcar todas</strong> ou <strong>Desmarcar opcionais</strong> para ações em massa.</p></li>
+  <li><p>Clique em <strong>Restaurar ordem original</strong> para voltar à configuração padrão.</p></li>
+</ol>
+<p>As preferências de colunas, filtros e ordenação são salvas automaticamente no navegador.</p>
+
+
+<!-- ═══════════════════════════════════════════════ APROVAÇÕES -->
+<h2 id="aprov-intro">Aprovações — Apresentação da tela</h2>
+<p>A tela <strong>Aprovações</strong> exibe todos os pedidos enviados pelos Parques, organizados em painéis de dois lados: lista à esquerda e detalhe à direita.</p>
+
+<h3>Tipos de pedido</h3>
+<table class="def-table">
+  <thead><tr><th>Tipo</th><th>Descrição</th></tr></thead>
+  <tbody>
+    <tr><td><span class="sb sb-alt">ALTERAÇÃO</span></td><td>Modificação em campos de uma ou mais linhas existentes.</td></tr>
+    <tr><td><span class="sb sb-new">NOVA LINHA</span></td><td>Criação de uma nova linha orçamentária.</td></tr>
+    <tr><td><span class="sb sb-new">QUEBRA DE LINHA</span></td><td>Divisão de uma linha existente em linhas filhas.</td></tr>
+  </tbody>
+</table>
+
+<h3>Filtros da lista</h3>
+<p>Na parte superior da lista à esquerda, use as pílulas de filtro para ver:</p>
+<ul>
+  <li><strong>Todos</strong> — todos os pedidos pendentes.</li>
+  <li><strong>Alterações</strong> — apenas pedidos do tipo ALTERAÇÃO.</li>
+  <li><strong>Novas</strong> — apenas pedidos do tipo NOVA LINHA ou QUEBRA.</li>
+</ul>
+<p>Use a <strong>caixa de busca</strong> para filtrar por Parque ou projeto.</p>
+
+
+<!-- ─────────────────────── APROVAÇÕES — DIRMAB -->
+<h2 id="aprov-dirmab">Aprovações <span class="role-tag role-dirmab">DIRMAB</span></h2>
+
+<h3 id="ad-revisar">Revisar um pedido</h3>
+<ol class="steps">
+  <li><p>Selecione um pedido na lista à esquerda. O painel direito exibirá os detalhes.</p></li>
+  <li><p>O cabeçalho mostra: Parque, descrição, autor, data e número de linhas.</p></li>
+  <li><p>Abaixo, os cards de <strong>Impacto financeiro</strong> mostram como a decisão afetará os valores por Pacote, Ação Orçamentária e Projeto, com os deltas em verde (aumento) ou vermelho (redução).</p></li>
+  <li><p>A tabela exibe todas as linhas do pedido. Células alteradas aparecem com fundo âmbar e mostram o valor anterior → novo logo abaixo.</p></li>
+</ol>
+
+<h3 id="ad-decidir">Aprovar ou retornar linhas</h3>
+<p>Cada linha pendente possui dois botões de decisão na coluna <strong>Decisão</strong>:</p>
+<ul>
+  <li><strong>A</strong> (círculo cheio) — Aprovar a alteração desta linha.</li>
+  <li><strong>R</strong> (círculo cheio) — Retornar (rejeitar) a alteração desta linha.</li>
+</ul>
+<p>Use os botões <strong>✓ Aprovar tudo</strong> ou <strong>✗ Retornar tudo</strong> no topo do painel para decidir todas as linhas de uma vez.</p>
+
+<p>O rodapé mostra um resumo em tempo real:</p>
+<ul>
+  <li>Verde: quantidade de linhas aprovadas.</li>
+  <li>Vermelho: quantidade de linhas a retornar.</li>
+  <li>Cinza: quantidade de linhas ainda sem decisão.</li>
+</ul>
+
+<h3 id="ad-motivo">Informar motivo de retorno</h3>
+<p>Para cada linha marcada como <strong>R</strong> (retornar), um campo de texto aparece no rodapé solicitando o motivo.</p>
+
+<div class="callout danger">
+  <span class="callout-icon">🚫</span>
+  <div class="callout-body">
+    <p>O motivo é <strong>obrigatório</strong> para linhas retornadas. Não é possível enviar a decisão sem preenchê-lo.</p>
+  </div>
+</div>
+
+<p>Se houver múltiplas linhas retornadas, o link <strong>Copiar para todas as linhas devolvidas</strong> (exibido no primeiro campo de motivo) preenche automaticamente todos os demais com o mesmo texto.</p>
+
+<h3 id="ad-confirmar">Confirmar e enviar a decisão</h3>
+<ol class="steps">
+  <li><p>Após decidir todas as linhas e preencher os motivos, clique em <strong>Enviar decisão</strong>.</p></li>
+  <li><p>Uma tela de confirmação listará todas as decisões com os motivos de retorno. Revise e clique em <strong>Confirmar envio</strong>.</p></li>
+  <li><p>Uma mensagem de sucesso confirmará o envio. As linhas aprovadas serão incorporadas ao MTA; as retornadas voltarão ao Parque com o motivo informado.</p></li>
+</ol>
+<p>Para cancelar sem enviar, clique em <strong>Cancelar</strong> no rodapé. As decisões locais serão descartadas.</p>
+
+<div class="callout tip">
+  <span class="callout-icon">✅</span>
+  <div class="callout-body">
+    <p>É possível aprovar parte das linhas e retornar outras no mesmo pedido — a decisão não precisa ser uniforme.</p>
+  </div>
+</div>
+
+
+<!-- ─────────────────────── APROVAÇÕES — PARQUE -->
+<h2 id="aprov-parque">Aprovações <span class="role-tag role-parque">Parque</span></h2>
+
+<h3 id="ap-acompanhar">Acompanhar pedidos enviados</h3>
+<p>Com o perfil de Parque, a tela de Aprovações exibe <strong>apenas os pedidos enviados pelo próprio Parque</strong>. Não é possível aprovar ou retornar — somente visualizar.</p>
+<ul>
+  <li>Pedidos <strong>pendentes</strong> aparecem na lista principal.</li>
+  <li>Pedidos <strong>já decididos</strong> (aprovados ou retornados) são consultados no <strong>Histórico</strong>.</li>
+</ul>
+<p>Ao clicar em um pedido, o painel direito exibe os detalhes da alteração. As células alteradas estão destacadas em âmbar.</p>
+<p>O indicador de progresso <em>"N/M decididas"</em> (visível na lista) mostra quantas linhas do pedido já receberam decisão parcial da DIRMAB.</p>
+
+<div class="callout info">
+  <span class="callout-icon">ℹ️</span>
+  <div class="callout-body">
+    <p>Para verificar se um pedido foi aprovado ou retornado, acesse o <strong>Histórico de aprovações</strong> (botão no canto superior direito ou item da barra lateral).</p>
+  </div>
+</div>
+
+
+<!-- ─────────────────────── HISTÓRICO -->
+<h2 id="aprov-historico">Histórico de aprovações <span class="role-tag role-ambos">Ambos os perfis</span></h2>
+<p>O histórico registra todas as decisões já enviadas pela DIRMAB.</p>
+<ul>
+  <li>Acesse pelo botão <strong>Histórico</strong> na barra superior da tela de Aprovações, ou pelo item <strong>Histórico de aprovações</strong> na barra lateral.</li>
+  <li>Use a caixa de busca para filtrar por Parque, projeto, N° de Ordem, autor ou motivo.</li>
+  <li>Cada entrada mostra: Parque, tipo do pedido, autor, datas de envio e decisão, e as linhas com indicadores ✓ (aprovado) ou ✗ (retornado com motivo).</li>
+</ul>
+
+
+<!-- ═══════════════════════════════════════════════ REFERÊNCIA -->
+<h2 id="tramite-ref">Referência: ciclo de trâmite</h2>
+<p>O campo <strong>Trâmite</strong> representa o estágio de uma solicitação de descentralização. Abaixo, o ciclo completo com as ações de cada perfil:</p>
+
+<table class="def-table">
+  <thead><tr><th>Valor</th><th>Significado</th><th>Quem define</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="sb" style="background:#f1f5f9;border:1px solid #cbd5e1;color:#475569">—</span></td>
+      <td>Sem solicitação de descentralização.</td>
+      <td>Estado inicial / DIRMAB pode retornar para este estado.</td>
+    </tr>
+    <tr>
+      <td><span class="sb sb-solicit">SOLICITAR</span></td>
+      <td>Parque marcou intenção de solicitar. Ainda não enviado.</td>
+      <td>Parque (pendência local, antes do envio).</td>
+    </tr>
+    <tr>
+      <td><span class="sb sb-solicit">SOLICITADO</span></td>
+      <td>Pedido enviado e aguardando ação da DIRMAB.</td>
+      <td>Sistema (ao confirmar envio do Parque).</td>
+    </tr>
+    <tr>
+      <td><span class="sb sb-atender">ATENDER</span></td>
+      <td>DIRMAB confirmou que vai atender a solicitação.</td>
+      <td>DIRMAB (na tela Linhas do MTA).</td>
+    </tr>
+    <tr>
+      <td><span class="sb sb-tramite">EM TRÂMITE</span></td>
+      <td>Processo de descentralização em andamento.</td>
+      <td>DIRMAB.</td>
+    </tr>
+    <tr>
+      <td><span class="sb sb-atendido">ATENDIDO</span></td>
+      <td>Descentralização concluída.</td>
+      <td>DIRMAB.</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="callout info">
+  <span class="callout-icon">ℹ️</span>
+  <div class="callout-body">
+    <p>A DIRMAB pode retornar o trâmite de <span class="sb sb-atender">ATENDER</span> para <span class="sb sb-solicit">SOLICITADO</span> ou <span class="sb" style="background:#f1f5f9;border:1px solid #cbd5e1;color:#475569">—</span> se necessário.</p>
+  </div>
+</div>
+
+
+<h2 id="colunas-ref">Referência: glossário de colunas</h2>
+<table class="def-table">
+  <thead><tr><th>Coluna</th><th>Descrição</th></tr></thead>
+  <tbody>
+    <tr><td>N° de Ordem</td><td>Identificador único da linha, composto de 6 dígitos. Linhas filhas têm o mesmo prefixo da linha mãe mais um sufixo (ex.: 000020 → 000021).</td></tr>
+    <tr><td>MTA</td><td>Parque ao qual a linha pertence (PAMAGL, PAMALS, PAMASP, PAMBRJ).</td></tr>
+    <tr><td>Aprovado</td><td>Indica se a linha está aprovada no MTA (SIM/NÃO).</td></tr>
+    <tr><td>Ação</td><td>Código da ação orçamentária.</td></tr>
+    <tr><td>Prioridade Parque</td><td>Prioridade definida pelo Parque para atendimento.</td></tr>
+    <tr><td>Trâmite</td><td>Estado da solicitação de descentralização (ver ciclo acima).</td></tr>
+    <tr><td>Data Solic.</td><td>Data em que o Parque realizou a solicitação.</td></tr>
+    <tr><td>Nro Ped DIRMAB</td><td>Número do pedido emitido pela DIRMAB. Preenchido pela DIRMAB.</td></tr>
+    <tr><td>Data Ped DIRMAB</td><td>Data do pedido emitido pela DIRMAB.</td></tr>
+    <tr><td>Dígito</td><td>Dígito de controle atribuído pela DIRMAB.</td></tr>
+    <tr><td>Pacote</td><td>Agrupamento orçamentário (A, B, C ou D).</td></tr>
+    <tr><td>UGE</td><td>Unidade Gestora Executora.</td></tr>
+    <tr><td>OM Origem</td><td>Organização Militar de origem dos recursos.</td></tr>
+    <tr><td>OM Beneficiada</td><td>Organização Militar que receberá os recursos.</td></tr>
+    <tr><td>PI</td><td>Plano Interno.</td></tr>
+    <tr><td>Projeto</td><td>Código do projeto orçamentário.</td></tr>
+    <tr><td>Atividade</td><td>Código de atividade do projeto.</td></tr>
+    <tr><td>Tarefa</td><td>Descrição detalhada da tarefa a ser executada.</td></tr>
+    <tr><td>CAT</td><td>Categoria do item (CLS, MOTOR, AVIÔNICA, ESTRUTURA, REPARÁVEL, DIVERSOS, APOIO, CAD-PAD).</td></tr>
+    <tr><td>Para Motor</td><td>Indica se o item destina-se a motores (SIM/NÃO).</td></tr>
+    <tr><td>Para Contrato</td><td>Modalidade de contratação (SOB DEMANDA, PARCELA FIXA, REQUISIÇÃO).</td></tr>
+    <tr><td>ED</td><td>Especificação de Dados (número).</td></tr>
+    <tr><td>Moeda</td><td>Moeda do valor orçamentário (BRL, USD, EUR, GBP, SEK, CAD, JPY, CHF).</td></tr>
+    <tr><td>Valor Moeda</td><td>Valor na moeda original.</td></tr>
+    <tr><td>Valor Total</td><td>Valor convertido para BRL, conforme taxa de câmbio configurada.</td></tr>
+    <tr><td>Mês Desc.</td><td>Mês previsto para a descentralização dos recursos (MM/AAAA).</td></tr>
+    <tr><td>Mês Liq.</td><td>Mês previsto para a liquidação (MM/AAAA). Não pode ser anterior ao Mês Desc.</td></tr>
+    <tr><td>Observação</td><td>Campo livre para anotações complementares.</td></tr>
+  </tbody>
+</table>
+
+</main>
+</div>
+</body>
+</html>
