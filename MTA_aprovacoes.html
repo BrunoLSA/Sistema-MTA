@@ -243,7 +243,7 @@ table.mta tbody tr.ret-row td{background:rgba(248,113,113,.07)!important}
     <div class="ni"><svg class="ni-ico" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg><span class="ni-lbl">Parâmetros e colunas</span></div>
     <div class="ni" title="Cenários"><svg class="ni-ico" viewBox="0 0 16 16" fill="none"><ellipse cx="8" cy="5" rx="6" ry="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M2 5v6c0 1.38 2.69 2.5 6 2.5s6-1.12 6-2.5V5" stroke="currentColor" stroke-width="1.2"/><path d="M2 8c0 1.38 2.69 2.5 6 2.5s6-1.12 6-2.5" stroke="currentColor" stroke-width="1.2"/></svg><span class="ni-lbl">Cenários</span></div>
   </nav>
-  <div class="sb-foot"><div class="ua"><div class="uav">DB</div><div class="ui"><div style="font-size:12px;font-weight:500;color:var(--tx)">Ten Cel Silva</div><div style="font-size:10px;color:var(--t3)">DIRMAB · Administrador</div></div></div></div>
+  <div class="sb-foot"><div class="ua"><div class="uav" id="sb-initials">DB</div><div class="ui"><div id="sb-name" style="font-size:12px;font-weight:500;color:var(--tx)">Ten Cel Silva</div><div id="sb-role" style="font-size:10px;color:var(--t3)">DIRMAB · Administrador</div></div></div></div>
 </div>
 
 <!-- MAIN -->
@@ -448,6 +448,19 @@ let filtSearch = '';
 let perfilA='dirmab';
 function isDirmabA(){return perfilA==='dirmab';}
 function myMtaA(){return isDirmabA()?null:perfilA.toUpperCase();}
+const PERFIL_INFO_A={
+  dirmab:{ini:'DB',nome:'Ten Cel Silva',papel:'DIRMAB · Administrador'},
+  pamagl:{ini:'GL',nome:'Maj Oliveira',papel:'PAMAGL · Usuário'},
+  pamals:{ini:'LS',nome:'Cap Ferreira',papel:'PAMALS · Usuário'},
+  pamasp:{ini:'SP',nome:'Maj Santos',papel:'PAMASP · Usuário'},
+  pambrj:{ini:'RJ',nome:'Cap Lima',papel:'PAMBRJ · Usuário'},
+};
+function updSbFootA(p){
+  const inf=PERFIL_INFO_A[p]||PERFIL_INFO_A.dirmab;
+  document.getElementById('sb-initials').textContent=inf.ini;
+  document.getElementById('sb-name').textContent=inf.nome;
+  document.getElementById('sb-role').textContent=inf.papel;
+}
 function setPerfilA(p){
   perfilA=p;
   document.getElementById('prof-sel-a').value=p;
@@ -456,6 +469,7 @@ function setPerfilA(p){
   document.getElementById('diff-empty').style.display='flex';
   const ab=document.getElementById('act-btns');if(ab)ab.style.display=isDirmabA()?'':'none';
   const fb=document.getElementById('foot-btns');if(fb)fb.style.display=isDirmabA()?'':'none';
+  updSbFootA(p);
   renderList();updateTopPs();
 }
 
