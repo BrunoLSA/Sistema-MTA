@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tutorial — Usuário DIRMAB · Sistema MTA 2026</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg:    #0f1117;
+    --bg2:   #161b27;
+    --bg3:   #1e2538;
+    --bd:    #2a3250;
+    --bd2:   #3a4568;
+    --t1:    #e2e8f0;
+    --t2:    #94a3b8;
+    --t3:    #64748b;
+    --ac:    #818cf8;
+    --ac2:   #1e2538;
+    --gr:    #34d399;
+    --gr2:   #064e3b;
+    --am:    #fbbf24;
+    --am2:   #451a03;
+    --re:    #f87171;
+    --re2:   #450a0a;
+    --blue:  #60a5fa;
+  }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--t1); min-height: 100vh; }
+
+  .hdr {
+    background: linear-gradient(135deg, #0f2236 0%, #1a3a55 60%, #1a4a8a 100%);
+    padding: 40px 0 36px;
+  }
+  .hdr-inner { max-width: 820px; margin: 0 auto; padding: 0 32px; }
+  .breadcrumb { font-size: 12px; color: rgba(255,255,255,.5); margin-bottom: 12px; }
+  .breadcrumb a { color: rgba(255,255,255,.6); text-decoration: none; }
+  .breadcrumb a:hover { color: white; }
+  .role-chip { display: inline-block; background: rgba(96,165,250,.2); border: 1px solid rgba(96,165,250,.4); color: #bfdbfe; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; margin-bottom: 12px; }
+  .hdr h1 { font-size: 26px; font-weight: 800; color: white; line-height: 1.2; }
+  .hdr .sub { font-size: 14px; color: rgba(255,255,255,.65); margin-top: 6px; }
+  .progress-bar-wrap { margin-top: 20px; }
+  .progress-label { font-size: 12px; color: rgba(255,255,255,.5); margin-bottom: 6px; display: flex; justify-content: space-between; }
+  .progress-track { height: 6px; background: rgba(255,255,255,.12); border-radius: 3px; }
+  .progress-fill { height: 100%; background: var(--gr); border-radius: 3px; transition: width .4s ease; }
+
+  .wrap { max-width: 820px; margin: 0 auto; padding: 32px 32px 80px; }
+
+  .section { margin-bottom: 10px; }
+  .section-hdr {
+    display: flex; align-items: center; gap: 10px;
+    padding: 14px 16px; background: var(--bg3);
+    border: 1px solid var(--bd); border-radius: 10px;
+    cursor: pointer; user-select: none; transition: border-color .15s;
+  }
+  .section-hdr:hover { border-color: var(--bd2); }
+  .section-hdr.open { border-radius: 10px 10px 0 0; border-bottom-color: transparent; }
+  .section-num { width: 28px; height: 28px; border-radius: 50%; background: var(--ac2); border: 1px solid var(--ac); color: var(--ac); font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .section-num.done { background: var(--gr2); border-color: var(--gr); color: var(--gr); }
+  .section-title { flex: 1; font-size: 14px; font-weight: 600; color: var(--t1); }
+  .section-meta { font-size: 11px; color: var(--t3); }
+  .section-chevron { color: var(--t3); font-size: 14px; transition: transform .2s; }
+  .section-hdr.open .section-chevron { transform: rotate(90deg); }
+
+  .section-body { border: 1px solid var(--bd); border-top: none; border-radius: 0 0 10px 10px; background: var(--bg2); overflow: hidden; max-height: 0; transition: max-height .3s ease; }
+  .section-body.open { max-height: 2000px; }
+  .section-body-inner { padding: 4px 0 8px; }
+
+  .task { display: flex; align-items: flex-start; gap: 14px; padding: 14px 16px 14px 20px; border-bottom: 1px solid var(--bd); transition: background .1s; }
+  .task:last-child { border-bottom: none; }
+  .task:hover { background: rgba(255,255,255,.02); }
+
+  .cb-wrap { flex-shrink: 0; margin-top: 2px; }
+  input[type=checkbox] { display: none; }
+  .cb { width: 20px; height: 20px; border-radius: 5px; border: 2px solid var(--bd2); background: transparent; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all .15s; flex-shrink: 0; }
+  .cb:hover { border-color: var(--ac); }
+  input[type=checkbox]:checked + .cb { background: var(--gr); border-color: var(--gr); }
+  input[type=checkbox]:checked + .cb::after { content: '✓'; color: #fff; font-size: 12px; font-weight: 700; }
+
+  .task-content { flex: 1; min-width: 0; }
+  .task-title { font-size: 13px; font-weight: 600; color: var(--t1); margin-bottom: 4px; line-height: 1.4; }
+  .task-title.done { text-decoration: line-through; color: var(--t3); }
+  .task-desc { font-size: 12px; color: var(--t2); line-height: 1.6; }
+  .task-desc.done { color: var(--t3); }
+  .task-ref { margin-top: 8px; display: inline-flex; align-items: center; gap: 5px; font-size: 11px; color: var(--ac); text-decoration: none; background: var(--ac2); border: 1px solid rgba(129,140,248,.2); padding: 3px 8px; border-radius: 4px; }
+  .task-ref:hover { border-color: var(--ac); }
+  .task-note { margin-top: 8px; padding: 8px 10px; background: rgba(96,165,250,.07); border-left: 3px solid var(--blue); border-radius: 0 4px 4px 0; font-size: 11px; color: #bfdbfe; line-height: 1.5; }
+
+  .intro-box { background: var(--bg3); border: 1px solid var(--bd); border-radius: 10px; padding: 18px 20px; margin-bottom: 24px; font-size: 13px; color: var(--t2); line-height: 1.7; }
+  .intro-box strong { color: var(--t1); }
+  .intro-links { margin-top: 12px; display: flex; gap: 10px; flex-wrap: wrap; }
+  .intro-link { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; text-decoration: none; transition: all .15s; }
+  .intro-link.primary { background: var(--ac); color: var(--bg); }
+  .intro-link.primary:hover { background: #929ef9; }
+  .intro-link.secondary { background: var(--bg2); border: 1px solid var(--bd2); color: var(--t2); }
+  .intro-link.secondary:hover { border-color: var(--ac); color: var(--ac); }
+
+  .reset-btn { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--t3); background: none; border: 1px solid var(--bd); border-radius: 6px; padding: 6px 12px; cursor: pointer; transition: all .15s; margin-top: 32px; }
+  .reset-btn:hover { border-color: var(--re); color: var(--re); }
+
+  .tag { display: inline-block; padding: 1px 6px; border-radius: 3px; font-size: 10px; font-weight: 700; letter-spacing: .04em; margin-right: 4px; vertical-align: middle; }
+  .tag-linhas { background: rgba(129,140,248,.15); color: #a5b4fc; border: 1px solid rgba(129,140,248,.25); }
+  .tag-aprov  { background: rgba(52,211,153,.12); color: #6ee7b7; border: 1px solid rgba(52,211,153,.2); }
+  .tag-ambos  { background: rgba(251,191,36,.12); color: #fde68a; border: 1px solid rgba(251,191,36,.2); }
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-inner">
+    <div class="breadcrumb"><a href="index.html">← Protótipos</a></div>
+    <div class="role-chip">Usuário DIRMAB</div>
+    <h1>Tutorial de Testes</h1>
+    <p class="sub">Administrador · Acesso a todos os Parques</p>
+    <div class="progress-bar-wrap">
+      <div class="progress-label">
+        <span id="prog-label">0 de 0 tarefas concluídas</span>
+        <span id="prog-pct">0%</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div class="intro-box">
+    <strong>Como usar este tutorial:</strong> marque cada tarefa como concluída à medida que testar. O progresso é salvo automaticamente no seu navegador. Para cada tarefa há uma referência direta à seção correspondente no Manual do Usuário.<br><br>
+    <strong>Perfil a usar:</strong> selecione <strong>DIRMAB</strong> no seletor do canto superior direito. Algumas tarefas pedem que você troque temporariamente para um perfil de Parque — isso será indicado na descrição.
+    <div class="intro-links">
+      <a class="intro-link primary" href="MTA_prototipo_linhas.html" target="_blank">↗ Abrir Linhas do MTA</a>
+      <a class="intro-link primary" href="MTA_aprovacoes.html" target="_blank">↗ Abrir Aprovações</a>
+      <a class="intro-link secondary" href="MTA_manual.html" target="_blank">📖 Manual do Usuário</a>
+    </div>
+  </div>
+
+  <!-- SEÇÃO 1 -->
+  <div class="section">
+    <div class="section-hdr open" onclick="toggleSection(this)">
+      <div class="section-num" id="snum-1">1</div>
+      <div class="section-title">Configuração inicial</div>
+      <div class="section-meta" id="smeta-1">0/2</div>
+      <div class="section-chevron">›</div>
+    </div>
+    <div class="section-body open">
+      <div class="section-body-inner">
+
+        <div class="task">
+          <div class="cb-wrap"><label><input type="checkbox" id="t1_1" onchange="onCheck()"><div class="cb"></div></label></div>
+          <div class="task-content">
+            <div class="task-title" id="tl_t1_1"><span class="tag tag-linhas">Linhas do MTA</span> Selecionar o perfil DIRMAB</div>
+            <div class="task-desc" id="td_t1_1">Abra a tela <strong>Linhas do MTA</strong>. Clique no seletor de perfil (canto superior direito) e escolha <strong>DIRMAB</strong>. Verifique que "Ten Cel Silva · DIRMAB · Administrador" aparece no rodapé da barra lateral e que as linhas de <strong>todos os Parques</strong> ficam visíveis.</div>
+            <a class="task-ref" href="MTA_manual.html#perfis" target="_blank">📖 Manual → Perfis de acesso</a>
+          </div>
+        </div>
+
+        <div class="task">
+          <div class="cb-wrap"><label><input type="checkbox" id="t1_2" onchange="onCheck()"><div class="cb"></div></label></div>
+          <div class="task-content">
+            <div class="task-title" id="tl_t1_2"><span class="tag tag-linhas">Linhas do MTA</span> Configurar taxas de câmbio</div>
+            <div class="task-desc" id="td_t1_2">Clique no botão <strong>⇄ Câmbio</strong> na barra superior. Informe cotações para pelo menos USD e EUR (ex.: USD = 5,20 · EUR = 5,65). Clique em <strong>Salvar taxas</strong>. Verifique que os valores totais em BRL de linhas em moeda estrangeira são atualizados.</div>
+            <a class="task-ref" href="MTA_manual.html#ld-cambio" target="_blank">📖 Manual → Configurar câmbio</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- SEÇÃO 2 -->
+  <div class="section">
+    <div class="section-hdr open" onclick="toggleSection(this)">
+      <div class="section-num" id="snum-2">2</div>
+      <div class="section-title">Importar planilha Excel</div>
+      <div class="section-meta" id="smeta-2">0/3</div>
+      <div class="section-chevron">›</div>
+    </div>
+    <div class="section-body open">
+      <div class="section-body-inner">
+
+        <div class="task">
+          <div class="cb-wrap"><label><input type="checkbox" id="t2_1" onchange="onCheck()"><div class="cb"></div></label></div>
+          <div class="task-content">
+            <div class="task-title" id="tl_t2_1"><span class="tag tag-linhas">Linhas do MTA</span> Importar planilha com números de ordem</div>
+            <div class="task-desc" id="td_t2_1">Clique no botão <strong>Importar</strong>. No modal que abrir, arraste ou selecione a planilha <code>.xlsx</code> que contém a coluna A (N° de Ordem) preenchida. Confira o resumo exibido (quantidade de linhas detectadas). Clique em <strong>Substituir tudo</strong> para carregar as linhas.</div>
+            <a class="task-ref" href="MTA_manual.html#ld-importar" target="_blank">📖 Manual → Importar planilha Excel</a>
+            <div class="task-note">📋 Veja o mapeamento completo de colunas no Manual → seção Formato esperado da planilha.</div>
+          </div>
+        </div>
+
+        <div class="task">
+          <div class="cb-wrap"><label><input type="checkbox" id="t2_2" onchange="onCheck()"><div class="cb"></div></label></div>
+          <div class="task-content">
+            <div class="task-title" id="tl_t2_2"><span class="tag tag-linhas">Linhas do MTA</span> Importar planilha sem números de ordem</div>
+            <div class="task-desc" id="td_t2_2">Importe uma planilha com a coluna A vazia (sem N° de Ordem). Após a importação em modo <strong>Adicionar</strong>, verifique que o sistema atribuiu automaticamente números de ordem sequenciais (múltiplos de 20) para cada Parque indicado na coluna K (MTA).</div>
+            <a class="task-ref" href="MTA_manual.html#ld-importar" target="_blank">📖 Manual → Importar planilha Excel</a>
+            <div class="task-note">📋 A numeração respeita os slots por Parque: PAMAGL (000020–049999), PAMALS (050020–099999), PAMASP (100020–149999), PAMBRJ (150020–199999).</div>
+          </div>
+        </div>
+
+        <div class="task">
+          <div class="cb-wrap"><label><input type="checkbox" id="t2_3" onchange="onCheck()"><div class="cb"></div></label></div>
+          <div class="task-content">
+            <div class="task-title" id="tl_t2_3"><span class="tag tag-linhas">Linhas do MTA</span> Verificar dados importados</div>
+            <div class="task-desc" id="td_t2_3">Após a importação, verifique na tabela: (1) as linhas aparecem agrupadas por Parque; (2) datas foram convertidas corretamente do formato serial do Excel para DD/MM/AAAA; (3) o nome da moeda (ex.: "DÓLAR") foi convertido para o código correto (USD); (4) o Valor Total BRL foi calculado automaticamente.</div>
+            <a class="task-ref" href="MTA_manual.html#ld-importar" target="_blank">📖 Manual → Importar planilha Excel</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- SEÇÃO 3 -->
+  <div class="section">
+    <div class="section-hdr open" onclick="toggleSection(this)">
+      <div class="section-num" id="snum-3">3</div>
+      <div class="section-title">Gerenciar o trâmite das linhas</div>
+      <div class="section-meta" id="smeta-3">0/4</div>
+      <div class="section-chevron">›</div>
+    </div>
+    <div class="section-body open">
+      <div class="section-body-inner">
+
+        <div class="task">
+          <div class="cb-wrap"><label><input type="checkbox" id="t3_1" onchange="onCheck()"><div class="cb"></div></label></div>
+          <div class="task-content">
+            <div class="task-title" id="tl_t3_1"><span class="tag tag-ambos">Preparação</span> Gerar uma solicitação de descentralização (via Parque)</div>
+            <div class="task-desc" id="td_t3_1">Troque para o perfil de um Parque. Na coluna Trâmite, marque uma linha como <strong>SOLICITAR</strong> e clique em <strong>Enviar para aprovação ↗</strong>. Confirme o envio. Volte ao perfil <strong>DIRMAB</strong>. A linha deve aparecer com o badge <strong>SOLICITADO</strong>.</div>
+            <a class="task-ref" href="MTA_manual.html#tramite-ref" target="_blank">📖 Manual → Ciclo de trâmite</a>
+          </div>
+        </div>
+
+        <div class="task">
+          <div class="cb-wrap"><label><input type="checkbox" id="t3_2" onchange="onCheck()"><div class="cb"></div></label></div>
+          <div class="task-content">
+            <div class="task-title" id="tl_t3_2"><span class="tag tag-linhas">Linhas do MTA</span> Avançar trâmite: SOLICITADO → ATENDER</div>
+            <div class="task-desc" id="td_t3_2">Com o perfil DIRMAB, localize a linha com trâmite <strong>SOLICITADO</strong>. Clique no seletor de Trâmite e selecione <strong>ATENDER</strong>. Verifique que o badge muda para verde (ATENDER) imediatamente, sem necessidade de enviar para aprovação.</div>
+            <a class="task-ref" href="MTA_manual.html#ld-tramite" target="_blank">📖 Manual → Gerenciar trâmite</a>
+          </div>
+        </div>
+
+        <div class="task">
+          <div class="cb-wrap"><label><input type="checkbox" id="t3_3" onchange="onCheck()"><div class="cb"></div></label></div>
+          <div class="task-content">
+            <div class="task-title" id="tl_t3_3"><span class="tag tag-linhas">Linhas do MTA</span> Retornar trâmite: ATENDER → SOLICITADO ou —</div>
+            <div class="task-desc" id="td_t3_3">Na linha agora com trâmite <strong>ATENDER</strong>, clique novamente no seletor. Selecione <strong>SOLICITADO</strong> para devolver ao Parque, ou <strong>—</strong> para cancelar completamente a solicitação. Verifique a mudança visual no badge.</div>
+            <a class="task-ref" href="MTA_manual.html#ld-tramite" target="_blank">📖 Manual → Gerenciar trâmite</a>
+          </div>
+        </div>
+
+        <div class="task">
+          <div class="cb-wrap"><label><input type="checkbox" id="t3_4" onchange="onCheck()"><div class="cb"></div></label></div>
+          <div class="task-content">
+            <div class="task-title" id="tl_t3_4"><span class="tag tag-linhas">Linhas do MTA</span> Preencher campos exclusivos da DIRMAB</div>
+            <div class="task-desc" id="td_t3_4">Com uma linha em <strong>ATENDER</strong>, clique na célula <strong>Nro Ped DIRMAB</strong> e informe um número. Clique em <strong>Data Ped DIRMAB</strong> e selecione uma data. Informe também o <strong>Dígito</strong>. Confirme que esses campos ficam bloqueados quando o perfil é trocado para Parque.</div>
+            <a class="task-ref" href="MTA_manual.html#ld-campos" target="_blank">📖 Manual → Campos exclusivos da DIRMAB</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- SEÇÃO 4 -->
+  <div class="section">
+    <div class="section-hdr open" onclick="toggleSection(this)">
+      <div class="section-num" id="snum-4">4</div>
+      <div class="section-title">Revisar e aprovar pedidos</div>
+      <div class="section-meta" id="smeta-4">0/5</div>
+      <div class="section-chevron">›</div>
+    </div>
+    <div class="section-body open">
+      <div class="section-body-inner">
+
+        <div class="task">
+          <div class="cb-wrap"><label><input type="checkbox" id="t4_1" onchange="onCheck()"><div class="cb"></div></label></div>
+          <div class="task-content">
+            <div class="task-title" id="tl_t4_1"><span class="tag tag-ambos">Preparação</span> Gerar pedidos para aprovação (via Parque)</div>
+            <div class="task-desc" id="td_t4_1">Troque para perfil de Parque. Realize ao menos dois tipos de pedido: (1) edite campos de uma linha existente e envie; (2) crie uma nova linha e envie. Volte ao perfil <strong>DIRMAB</strong> e acesse a tela de <strong>Aprovações</strong>. Confirme que os pedidos aparecem na lista à esquerda.</div>
+            <a class="task-ref" href="MTA_manual.html#aprov-intro" target="_blank">📖 Manual → Apresentação das Aprovações</a>
+          </div>
+        </div>
+
+        <div class="task">
+          <div class="cb-wrap"><label><input type="checkbox" id="t4_2" onchange="onCheck()"><div class="cb"></div></label></div>
+          <div class="task-content">
+            <div class="task-title" id="tl_t4_2"><span class="tag tag-aprov">Aprovações</span> Revisar o impacto financeiro de um pedido</div>
+            <div class="task-desc" id="td_t4_2">Clique em um pedido do tipo <strong>ALTERAÇÃO</strong> na lista. No painel direito, observe os cards de <strong>Impacto financeiro</strong>: verifique os valores atuais, os deltas (em verde para aumento, vermelho para redução) e os valores projetados por Pacote, Ação Orçamentária e Projeto.</div>
+            <a class="task-ref" href="MTA_manual.html#ad-revisar" target="_blank">📖 Manual → Revisar um pedido</a>
+          </div>
+        </div>
+
+        <div class="task">
+          <div class="cb-wrap"><label><input type="checkbox" id="t4_3" onchange="onCheck()"><div class="cb"></div></label></div>
+          <div class="task-content">
+            <div class="task-title" id="tl_t4_3"><span class="tag tag-aprov">Aprovações</span> Aprovar um pedido completo</div>
+            <div class="task-desc" id="td_t4_3">Selecione um pedido. Clique em <strong>✓ Aprovar tudo</strong>. Confirme que todos os botões de decisão mudam para "A" (aprovado). Clique em <strong>Enviar decisão</strong>, revise na tela de confirmação e clique em <strong>Confirmar envio</strong>. Verifique que o pedido sai da lista de pendentes.</div>
+            <a class="task-ref" href="MTA_manual.html#ad-decidir" target="_blank">📖 Manual → Aprovar ou retornar</a>
+          </div>
+        </div>
+
+        <div class="task">
+          <div class="cb-wrap"><label><input type="checkbox" id="t4_4" onchange="onCheck()"><div class="cb"></div></label></div>
+          <div class="task-content">
+            <div class="task-title" id="tl_t4_4"><span class="tag tag-aprov">Aprovações</span> Retornar um pedido com motivo</div>
+            <div class="task-desc" id="td_t4_4">Selecione um pedido com múltiplas linhas. Clique em <strong>✗ Retornar tudo</strong>. Preencha o motivo no campo de texto que aparece no rodapé. Se houver mais de uma linha, use o link <strong>Copiar para todas as linhas devolvidas</strong>. Envie e confirme. Troque para o perfil Parque e verifique a barra vermelha de devoluções.</div>
+            <a class="task-ref" href="MTA_manual.html#ad-motivo" target="_blank">📖 Manual → Informar motivo de retorno</a>
+            <div class="task-note">📋 O motivo é obrigatório — o botão "Enviar decisão" fica bloqueado enquanto houver linhas a retornar sem motivo preenchido.</div>
+          </div>
+        </div>
+
+        <div class="task">
+          <div class="cb-wrap"><label><input type="checkbox" id="t4_5" onchange="onCheck()"><div class="cb"></div></label></div>
+          <div class="task-content">
+            <div class="task-title" id="tl_t4_5"><span class="tag tag-aprov">Aprovações</span> Aprovar parcialmente um pedido</div>
+            <div class="task-desc" id="td_t4_5">Selecione um pedido com pelo menos duas linhas. Marque algumas linhas como "A" (aprovar) e outras como "R" (retornar). Preencha os motivos das retornadas. Clique em <strong>Enviar decisão</strong>. Confirme que a mensagem de sucesso indica decisão parcial com as contagens corretas.</div>
+            <a class="task-ref" href="MTA_manual.html#ad-confirmar" target="_blank">📖 Manual → Confirmar a decisão</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- SEÇÃO 5 -->
+  <div class="section">
+    <div class="section-hdr open" onclick="toggleSection(this)">
+      <div class="section-num" id="snum-5">5</div>
+      <div class="section-title">Filtros e busca na tela de Aprovações</div>
+      <div class="section-meta" id="smeta-5">0/2</div>
+      <div class="section-chevron">›</div>
+    </div>
+    <div class="section-body open">
+      <div class="section-body-inner">
+
+        <div class="task">
+          <div class="cb-wrap"><label><input type="checkbox" id="t5_1" onchange="onCheck()"><div class="cb"></div></label></div>
+          <div class="task-content">
+            <div class="task-title" id="tl_t5_1"><span class="tag tag-aprov">Aprovações</span> Usar filtros de tipo</div>
+            <div class="task-desc" id="td_t5_1">Com múltiplos pedidos pendentes, use as pílulas de filtro no topo da lista: clique em <strong>Alterações</strong> — apenas pedidos do tipo ALTERAÇÃO devem aparecer. Depois clique em <strong>Novas</strong> — apenas NOVA LINHA e QUEBRA DE LINHA. Por fim, clique em <strong>Todos</strong> para ver tudo.</div>
+            <a class="task-ref" href="MTA_manual.html#aprov-intro" target="_blank">📖 Manual → Filtros da lista</a>
+          </div>
+        </div>
+
+        <div class="task">
+          <div class="cb-wrap"><label><input type="checkbox" id="t5_2" onchange="onCheck()"><div class="cb"></div></label></div>
+          <div class="task-content">
+            <div class="task-title" id="tl_t5_2"><span class="tag tag-aprov">Aprovações</span> Buscar um pedido específico</div>
+            <div class="task-desc" id="td_t5_2">Use a <strong>caixa de busca</strong> acima da lista para filtrar por nome de Parque (ex.: "PAMAGL") ou por palavra do projeto. Verifique que a lista é filtrada em tempo real à medida que digita.</div>
+            <a class="task-ref" href="MTA_manual.html#aprov-intro" target="_blank">📖 Manual → Filtros da lista</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- SEÇÃO 6 -->
+  <div class="section">
+    <div class="section-hdr open" onclick="toggleSection(this)">
+      <div class="section-num" id="snum-6">6</div>
+      <div class="section-title">Histórico e rastreabilidade</div>
+      <div class="section-meta" id="smeta-6">0/2</div>
+      <div class="section-chevron">›</div>
+    </div>
+    <div class="section-body open">
+      <div class="section-body-inner">
+
+        <div class="task">
+          <div class="cb-wrap"><label><input type="checkbox" id="t6_1" onchange="onCheck()"><div class="cb"></div></label></div>
+          <div class="task-content">
+            <div class="task-title" id="tl_t6_1"><span class="tag tag-aprov">Aprovações</span> Consultar decisões no histórico</div>
+            <div class="task-desc" id="td_t6_1">Após tomar decisões, clique no botão <strong>Histórico</strong> na barra superior de Aprovações. Verifique que as decisões enviadas aparecem listadas com: Parque, tipo do pedido, autor, datas de envio e decisão, e os indicadores ✓/✗ por linha. Localize um retorno e confirme que o motivo está visível.</div>
+            <a class="task-ref" href="MTA_manual.html#aprov-historico" target="_blank">📖 Manual → Histórico de aprovações</a>
+          </div>
+        </div>
+
+        <div class="task">
+          <div class="cb-wrap"><label><input type="checkbox" id="t6_2" onchange="onCheck()"><div class="cb"></div></label></div>
+          <div class="task-content">
+            <div class="task-title" id="tl_t6_2"><span class="tag tag-aprov">Aprovações</span> Pesquisar no histórico</div>
+            <div class="task-desc" id="td_t6_2">No histórico, use a caixa de busca para pesquisar por: (1) nome de um Parque; (2) parte do N° de Ordem de uma linha aprovada; (3) palavra contida em um motivo de retorno. Confirme que os resultados são filtrados corretamente.</div>
+            <a class="task-ref" href="MTA_manual.html#aprov-historico" target="_blank">📖 Manual → Histórico de aprovações</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- SEÇÃO 7 -->
+  <div class="section">
+    <div class="section-hdr open" onclick="toggleSection(this)">
+      <div class="section-num" id="snum-7">7</div>
+      <div class="section-title">Visualização e configuração da tabela</div>
+      <div class="section-meta" id="smeta-7">0/3</div>
+      <div class="section-chevron">›</div>
+    </div>
+    <div class="section-body open">
+      <div class="section-body-inner">
+
+        <div class="task">
+          <div class="cb-wrap"><label><input type="checkbox" id="t7_1" onchange="onCheck()"><div class="cb"></div></label></div>
+          <div class="task-content">
+            <div class="task-title" id="tl_t7_1"><span class="tag tag-linhas">Linhas do MTA</span> Visualizar linhas de todos os Parques</div>
+            <div class="task-desc" id="td_t7_1">Com perfil DIRMAB, verifique que linhas de múltiplos Parques são exibidas na mesma tabela, identificadas pela coluna <strong>MTA</strong>. Aplique um filtro na coluna MTA para ver apenas um Parque específico, depois remova o filtro. Confira o total no rodapé.</div>
+            <a class="task-ref" href="MTA_manual.html#linhas-dirmab" target="_blank">📖 Manual → DIRMAB na Linhas do MTA</a>
+          </div>
+        </div>
+
+        <div class="task">
+          <div class="cb-wrap"><label><input type="checkbox" id="t7_2" onchange="onCheck()"><div class="cb"></div></label></div>
+          <div class="task-content">
+            <div class="task-title" id="tl_t7_2"><span class="tag tag-linhas">Linhas do MTA</span> Identificar linhas bloqueadas vs. editáveis</div>
+            <div class="task-desc" id="td_t7_2">Tente clicar em células de linhas com trâmite EM TRÂMITE ou ATENDIDO. Confirme que os campos de conteúdo (Projeto, Valor etc.) estão bloqueados. Verifique que os campos exclusivos da DIRMAB (Dígito, Nro Ped, Data Ped) ficam disponíveis nas linhas com ATENDER ou EM TRÂMITE.</div>
+            <a class="task-ref" href="MTA_manual.html#ld-campos" target="_blank">📖 Manual → Campos exclusivos da DIRMAB</a>
+          </div>
+        </div>
+
+        <div class="task">
+          <div class="cb-wrap"><label><input type="checkbox" id="t7_3" onchange="onCheck()"><div class="cb"></div></label></div>
+          <div class="task-content">
+            <div class="task-title" id="tl_t7_3"><span class="tag tag-linhas">Linhas do MTA</span> Usar ordenação múltipla</div>
+            <div class="task-desc" id="td_t7_3">Clique em <strong>Ordenar</strong>. Crie uma ordenação composta: primeiro por <strong>MTA</strong> (A→Z) e depois por <strong>Trâmite</strong> (A→Z). Aplique e verifique que as linhas ficam agrupadas por Parque e, dentro de cada Parque, ordenadas por trâmite.</div>
+            <a class="task-ref" href="MTA_manual.html#linhas-colunas" target="_blank">📖 Manual → Colunas e ordenação</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <button class="reset-btn" onclick="resetProgress()">↺ Reiniciar progresso deste tutorial</button>
+
+</div>
+
+<script>
+const STORE_KEY = 'mta_tutorial_dirmab';
+const SECTIONS = [
+  {id:1, tasks:['t1_1','t1_2']},
+  {id:2, tasks:['t2_1','t2_2','t2_3']},
+  {id:3, tasks:['t3_1','t3_2','t3_3','t3_4']},
+  {id:4, tasks:['t4_1','t4_2','t4_3','t4_4','t4_5']},
+  {id:5, tasks:['t5_1','t5_2']},
+  {id:6, tasks:['t6_1','t6_2']},
+  {id:7, tasks:['t7_1','t7_2','t7_3']},
+];
+
+function save() {
+  const state = {};
+  SECTIONS.forEach(s => s.tasks.forEach(id => { state[id] = document.getElementById(id).checked; }));
+  localStorage.setItem(STORE_KEY, JSON.stringify(state));
+}
+
+function load() {
+  try {
+    const state = JSON.parse(localStorage.getItem(STORE_KEY) || '{}');
+    SECTIONS.forEach(s => s.tasks.forEach(id => {
+      const cb = document.getElementById(id);
+      if (cb && state[id]) cb.checked = true;
+    }));
+  } catch(e) {}
+}
+
+function updateUI() {
+  let total = 0, done = 0;
+  SECTIONS.forEach(s => {
+    const n = s.tasks.length;
+    const d = s.tasks.filter(id => document.getElementById(id)?.checked).length;
+    total += n; done += d;
+    const snum = document.getElementById('snum-' + s.id);
+    const smeta = document.getElementById('smeta-' + s.id);
+    if (snum) snum.classList.toggle('done', d === n);
+    if (smeta) smeta.textContent = d + '/' + n;
+    s.tasks.forEach(id => {
+      const tl = document.getElementById('tl_' + id);
+      const td = document.getElementById('td_' + id);
+      const checked = document.getElementById(id)?.checked;
+      if (tl) tl.classList.toggle('done', checked);
+      if (td) td.classList.toggle('done', checked);
+    });
+  });
+  const pct = total ? Math.round(done / total * 100) : 0;
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('prog-label').textContent = done + ' de ' + total + ' tarefas concluídas';
+  document.getElementById('prog-pct').textContent = pct + '%';
+}
+
+function onCheck() { save(); updateUI(); }
+
+function toggleSection(hdr) {
+  hdr.classList.toggle('open');
+  hdr.nextElementSibling.classList.toggle('open');
+}
+
+function resetProgress() {
+  if (!confirm('Reiniciar todo o progresso deste tutorial?')) return;
+  localStorage.removeItem(STORE_KEY);
+  SECTIONS.forEach(s => s.tasks.forEach(id => { const cb = document.getElementById(id); if(cb) cb.checked = false; }));
+  updateUI();
+}
+
+load();
+updateUI();
+</script>
+</body>
+</html>
