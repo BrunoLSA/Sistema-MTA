@@ -836,7 +836,6 @@ function newValFooter(ord,k,moeda){
 function applyApprovedVals(){
   try{
     const approved=JSON.parse(localStorage.getItem('mta_approved_vals')||'{}');
-    ROWS.forEach(r=>{if(approved[r.ord])Object.assign(r,approved[r.ord]);});
     const newRows=JSON.parse(localStorage.getItem('mta_approved_newrows')||'{}');
     const allNew=Object.values(newRows).filter(nr=>!ROWS.find(r=>r.ord===nr.ord));
     // Insert main rows first (sorted), then sub-rows so parents exist when children are inserted
@@ -859,6 +858,8 @@ function applyApprovedVals(){
         ROWS.splice(at,0,nr);
       }else ROWS.push(nr);
     });
+    // Apply overrides AFTER all rows are loaded so rows from mta_approved_newrows are also updated
+    ROWS.forEach(r=>{if(approved[r.ord])Object.assign(r,approved[r.ord]);});
   }catch(e){}
 }
 function loadSubmittedPend(){
