@@ -167,9 +167,11 @@ td:first-child{padding:0;min-width:110px}
 .fd-i{display:flex;align-items:center;gap:8px;padding:5px 10px;cursor:pointer;font-size:12px;color:var(--t2);transition:background .1s}
 .fd-i:hover{background:rgba(255,255,255,.05)}
 .fd-i input{width:13px;height:13px;accent-color:var(--ac);cursor:pointer;flex-shrink:0}
-.fd-f{padding:6px 8px;border-top:1px solid var(--bd)}
+.fd-f{padding:6px 8px;border-top:1px solid var(--bd);display:flex;flex-direction:column;gap:4px}
 .fd-apply{width:100%;padding:5px;font-size:12px;font-weight:500;background:var(--ac);color:#0a1a2a;border:none;border-radius:var(--r);cursor:pointer;font-family:var(--fn)}
 .fd-apply:hover{background:#25c0ae}
+.fd-add{width:100%;padding:5px;font-size:12px;font-weight:500;background:transparent;color:var(--ac);border:1px solid var(--ac);border-radius:var(--r);cursor:pointer;font-family:var(--fn)}
+.fd-add:hover{background:rgba(45,212,191,.08)}
 
 /* POPUPS — item 5: only one open at a time */
 .pop{position:fixed;z-index:1000;background:var(--n2);border:1px solid var(--b2);border-radius:var(--rl);box-shadow:0 4px 16px rgba(0,0,0,.4);padding:5px;display:none;flex-direction:column;gap:2px;min-width:155px}
@@ -414,7 +416,10 @@ tr:hover .split-btn{display:inline}
     <div class="fd-an"><span onclick="fdAll()">Selecionar visíveis</span>|<span onclick="fdNone()">Desmarcar todos</span></div>
   </div>
   <div class="fd-l" id="fdl"></div>
-  <div class="fd-f"><button class="fd-apply" onclick="applyFd()">Aplicar filtro</button></div>
+  <div class="fd-f">
+    <button class="fd-apply" onclick="applyFd()">Aplicar filtro</button>
+    <button class="fd-add" id="fd-add-btn" onclick="applyFdAdd()" style="display:none">+ Adicionar à seleção atual</button>
+  </div>
 </div>
 
 <!-- SORT MODAL -->
@@ -1145,8 +1150,10 @@ function openFd(e,key){
   fdV=uvf(key);
   fdVisible=[...fdV];
   // item 3.2: pre-check based on active filter or all
-  if(filt[key]&&filt[key].length){fdT={};fdV.forEach(v=>fdT[v]=filt[key].includes(v));}
+  const hasFilt=!!(filt[key]&&filt[key].length);
+  if(hasFilt){fdT={};fdV.forEach(v=>fdT[v]=filt[key].includes(v));}
   else{fdT={};fdV.forEach(v=>fdT[v]=true);}
+  document.getElementById('fd-add-btn').style.display=hasFilt?'':'none';
   document.getElementById('fds').value='';
   renderFdl(fdV);
   d.classList.add('open');
@@ -1173,11 +1180,19 @@ function fdNone(){fdV.forEach(v=>fdT[v]=false);renderFdl(fdVisible);}
 // item 2: apply uses visible items (fdVisible) as the selected set,
 // respecting individual checkbox state within that visible set
 function applyFd(){
-  // For items in fdVisible: use their checked state in fdT
-  // For items NOT in fdVisible (filtered out by search): treat as deselected
   const sel=fdVisible.filter(v=>fdT[v]!==false);
   if(!sel.length||sel.length>=fdV.length)delete filt[fdC];
   else filt[fdC]=sel;
+  document.getElementById('fd').classList.remove('open');
+  render();
+}
+function applyFdAdd(){
+  // Merge currently visible+checked items WITH whatever was already in the filter
+  const prev=filt[fdC]?[...filt[fdC]]:[];
+  const newSel=fdVisible.filter(v=>fdT[v]!==false);
+  const merged=[...new Set([...prev,...newSel])];
+  if(!merged.length||merged.length>=fdV.length)delete filt[fdC];
+  else filt[fdC]=merged;
   document.getElementById('fd').classList.remove('open');
   render();
 }
