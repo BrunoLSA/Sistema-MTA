@@ -721,9 +721,10 @@ function renderMtaTable(){
     ${MTA_COLS.map(k=>`<th>${MTA_LABELS[k]}</th>`).join('')}
   </tr>`;
 
-  // Build rows list: original rows + new rows
+  // Build rows list: only rows with pending changes + mãe rows of new children
   const displayRows=[];
   rows.forEach(r=>{
+    if(!pendOrd.has(r.ord)&&!maeOrds.has(r.ord))return;
     displayRows.push({...r, isNew:false, isMae:maeOrds.has(r.ord)});
     // After mãe row, insert new children
     pkg.changes.filter(c=>c.tipo==='new'&&c.maOrd===r.ord).forEach(c=>{

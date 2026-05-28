@@ -533,7 +533,7 @@ tr:hover .split-btn{display:inline}
       </div>
       <div>
         <div class="nl-lbl">Para Contrato <span style="color:var(--rd)">*</span></div>
-        <select id="nl-paracontrato" class="nl-sel"><option value="SOB DEMANDA">SOB DEMANDA</option><option value="PARCELA FIXA">PARCELA FIXA</option><option value="REQUISIÇÃO">REQUISIÇÃO</option></select>
+        <select id="nl-paracontrato" class="nl-sel"><option value="HORA DE VOO">HORA DE VOO</option><option value="PARCELA FIXA">PARCELA FIXA</option><option value="REQUISIÇÃO">REQUISIÇÃO</option><option value="SOB DEMANDA" selected>SOB DEMANDA</option></select>
       </div>
       <div>
         <div class="nl-lbl">ED <span style="color:var(--rd)">*</span></div>
@@ -638,7 +638,7 @@ tr:hover .split-btn{display:inline}
         </div>
         <div>
           <div class="nl-lbl">Para Contrato <span style="color:var(--rd)">*</span></div>
-          <select id="sp-paracontrato" class="nl-sel"><option value="SOB DEMANDA">SOB DEMANDA</option><option value="PARCELA FIXA">PARCELA FIXA</option><option value="REQUISIÇÃO">REQUISIÇÃO</option></select>
+          <select id="sp-paracontrato" class="nl-sel"><option value="HORA DE VOO">HORA DE VOO</option><option value="PARCELA FIXA">PARCELA FIXA</option><option value="REQUISIÇÃO">REQUISIÇÃO</option><option value="SOB DEMANDA">SOB DEMANDA</option></select>
         </div>
         <div>
           <div class="nl-lbl">ED <span style="color:var(--rd)">*</span></div>
@@ -971,8 +971,8 @@ function vc(){return cols.filter(c=>c.v);}
 
 function uvf(key){
   let rows=[...ROWS];
-  Object.entries(filt).forEach(([k,v])=>{if(k===key||!v||!v.length)return;rows=rows.filter(r=>v.includes(String(r[k]??'')));});
-  return[...new Set(rows.map(r=>String(r[key]??'')))].sort();
+  Object.entries(filt).forEach(([k,v])=>{if(k===key||!v||!v.length)return;rows=rows.filter(r=>v.includes(String(cv(r,k)??'')));});
+  return[...new Set(rows.map(r=>String(cv(r,key)??'')))].sort();
 }
 function getRows(){
   let rows=[...ROWS];
@@ -988,7 +988,7 @@ function getRows(){
       if(ins>=0)rows.splice(ins,0,nr);else rows.push(nr);
     }
   });
-  Object.entries(filt).forEach(([k,v])=>{if(!v||!v.length)return;rows=rows.filter(r=>v.includes(String(r[k]??'')));});
+  Object.entries(filt).forEach(([k,v])=>{if(!v||!v.length)return;rows=rows.filter(r=>v.includes(String(cv(r,k)??'')));});
   if(sorts.length){rows.sort((a,b)=>{for(const s of sorts){let av=cv(a,s.c)??'',bv=cv(b,s.c)??'';if(typeof av==='number'&&typeof bv==='number'){if(av!==bv)return s.d==='asc'?av-bv:bv-av;}else{av=String(av).toLowerCase();bv=String(bv).toLowerCase();if(av<bv)return s.d==='asc'?-1:1;if(av>bv)return s.d==='asc'?1:-1;}}return 0;});}
   return rows;
 }
