@@ -693,6 +693,41 @@ tr:hover .split-btn{display:inline}
   </div>
 </div>
 
+<!-- CÂMBIO REAL MODAL -->
+<div class="mov" id="cambio-real-m">
+  <div class="modal" style="width:420px">
+    <div class="mh">
+      <div><h3 id="cr-title">Câmbio real da transação</h3><div class="mh-sub" id="cr-sub"></div></div>
+      <span class="mcl" onclick="closeCambioReal()">×</span>
+    </div>
+    <div class="mb" style="display:flex;flex-direction:column;gap:16px">
+      <div style="background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.2);border-radius:6px;padding:10px 12px;font-size:12px;color:var(--t2)">
+        Informe o câmbio real utilizado na transação <strong id="cr-moeda-label"></strong> ou o valor total em BRL. Os dois campos são sincronizados automaticamente.
+      </div>
+      <div style="display:grid;grid-template-columns:1fr auto;gap:6px;align-items:center">
+        <div>
+          <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--t3);text-transform:uppercase;margin-bottom:4px">Câmbio real</div>
+          <input id="cr-rate" class="nl-inp" type="text" inputmode="decimal" placeholder="0,0000" oninput="crUpdFromRate()"/>
+        </div>
+        <div style="font-size:12px;color:var(--t3);padding-top:20px" id="cr-rate-unit">R$/—</div>
+      </div>
+      <div style="text-align:center;color:var(--t3);font-size:11px">— ou —</div>
+      <div>
+        <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--t3);text-transform:uppercase;margin-bottom:4px">Valor total em BRL</div>
+        <input id="cr-valor" class="nl-inp" type="text" inputmode="decimal" placeholder="0,00" oninput="crUpdFromValor()"/>
+      </div>
+      <div style="background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.2);border-radius:6px;padding:10px 12px;display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:12px;color:var(--t2)">Valor Total BRL resultante</span>
+        <span id="cr-preview" style="font-family:var(--mo);font-size:14px;font-weight:600;color:var(--gr)">—</span>
+      </div>
+    </div>
+    <div class="mf">
+      <button class="btn" onclick="closeCambioReal()">Cancelar</button>
+      <button class="btn btn-p" onclick="confirmCambioReal()">Confirmar →</button>
+    </div>
+  </div>
+</div>
+
 <!-- IMPORT MODAL -->
 <div class="mov" id="imp-m">
   <div class="modal" style="max-width:500px;width:500px">
@@ -1072,7 +1107,10 @@ function render(){
       }
       if(c.k==='moeda'){if(!rowEditable)return`<td><div class="cell">${raw||'—'}</div></td>`;if(rowLocked)return`<td><div class="cell" style="${lkColStyle}"${lockedTitle}>${wrap((row[c.k]||'—')+dot,false)}</div></td>`;return`<td><div style="display:flex;align-items:center;height:32px"><select class="isel" onchange="ce('${row.ord}','moeda',this.value);render()">${CUR.map(cur=>`<option value="${cur}"${raw===cur?' selected':''}>${cur}</option>`).join('')}</select>${dot}</div></td>`;}
       if(c.k==='valormoeda'){const m=cv(row,'moeda')||'BRL';const origM=row['moeda']||'BRL';if(!rowEditable)return`<td><div class="cell cr">${fmtVM(raw,m)}</div></td>`;if(rowLocked)return`<td><div class="cell cr" style="${lkCrStyle}"${lockedTitle}>${wrap(fmtVM(row[c.k],origM)+dot,true)}</div></td>`;return`<td><div class="cell cr" contenteditable="true" onblur="ceN('${row.ord}','valormoeda',this.textContent)">${fmtVM(raw,m)}${dot}</div></td>`;}
-      if(c.k==='valor'){return`<td><div class="cell cr" style="${modSub?lkCrStyle+';':''}color:var(--t2);cursor:default" title="Calculado automaticamente: Valor Moeda × Câmbio">${wrap(fmtC(raw,'BRL')+dot,true)}</div></td>`;}
+      if(c.k==='valor'){
+        const confTag=row.cambio_conferido?`<span style="font-size:9px;padding:1px 5px;background:rgba(52,211,153,.12);color:var(--gr);border:1px solid rgba(52,211,153,.25);border-radius:3px;margin-left:5px;font-weight:600;vertical-align:middle;cursor:default" title="Câmbio real conferido e atualizado pela DIRMAB">✓ câmbio conf.</span>`:'';
+        return`<td><div class="cell cr" style="${modSub?lkCrStyle+';':''}color:var(--t2);cursor:default" title="${row.cambio_conferido?'Câmbio real conferido pela DIRMAB':'Calculado automaticamente: Valor Moeda × Câmbio'}">${wrap(fmtC(raw,'BRL')+dot,true)}${confTag}</div></td>`;
+      }
       if(c.k==='mesdesc'||c.k==='mesliq'){if(!rowEditable)return`<td><div class="cell">${fmtM(raw)||'—'}</div></td>`;if(rowLocked)return`<td><div class="cell" style="${lkColStyle}"${lockedTitle}>${wrap((fmtM(row[c.k])||'—')+dot,false)}</div></td>`;return`<td><div class="cell" style="cursor:pointer;gap:6px" onclick="openMp(event,'${row.ord}','${c.k}')" title="Clique para selecionar mês/ano">${fmtM(raw)||'<span style=\"color:var(--t3);font-size:11px\">Selecionar…</span>'}${dot}</div></td>`;}
       if(c.k==='datasolic')return`<td><div class="cell" style="color:var(--t3)">${raw||'—'}</div></td>`;
       if(c.k==='nropeddirmab'){
@@ -1951,6 +1989,68 @@ function ceDirmab(ord,field,value){
     localStorage.setItem('mta_approved_vals',JSON.stringify(approved));
   }catch(e){}
   render();
+  // When dígito is filled and line is in foreign currency, prompt for real exchange rate
+  if(field==='digito'&&value&&(row.moeda||'BRL')!=='BRL'){
+    openCambioReal(ord);
+  }
+}
+
+// ── CÂMBIO REAL DA TRANSAÇÃO ──
+let _crOrd=null;
+function openCambioReal(ord){
+  const row=ROWS.find(r=>r.ord===ord);if(!row)return;
+  _crOrd=ord;
+  const moeda=row.moeda||'BRL';
+  const vm=parseFloat(row.valormoeda)||0;
+  const cb=getCambio();
+  const rate=row.cambio_real||(cb[moeda]||1);
+  const valorBRL=vm*rate;
+  document.getElementById('cr-title').textContent=`Câmbio real — Linha ${ord}`;
+  document.getElementById('cr-sub').textContent=`${moeda} ${vm.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})} → confirmar Valor Total BRL`;
+  document.getElementById('cr-moeda-label').textContent=`(${moeda})`;
+  document.getElementById('cr-rate-unit').textContent=`R$/${moeda}`;
+  document.getElementById('cr-rate').value=rate.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:4});
+  document.getElementById('cr-valor').value=valorBRL.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  document.getElementById('cr-preview').textContent=fmtC(valorBRL,'BRL');
+  document.getElementById('cambio-real-m').classList.add('open');
+}
+function crUpdFromRate(){
+  const row=ROWS.find(r=>r.ord===_crOrd);if(!row)return;
+  const vm=parseFloat(row.valormoeda)||0;
+  const rate=parseMasked(document.getElementById('cr-rate').value);
+  const valorBRL=vm*rate;
+  document.getElementById('cr-valor').value=valorBRL.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  document.getElementById('cr-preview').textContent=fmtC(valorBRL,'BRL');
+}
+function crUpdFromValor(){
+  const row=ROWS.find(r=>r.ord===_crOrd);if(!row)return;
+  const vm=parseFloat(row.valormoeda)||0;
+  const valorBRL=parseMasked(document.getElementById('cr-valor').value);
+  const rate=vm>0?valorBRL/vm:0;
+  document.getElementById('cr-rate').value=rate.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:4});
+  document.getElementById('cr-preview').textContent=fmtC(valorBRL,'BRL');
+}
+function confirmCambioReal(){
+  const ord=_crOrd;const row=ROWS.find(r=>r.ord===ord);if(!row)return;
+  const rate=parseMasked(document.getElementById('cr-rate').value);
+  const valorBRL=parseMasked(document.getElementById('cr-valor').value);
+  row.valor=valorBRL;
+  row.cambio_real=rate;
+  row.cambio_conferido=true;
+  try{
+    const approved=JSON.parse(localStorage.getItem('mta_approved_vals')||'{}');
+    if(!approved[ord])approved[ord]={};
+    approved[ord].valor=valorBRL;
+    approved[ord].cambio_real=rate;
+    approved[ord].cambio_conferido=true;
+    localStorage.setItem('mta_approved_vals',JSON.stringify(approved));
+  }catch(e){}
+  closeCambioReal();
+  render();
+}
+function closeCambioReal(){
+  document.getElementById('cambio-real-m').classList.remove('open');
+  _crOrd=null;
 }
 
 // ── CURRENCY MASK ──
