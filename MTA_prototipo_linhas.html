@@ -340,7 +340,10 @@ tr:hover .split-btn{display:inline}
     <div class="tbr">
       <button class="btn" onclick="openSM()"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M4 8h8M6 12h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg> Ordenar</button>
       <button class="btn" onclick="openCP()"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><rect x="1" y="2" width="14" height="2.5" rx="1" fill="currentColor"/><rect x="1" y="6.75" width="10" height="2.5" rx="1" fill="currentColor"/><rect x="1" y="11.5" width="12" height="2.5" rx="1" fill="currentColor"/></svg> Configurar colunas</button>
-      <button class="btn"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M4 12h8M8 3v7M5 7l3 3 3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg> Exportar</button>
+      <button class="btn" onclick="openViewsModal()">☰ Visualizações</button>
+      <button class="btn" onclick="exportXlsx()"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M4 12h8M8 3v7M5 7l3 3 3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg> Exportar</button>
+      <button class="btn" onclick="openImpactModal()" title="Definir impacto EAer e TDA por linha"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M2 12 6 7l3 3 2-4 3 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg> Impacto</button>
+      <button class="btn" onclick="openSimModal()" title="Simular alocação orçamentária"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.3"/><path d="M6 8l2 2 3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg> Simular</button>
       <button class="btn" onclick="openCambio()" title="Configurar taxas de câmbio planejado">⇄ Câmbio</button>
       <button class="btn" onclick="openImport()" title="Importar planilha MTA (.xlsx)"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M8 10V3M5 7l3 3 3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 12h10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg> Importar</button>
       <button class="btn btn-p" id="btn-novalinha" onclick="openNL()"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg> Nova linha</button>
@@ -702,28 +705,132 @@ tr:hover .split-btn{display:inline}
     </div>
     <div class="mb" style="display:flex;flex-direction:column;gap:16px">
       <div style="background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.2);border-radius:6px;padding:10px 12px;font-size:12px;color:var(--t2)">
-        Informe o câmbio real utilizado na transação <strong id="cr-moeda-label"></strong> ou o valor total em BRL. Os dois campos são sincronizados automaticamente.
+        Informe o câmbio real utilizado na transação <strong id="cr-moeda-label"></strong> ou o valor total em BRL.
       </div>
       <div style="display:grid;grid-template-columns:1fr auto;gap:6px;align-items:center">
         <div>
           <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--t3);text-transform:uppercase;margin-bottom:4px">Câmbio real</div>
-          <input id="cr-rate" class="nl-inp" type="text" inputmode="decimal" placeholder="0,0000" oninput="crUpdFromRate()"/>
+          <input id="cr-rate" class="nl-inp" type="text" inputmode="decimal" placeholder="0,0000" oninput="maskExRate(this);crUpdFromRate()"/>
         </div>
         <div style="font-size:12px;color:var(--t3);padding-top:20px" id="cr-rate-unit">R$/—</div>
       </div>
       <div style="text-align:center;color:var(--t3);font-size:11px">— ou —</div>
       <div>
         <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--t3);text-transform:uppercase;margin-bottom:4px">Valor total em BRL</div>
-        <input id="cr-valor" class="nl-inp" type="text" inputmode="decimal" placeholder="0,00" oninput="crUpdFromValor()"/>
+        <input id="cr-valor" class="nl-inp" type="text" inputmode="decimal" placeholder="0,00" oninput="maskCur(this);crUpdFromValor()"/>
       </div>
-      <div style="background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.2);border-radius:6px;padding:10px 12px;display:flex;justify-content:space-between;align-items:center">
-        <span style="font-size:12px;color:var(--t2)">Valor Total BRL resultante</span>
-        <span id="cr-preview" style="font-family:var(--mo);font-size:14px;font-weight:600;color:var(--gr)">—</span>
+      <div style="border:1px solid rgba(100,116,139,.2);border-radius:6px;padding:10px 12px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div>
+          <div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Valor no câmbio planejado</div>
+          <div id="cr-planned" style="font-family:var(--mo);font-size:13px;color:var(--t2)">—</div>
+        </div>
+        <div>
+          <div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Diferença</div>
+          <div id="cr-delta" style="font-family:var(--mo);font-size:13px;font-weight:600;color:var(--t2)">—</div>
+        </div>
       </div>
     </div>
     <div class="mf">
       <button class="btn" onclick="closeCambioReal()">Cancelar</button>
       <button class="btn btn-p" onclick="confirmCambioReal()">Confirmar →</button>
+    </div>
+  </div>
+</div>
+
+<!-- VIEWS MODAL -->
+<div class="mov" id="views-m">
+  <div class="modal" style="width:460px">
+    <div class="mh">
+      <div><h3>Visualizações salvas</h3><div class="mh-sub">Salve e reutilize configurações de filtro e ordenação</div></div>
+      <span class="mcl" onclick="closeViewsModal()">×</span>
+    </div>
+    <div class="mb" style="display:flex;flex-direction:column;gap:0">
+      <div id="views-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px"></div>
+      <div style="border-top:1px solid var(--bd);padding-top:14px">
+        <div style="font-size:11px;font-weight:600;color:var(--t2);margin-bottom:8px">Salvar visualização atual</div>
+        <div style="display:flex;gap:8px">
+          <input id="views-name" class="nl-inp" type="text" placeholder="Nome da visualização…" style="flex:1" onkeydown="if(event.key==='Enter')saveCurrentView()"/>
+          <button class="btn btn-p" onclick="saveCurrentView()">Salvar</button>
+        </div>
+        <div id="views-save-hint" style="font-size:11px;color:var(--t3);margin-top:6px"></div>
+      </div>
+    </div>
+    <div class="mf"><button class="btn" onclick="closeViewsModal()">Fechar</button></div>
+  </div>
+</div>
+
+<!-- EXPORT MODAL -->
+<div class="mov" id="exp-m">
+  <div class="modal" style="width:400px">
+    <div class="mh">
+      <div><h3>Exportar para Excel</h3><div class="mh-sub" id="exp-sub"></div></div>
+      <span class="mcl" onclick="closeExpModal()">×</span>
+    </div>
+    <div class="mb" style="display:flex;flex-direction:column;gap:12px">
+      <div id="exp-info" style="background:var(--n2);border:1px solid var(--bd);border-radius:6px;padding:10px 14px;font-size:12px;color:var(--t2);line-height:1.7"></div>
+      <div id="exp-err" style="display:none;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.3);border-radius:6px;padding:8px 12px;font-size:12px;color:#f87171"></div>
+    </div>
+    <div class="mf">
+      <button class="btn" onclick="closeExpModal()">Cancelar</button>
+      <button class="btn btn-p" id="exp-btn" onclick="doExport()"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M4 12h8M8 3v7M5 7l3 3 3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg> Baixar .xlsx</button>
+    </div>
+  </div>
+</div>
+
+<!-- IMPACT MODAL -->
+<div class="mov" id="impact-m">
+  <div class="modal" style="width:680px">
+    <div class="mh">
+      <div><h3>Impacto por Linha</h3><div class="mh-sub">Defina o impacto esperado no EAer e na TDA para cada ordem</div></div>
+      <span class="mcl" onclick="closeImpactModal()">×</span>
+    </div>
+    <div class="mb" style="padding:0;display:flex;flex-direction:column">
+      <div style="padding:10px 14px;border-bottom:1px solid var(--bd)">
+        <input id="impact-search" class="nl-inp" type="text" placeholder="Buscar por N° Ordem ou Projeto…" style="width:100%;font-size:12px" oninput="renderImpactList()"/>
+      </div>
+      <div style="display:grid;grid-template-columns:84px 1fr 110px 120px 110px;gap:0;padding:7px 14px;border-bottom:2px solid var(--bd);font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.06em">
+        <span>N° Ordem</span><span>Projeto / Tarefa</span><span style="text-align:right">Valor BRL</span><span style="text-align:right">EAer (hhh:mm)</span><span style="text-align:right">TDA (%)</span>
+      </div>
+      <div id="impact-list" style="max-height:420px;overflow-y:auto"></div>
+    </div>
+    <div class="mf"><button class="btn" onclick="closeImpactModal()">Fechar</button></div>
+  </div>
+</div>
+
+<!-- SIMULATION MODAL -->
+<div class="mov" id="sim-m">
+  <div class="modal" style="width:780px">
+    <div class="mh">
+      <div><h3>Simulação de Alocação Orçamentária</h3><div class="mh-sub">Sugere quais linhas atender para maximizar o resultado com o orçamento disponível</div></div>
+      <span class="mcl" onclick="closeSimModal()">×</span>
+    </div>
+    <div class="mb" style="display:flex;flex-direction:column;gap:14px">
+      <div style="display:grid;grid-template-columns:200px 160px 1fr;gap:12px;background:var(--n2);padding:14px;border-radius:8px;border:1px solid var(--bd);align-items:start">
+        <div>
+          <div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px">Orçamento disponível (R$)</div>
+          <input id="sim-budget" class="nl-inp" type="text" inputmode="decimal" placeholder="0,00" oninput="maskCur(this)" style="width:100%"/>
+        </div>
+        <div>
+          <div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Objetivo</div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <label style="display:flex;align-items:center;gap:7px;font-size:12px;cursor:pointer"><input type="radio" name="sim-obj" value="eaer" checked> Esforço Aéreo (EAer)</label>
+            <label style="display:flex;align-items:center;gap:7px;font-size:12px;cursor:pointer"><input type="radio" name="sim-obj" value="tda"> Disponibilidade (TDA)</label>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px">Linhas a considerar</div>
+          <select id="sim-scope" style="width:100%;background:var(--n3);border:1px solid var(--bd);border-radius:5px;padding:6px 8px;color:var(--tx);font-size:12px">
+            <option value="all">Todas as linhas</option>
+            <option value="filt">Somente linhas filtradas</option>
+            <option value="impact">Somente linhas com impacto definido</option>
+          </select>
+        </div>
+      </div>
+      <div id="sim-report" style="max-height:480px;overflow-y:auto"></div>
+    </div>
+    <div class="mf">
+      <button class="btn" onclick="closeSimModal()">Fechar</button>
+      <button class="btn btn-p" onclick="runSim()">Calcular</button>
     </div>
   </div>
 </div>
@@ -804,6 +911,10 @@ const AC=[
 ];
 let cols=JSON.parse(JSON.stringify(AC));
 let filt={},sorts=[{c:'ord',d:'asc'}],pend={},pendSubmitted={},pendNewRows=[],devolvidos={},_devOrd=null;
+let viewPresets=[];
+let impactData={};
+const MOEDA_EXPORT={BRL:'REAL',USD:'DÓLAR',EUR:'EURO',GBP:'LIBRA',SEK:'COROA SUECA',CAD:'CAD',JPY:'JPY',CHF:'CHF'};
+let _expRows=null,_expFname='';
 let perfil='pamagl';
 function isDirmab(){return perfil==='dirmab';}
 function myMta(){return isDirmab()?null:perfil.toUpperCase();}
@@ -1525,7 +1636,7 @@ function confirmPrioAndEnviar(){
 (function(){
   const p=new URLSearchParams(location.search);
   if(p.get('clear')==='1'){
-    ['mta_pkgs_pending','mta_pkgs_userdata','mta_approved_vals','mta_approved_newrows','mta_hist','mta_linhas_prefs','mta_devolvidos','mta_cambio','mta_data_ver'].forEach(k=>localStorage.removeItem(k));
+    ['mta_pkgs_pending','mta_pkgs_userdata','mta_approved_vals','mta_approved_newrows','mta_hist','mta_linhas_prefs','mta_devolvidos','mta_cambio','mta_impact','mta_data_ver'].forEach(k=>localStorage.removeItem(k));
     location.replace(location.pathname);return;
   }
   const MTA_DATA_VER='3';
@@ -1535,6 +1646,8 @@ function confirmPrioAndEnviar(){
   }
 })();
 loadPrefs();
+loadViewPresets();
+loadImpact();
 applyApprovedVals();
 loadSubmittedPend();
 loadDevolvidos();
@@ -1932,6 +2045,263 @@ function confirmImport(replace){
   applyApprovedVals();loadSubmittedPend();loadDevolvidos();render();
 }
 
+// ── VISUALIZAÇÕES ──
+function loadViewPresets(){try{const s=localStorage.getItem('mta_view_presets');if(s)viewPresets=JSON.parse(s);}catch(e){viewPresets=[];}}
+function persistViewPresets(){try{localStorage.setItem('mta_view_presets',JSON.stringify(viewPresets));}catch(e){}}
+function openViewsModal(){renderViewsList();document.getElementById('views-name').value='';document.getElementById('views-save-hint').textContent='';document.getElementById('views-m').classList.add('open');}
+function closeViewsModal(){document.getElementById('views-m').classList.remove('open');}
+function renderViewsList(){
+  const el=document.getElementById('views-list');
+  if(!viewPresets.length){el.innerHTML='<div style="font-size:12px;color:var(--t3);padding:4px 0">Nenhuma visualização salva.</div>';return;}
+  el.innerHTML=viewPresets.map(vp=>`<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--n2);border:1px solid var(--bd);border-radius:6px">
+    <span style="flex:1;font-size:13px">${vp.name}</span>
+    <span style="font-size:10px;color:var(--t3)">${Object.keys(vp.filt).length} filtro(s) · ${vp.sorts.length} ord.</span>
+    <button class="btn btn-sm btn-p" onclick="applyViewPreset('${vp.id}')">Aplicar</button>
+    <button class="btn btn-sm btn-d" onclick="deleteViewPreset('${vp.id}')">✕</button>
+  </div>`).join('');
+}
+function applyViewPreset(id){
+  const vp=viewPresets.find(v=>v.id===id);if(!vp)return;
+  filt=JSON.parse(JSON.stringify(vp.filt));
+  sorts=JSON.parse(JSON.stringify(vp.sorts));
+  closeViewsModal();render();
+}
+function deleteViewPreset(id){viewPresets=viewPresets.filter(v=>v.id!==id);persistViewPresets();renderViewsList();}
+function saveCurrentView(){
+  const name=document.getElementById('views-name').value.trim();
+  const hint=document.getElementById('views-save-hint');
+  if(!name){hint.textContent='Informe um nome.';hint.style.color='var(--rd)';return;}
+  if(!Object.keys(filt).length&&!sorts.length){hint.textContent='Aplique filtro ou ordenação antes de salvar.';hint.style.color='var(--am)';return;}
+  const id=Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+  viewPresets.push({id,name,filt:JSON.parse(JSON.stringify(filt)),sorts:JSON.parse(JSON.stringify(sorts))});
+  persistViewPresets();renderViewsList();
+  document.getElementById('views-name').value='';
+  hint.textContent=`"${name}" salva.`;hint.style.color='var(--gr)';
+}
+
+// ── IMPACTO / SIMULAÇÃO ──
+function loadImpact(){try{impactData=JSON.parse(localStorage.getItem('mta_impact')||'{}')}catch(e){impactData={};}}
+function saveImpact(){try{localStorage.setItem('mta_impact',JSON.stringify(impactData));}catch(e){}}
+function getImpact(ord){return impactData[ord]||{eaer:0,tda:0};}
+function setImpact(ord,field,val){
+  if(!impactData[ord])impactData[ord]={eaer:0,tda:0};
+  impactData[ord][field]=val;
+  if(!impactData[ord].eaer&&!impactData[ord].tda)delete impactData[ord];
+  saveImpact();
+}
+function maskEAer(el){
+  const digits=el.value.replace(/\D/g,'');
+  if(!digits){el.value='';return 0;}
+  const rawMins=parseInt(digits.slice(-2),10)||0;
+  const cappedMins=Math.min(rawMins,59);
+  const hrs=digits.length>2?parseInt(digits.slice(0,-2),10):0;
+  el.value=`${hrs.toLocaleString('pt-BR')}:${String(cappedMins).padStart(2,'0')}`;
+  return hrs*60+cappedMins;
+}
+function parseEAer(s){
+  if(!s)return 0;
+  const parts=s.split(':');
+  return(parseInt(String(parts[0]).replace(/\./g,''),10)||0)*60+(parseInt(parts[1],10)||0);
+}
+function fmtEAer(mins){
+  if(!mins)return'—';
+  const h=Math.floor(mins/60),m=mins%60;
+  return`${h.toLocaleString('pt-BR')}:${String(m).padStart(2,'0')}`;
+}
+function maskTDAImp(el){
+  const digits=el.value.replace(/\D/g,'');
+  if(!digits){el.value='';return 0;}
+  const num=parseInt(digits,10)/100;
+  el.value=num.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  return num;
+}
+function parseTDA(s){
+  if(!s)return 0;
+  return parseFloat(String(s).replace(/\./g,'').replace(',','.'))||0;
+}
+function openImpactModal(){renderImpactList();document.getElementById('impact-m').classList.add('open');}
+function closeImpactModal(){document.getElementById('impact-m').classList.remove('open');}
+function renderImpactList(){
+  const q=(document.getElementById('impact-search').value||'').toLowerCase();
+  const rows=[...ROWS,...pendNewRows].filter(r=>!q||String(r.ord).toLowerCase().includes(q)||(r.proj||'').toLowerCase().includes(q)||(r.tar||'').toLowerCase().includes(q));
+  document.getElementById('impact-list').innerHTML=rows.map(row=>{
+    const imp=getImpact(row.ord);
+    const eaerStr=imp.eaer?fmtEAer(imp.eaer):'';
+    const tdaStr=imp.tda?imp.tda.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}):'';
+    const valor=parseFloat(cv(row,'valor'))||0;
+    const label=`${row.proj||''}${row.tar?' — '+row.tar:''}`;
+    return`<div style="display:grid;grid-template-columns:84px 1fr 110px 120px 110px;gap:0;align-items:center;padding:6px 14px;border-bottom:1px solid var(--bd);font-size:12px">
+      <span style="font-family:var(--mo);color:var(--t2)">${row.ord}</span>
+      <span style="color:var(--t2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-right:8px" title="${label}">${label}</span>
+      <span style="font-family:var(--mo);text-align:right;color:var(--t3);padding-right:8px">${fmtC(valor,'BRL')}</span>
+      <div style="padding-right:8px"><input class="nl-inp" style="font-size:12px;padding:3px 7px;font-family:var(--mo);text-align:right;width:100%" type="text" inputmode="decimal" placeholder="0:00" value="${eaerStr}" oninput="maskEAer(this)" onblur="setImpact('${row.ord}','eaer',parseEAer(this.value))"/></div>
+      <input class="nl-inp" style="font-size:12px;padding:3px 7px;font-family:var(--mo);text-align:right;width:100%" type="text" inputmode="decimal" placeholder="0,00" value="${tdaStr}" oninput="maskTDAImp(this)" onblur="setImpact('${row.ord}','tda',parseTDA(this.value))"/>
+    </div>`;
+  }).join('')||(q?`<div style="padding:20px 14px;color:var(--t3);font-size:12px">Nenhuma linha encontrada.</div>`:'');
+}
+function openSimModal(){document.getElementById('sim-report').innerHTML='';document.getElementById('sim-budget').value='';document.getElementById('sim-m').classList.add('open');}
+function closeSimModal(){document.getElementById('sim-m').classList.remove('open');}
+function runSim(){
+  const budget=parseMasked(document.getElementById('sim-budget').value);
+  if(!budget){document.getElementById('sim-report').innerHTML='<div style="color:var(--rd);font-size:12px;padding:8px 0">Informe o orçamento disponível.</div>';return;}
+  const obj=document.querySelector('input[name="sim-obj"]:checked').value;
+  const scope=document.getElementById('sim-scope').value;
+  let allRows=[...ROWS,...pendNewRows];
+  if(scope==='filt')allRows=getRows();
+  const candidates=allRows.map(r=>{
+    const imp=getImpact(r.ord);
+    const valor=parseFloat(cv(r,'valor'))||0;
+    const impact=imp[obj]||0;
+    return{row:r,valor,impact,ratio:valor>0?impact/valor:0};
+  }).filter(c=>c.valor>0&&c.impact>0);
+  candidates.sort((a,b)=>b.ratio-a.ratio);
+  let rem=budget;
+  const sel=[],notSel=[];
+  for(const c of candidates){if(c.valor<=rem){sel.push(c);rem-=c.valor;}else{notSel.push(c);}}
+  const noImpactCount=allRows.filter(r=>!candidates.find(c=>c.row.ord===r.ord)).length;
+  const totalCost=sel.reduce((s,c)=>s+c.valor,0);
+  const totalImp=sel.reduce((s,c)=>s+c.impact,0);
+  const isEAer=obj==='eaer';
+  const fmtImp=v=>isEAer?fmtEAer(v):(v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+'%');
+  const objLabel=isEAer?'EAer':'TDA';
+  let cumCost=0,cumImp=0;
+  const thSty='text-align:left;padding:5px 8px;font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--bd)';
+  const mkThead=(extra='')=>`<thead><tr><th style="${thSty}">Ordem</th><th style="${thSty}">Projeto</th><th style="${thSty};text-align:right">Valor BRL</th><th style="${thSty};text-align:right">${objLabel}</th>${extra}</tr></thead>`;
+  const thExtra=`<th style="${thSty};text-align:right">Custo acum.</th><th style="${thSty};text-align:right">${objLabel} acum.</th>`;
+  const selRows=sel.map(c=>{cumCost+=c.valor;cumImp+=c.impact;
+    return`<tr style="border-bottom:1px solid rgba(42,68,96,.3)">
+      <td style="font-family:var(--mo);color:var(--t2);padding:5px 8px;white-space:nowrap">${c.row.ord}</td>
+      <td style="padding:5px 8px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--t2)">${c.row.proj||''}</td>
+      <td style="font-family:var(--mo);text-align:right;padding:5px 8px;white-space:nowrap">${fmtC(c.valor,'BRL')}</td>
+      <td style="font-family:var(--mo);text-align:right;padding:5px 8px;color:var(--gr);white-space:nowrap">${fmtImp(c.impact)}</td>
+      <td style="font-family:var(--mo);text-align:right;padding:5px 8px;color:var(--t3);white-space:nowrap">${fmtC(cumCost,'BRL')}</td>
+      <td style="font-family:var(--mo);text-align:right;padding:5px 8px;color:var(--ac);white-space:nowrap">${fmtImp(cumImp)}</td>
+    </tr>`;}).join('');
+  const nsRows=notSel.slice(0,30).map(c=>`<tr style="border-bottom:1px solid rgba(42,68,96,.2);opacity:.6">
+    <td style="font-family:var(--mo);padding:5px 8px;white-space:nowrap">${c.row.ord}</td>
+    <td style="padding:5px 8px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.row.proj||''}</td>
+    <td style="font-family:var(--mo);text-align:right;padding:5px 8px;white-space:nowrap">${fmtC(c.valor,'BRL')}</td>
+    <td style="font-family:var(--mo);text-align:right;padding:5px 8px;white-space:nowrap">${fmtImp(c.impact)}</td>
+  </tr>`).join('');
+  document.getElementById('sim-report').innerHTML=`
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;background:var(--n2);border:1px solid var(--bd);border-radius:8px;padding:12px 16px;margin-bottom:4px">
+      <div><div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Linhas recomendadas</div><div style="font-size:18px;font-weight:700;color:var(--tx)">${sel.length}</div></div>
+      <div><div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Total utilizado</div><div style="font-size:15px;font-weight:700;font-family:var(--mo);color:var(--gr)">${fmtC(totalCost,'BRL')}</div></div>
+      <div><div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Saldo disponível</div><div style="font-size:15px;font-weight:700;font-family:var(--mo);color:${rem>0.005?'var(--ac)':'var(--t2)'}">${fmtC(rem,'BRL')}</div></div>
+      <div><div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">${objLabel} previsto</div><div style="font-size:15px;font-weight:700;font-family:var(--mo);color:var(--ac)">${fmtImp(totalImp)}</div></div>
+    </div>
+    ${sel.length?`<div style="font-size:10px;font-weight:700;color:var(--gr);text-transform:uppercase;letter-spacing:.06em;margin:10px 0 4px">✓ Linhas recomendadas (${sel.length})</div><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px">${mkThead(thExtra)}<tbody>${selRows}</tbody></table></div>`:'<div style="color:var(--t3);font-size:12px;padding:8px 0">Nenhuma linha selecionada. Verifique os dados de impacto.</div>'}
+    ${notSel.length?`<div style="font-size:10px;font-weight:700;color:var(--am);text-transform:uppercase;letter-spacing:.06em;margin:12px 0 4px">✗ Não incluídas por saldo insuficiente (${notSel.length})</div><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px">${mkThead()}<tbody>${nsRows}</tbody></table></div>`:''}
+    ${noImpactCount?`<div style="font-size:11px;color:var(--t3);margin-top:10px">${noImpactCount} linha(s) sem impacto cadastrado foram ignoradas.</div>`:''}
+  `;
+}
+
+// ── EXPORTAÇÃO XLSX ──
+// Binary ZIP patcher — SheetJS 0.18.5 ignores ws['!views'] in write_ws_xml_sheetviews
+const _crcTable=(()=>{const t=new Uint32Array(256);for(let i=0;i<256;i++){let c=i;for(let j=0;j<8;j++)c=c&1?(0xEDB88320^(c>>>1)):(c>>>1);t[i]=c;}return t;})();
+function _crc32b(b){let c=0xFFFFFFFF;for(let i=0;i<b.length;i++)c=(_crcTable[(c^b[i])&0xFF]^(c>>>8))>>>0;return(c^0xFFFFFFFF)>>>0;}
+function _r16z(b,i){return b[i]|(b[i+1]<<8);}
+function _r32z(b,i){return(b[i]|(b[i+1]<<8)|(b[i+2]<<16)|(b[i+3]<<24))>>>0;}
+function _w32z(b,i,v){v=v>>>0;b[i]=v&255;b[i+1]=(v>>8)&255;b[i+2]=(v>>16)&255;b[i+3]=(v>>24)&255;}
+function patchFreeze(ab){
+  const OLD_SV='<sheetViews><sheetView workbookViewId="0"/></sheetViews>';
+  const NEW_SV='<sheetViews><sheetView workbookViewId="0"><pane xSplit="1" ySplit="1" topLeftCell="B2" activePane="bottomRight" state="frozen"/></sheetView></sheetViews>';
+  const enc=new TextEncoder();
+  const oldB=enc.encode(OLD_SV),newB=enc.encode(NEW_SV);
+  const src=new Uint8Array(ab);
+  let mPos=-1;
+  outer:for(let i=0;i<=src.length-oldB.length;i++){for(let j=0;j<oldB.length;j++)if(src[i+j]!==oldB[j])continue outer;mPos=i;break;}
+  if(mPos<0)return ab;
+  const delta=newB.length-oldB.length;
+  const dst=new Uint8Array(src.length+delta);
+  dst.set(src.subarray(0,mPos));dst.set(newB,mPos);dst.set(src.subarray(mPos+oldB.length),mPos+newB.length);
+  let lhPos=-1,dStart=-1,oldDSize=0,p=0;
+  while(p+30<=src.length){
+    if(src[p]!==0x50||src[p+1]!==0x4B||src[p+2]!==0x03||src[p+3]!==0x04)break;
+    const fnL=_r16z(src,p+26),exL=_r16z(src,p+28),dSz=_r32z(src,p+18),ds=p+30+fnL+exL;
+    if(mPos>=ds&&mPos<ds+dSz){lhPos=p;dStart=ds;oldDSize=dSz;break;}
+    p=ds+dSz;
+  }
+  if(lhPos>=0){const newSz=oldDSize+delta;_w32z(dst,lhPos+14,_crc32b(dst.subarray(dStart,dStart+newSz)));_w32z(dst,lhPos+18,newSz);_w32z(dst,lhPos+22,newSz);}
+  let eocd=-1;
+  for(let i=dst.length-22;i>=0;i--){if(dst[i]===0x50&&dst[i+1]===0x4B&&dst[i+2]===0x05&&dst[i+3]===0x06){eocd=i;break;}}
+  if(eocd<0)return dst.buffer;
+  const cdSrcOff=_r32z(dst,eocd+16);
+  _w32z(dst,eocd+16,cdSrcOff+delta);
+  const shiftAt=lhPos>=0?dStart+oldDSize:Infinity;
+  let cdp=cdSrcOff+delta;
+  while(cdp+46<=eocd){
+    if(dst[cdp]!==0x50||dst[cdp+1]!==0x4B||dst[cdp+2]!==0x01||dst[cdp+3]!==0x02)break;
+    const fnL=_r16z(dst,cdp+28),exL=_r16z(dst,cdp+30),cmL=_r16z(dst,cdp+32),lhOff=_r32z(dst,cdp+42);
+    if(lhOff===lhPos&&lhPos>=0){_w32z(dst,cdp+16,_r32z(dst,lhPos+14));_w32z(dst,cdp+20,_r32z(dst,lhPos+18));_w32z(dst,cdp+24,_r32z(dst,lhPos+22));}
+    else if(lhOff>=shiftAt){_w32z(dst,cdp+42,lhOff+delta);}
+    cdp+=46+fnL+exL+cmL;
+  }
+  return dst.buffer;
+}
+function exportXlsx(){
+  if(typeof XLSX==='undefined'){
+    document.getElementById('exp-info').innerHTML='<span style="color:var(--rd)">⚠ Biblioteca XLSX não carregada.</span>';
+    document.getElementById('exp-btn').disabled=true;
+    document.getElementById('exp-m').classList.add('open');return;
+  }
+  _expRows=getRows();
+  const filtActive=Object.keys(filt).length>0;
+  const today=new Date().toISOString().slice(0,10);
+  _expFname=`MTA_export${filtActive?'_filtrado':''}_${today}.xlsx`;
+  document.getElementById('exp-sub').textContent=_expFname;
+  document.getElementById('exp-info').innerHTML=
+    `<b>${_expRows.length}</b> linha${_expRows.length!==1?'s':''} serão exportadas`+
+    (filtActive?' <span style="color:var(--am)">(filtro ativo)</span>':' <span style="color:var(--t3)">(todas as linhas)</span>')+
+    '<br>Valores efetivos, incluindo alterações pendentes.';
+  document.getElementById('exp-btn').disabled=!_expRows.length;
+  document.getElementById('exp-m').classList.add('open');
+}
+function closeExpModal(){document.getElementById('exp-m').classList.remove('open');}
+function doExport(){
+  const errEl=document.getElementById('exp-err');
+  errEl.style.display='none';
+  if(!_expRows||!_expRows.length)return;
+  try{
+    const hdr=['N° Ordem','Aprovado','Ação','Prioridade','Trâmite','Data Solic.',
+               'Nro Ped DIRMAB','Data Ped DIRMAB','Dígito','MTA','Pacote','UGE',
+               'OM Origem','OM Benef','PI','Projeto','Atividade','Tarefa',
+               'Matrícula','Cat.','Para Motores','Para Contrato','ED',
+               'Moeda','Valor Moeda','Valor Total BRL','Mês Desc.','Mês Liq.','Observação'];
+    const rows=_expRows.map(row=>{
+      const g=k=>{const v=cv(row,k);return(v==null||typeof v==='object')?'':String(v);};
+      return[g('ord'),g('aprovado'),g('acao'),g('prio'),g('tramite'),g('datasolic'),
+             g('nropeddirmab'),g('datapeddirmab'),g('digito'),g('mta'),g('pacote'),g('uge'),
+             g('omorigem'),g('ombenef'),g('pi'),g('proj'),g('ativ'),g('tar'),
+             g('matricula'),g('cat'),g('paramotores'),g('paracontrato'),g('ed'),
+             String(MOEDA_EXPORT[g('moeda')]||g('moeda')||'REAL'),
+             String(parseFloat(g('valormoeda'))||0),String(parseFloat(g('valor'))||0),
+             g('mesdesc'),g('mesliq'),g('obs')];
+    });
+    const tbl=document.createElement('table');
+    tbl.style.display='none';
+    [hdr,...rows].forEach(r=>{
+      const tr=document.createElement('tr');
+      r.forEach(v=>{const td=document.createElement('td');td.textContent=String(v??'');tr.appendChild(td);});
+      tbl.appendChild(tr);
+    });
+    document.body.appendChild(tbl);
+    const wb=XLSX.utils.table_to_book(tbl,{sheet:'MTA'});
+    document.body.removeChild(tbl);
+    const ws=wb.Sheets['MTA'];
+    ws['!autofilter']={ref:ws['!ref']};
+    const wbout=XLSX.write(wb,{bookType:'xlsx',type:'array'});
+    const wbab=wbout instanceof Uint8Array?wbout.buffer:new Uint8Array(wbout).buffer;
+    const blob=new Blob([patchFreeze(wbab)],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;a.download=_expFname;a.style.display='none';
+    document.body.appendChild(a);a.click();document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(url),2000);
+    closeExpModal();
+  }catch(e){errEl.textContent='Erro: '+e.message;errEl.style.display='block';}
+}
+
 // ── CÂMBIO PLANEJADO ──
 const CAMBIO_DEFAULT={BRL:1,USD:5.85,EUR:6.40,GBP:7.45,SEK:0.54,CAD:4.30,JPY:0.039,CHF:6.80};
 function getCambio(){try{return{...CAMBIO_DEFAULT,...JSON.parse(localStorage.getItem('mta_cambio')||'{}')};}catch(e){return{...CAMBIO_DEFAULT};}}
@@ -1996,7 +2366,7 @@ function ceDirmab(ord,field,value){
 }
 
 // ── CÂMBIO REAL DA TRANSAÇÃO ──
-let _crOrd=null;
+let _crOrd=null,_crPlannedBRL=0;
 function openCambioReal(ord){
   const row=ROWS.find(r=>r.ord===ord);if(!row)return;
   _crOrd=ord;
@@ -2005,14 +2375,25 @@ function openCambioReal(ord){
   const cb=getCambio();
   const rate=row.cambio_real||(cb[moeda]||1);
   const valorBRL=vm*rate;
+  _crPlannedBRL=vm*(cb[moeda]||1);
   document.getElementById('cr-title').textContent=`Câmbio real — Linha ${ord}`;
   document.getElementById('cr-sub').textContent=`${moeda} ${vm.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})} → confirmar Valor Total BRL`;
   document.getElementById('cr-moeda-label').textContent=`(${moeda})`;
   document.getElementById('cr-rate-unit').textContent=`R$/${moeda}`;
-  document.getElementById('cr-rate').value=rate.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:4});
+  document.getElementById('cr-rate').value=rate.toLocaleString('pt-BR',{minimumFractionDigits:4,maximumFractionDigits:4});
   document.getElementById('cr-valor').value=valorBRL.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
-  document.getElementById('cr-preview').textContent=fmtC(valorBRL,'BRL');
+  document.getElementById('cr-planned').textContent=fmtC(_crPlannedBRL,'BRL');
+  crUpdDelta();
   document.getElementById('cambio-real-m').classList.add('open');
+}
+function crUpdDelta(){
+  const valorBRL=parseMasked(document.getElementById('cr-valor').value);
+  const el=document.getElementById('cr-delta');
+  if(!valorBRL){el.textContent='—';el.style.color='var(--t2)';return;}
+  const delta=valorBRL-_crPlannedBRL;
+  el.textContent=(delta>=0?'+':'')+fmtC(delta,'BRL');
+  const pct=_crPlannedBRL>0?Math.abs(delta/_crPlannedBRL):0;
+  el.style.color=pct<0.001?'var(--t2)':delta>0?'#fbbf24':'#34d399';
 }
 function crUpdFromRate(){
   const row=ROWS.find(r=>r.ord===_crOrd);if(!row)return;
@@ -2020,15 +2401,15 @@ function crUpdFromRate(){
   const rate=parseMasked(document.getElementById('cr-rate').value);
   const valorBRL=vm*rate;
   document.getElementById('cr-valor').value=valorBRL.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
-  document.getElementById('cr-preview').textContent=fmtC(valorBRL,'BRL');
+  crUpdDelta();
 }
 function crUpdFromValor(){
   const row=ROWS.find(r=>r.ord===_crOrd);if(!row)return;
   const vm=parseFloat(row.valormoeda)||0;
   const valorBRL=parseMasked(document.getElementById('cr-valor').value);
   const rate=vm>0?valorBRL/vm:0;
-  document.getElementById('cr-rate').value=rate.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:4});
-  document.getElementById('cr-preview').textContent=fmtC(valorBRL,'BRL');
+  document.getElementById('cr-rate').value=rate.toLocaleString('pt-BR',{minimumFractionDigits:4,maximumFractionDigits:4});
+  crUpdDelta();
 }
 function confirmCambioReal(){
   const ord=_crOrd;const row=ROWS.find(r=>r.ord===ord);if(!row)return;
@@ -2059,6 +2440,13 @@ function maskCur(el){
   if(!digits){el.value='';return 0;}
   const num=parseInt(digits,10)/100;
   el.value=num.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  return num;
+}
+function maskExRate(el){
+  let digits=el.value.replace(/\D/g,'');
+  if(!digits){el.value='';return 0;}
+  const num=parseInt(digits,10)/10000;
+  el.value=num.toLocaleString('pt-BR',{minimumFractionDigits:4,maximumFractionDigits:4});
   return num;
 }
 function parseMasked(s){
